@@ -6,19 +6,20 @@ import { cookies } from "next/headers"
 import { cache } from "react"
 
 import { db } from "@/db"
-import { productMembers, sessions, users } from "@/db/schema"
+import { sessions, users } from "@/db/schema"
 
 import type { Tx } from "./audit"
-import { SESSION_COOKIE, SESSION_MAX_AGE_S, type SessionUser } from "./shared"
+import { SESSION_COOKIE, SESSION_MAX_AGE_S } from "./shared"
 
 const IDLE_MS = 12 * 60 * 60 * 1000
 const ABSOLUTE_MS = SESSION_MAX_AGE_S * 1000
 /** Write last_seen at most this often, not on every request. */
 const TOUCH_MS = 5 * 60 * 1000
 
+/** A signed-in person. Company role and product access come from server/context.ts per request. */
 export interface Session {
   id: string
-  user: SessionUser
+  user: { id: string; name: string; email: string; platform: boolean }
 }
 
 export const hashToken = (token: string) =>
@@ -79,7 +80,7 @@ export const getSession = cache(async (): Promise<Session | null> => {
       userId: users.id,
       name: users.name,
       email: users.email,
-      role: users.role,
+      platformRole: users.platformRole,
       status: users.status,
     })
     .from(sessions)
@@ -96,22 +97,16 @@ export const getSession = cache(async (): Promise<Session | null> => {
   if (!row || row.status !== "active") return null
   if (now - row.createdAt.getTime() > ABSOLUTE_MS) return null
 
-  const [members] = await Promise.all([
-    db
-      .select({ productId: productMembers.productId })
-      .from(productMembers)
-      .where(eq(productMembers.userId, row.userId)),
-    now - row.lastSeenAt.getTime() > TOUCH_MS &&
-      db
-        .update(sessions)
-        .set({
-          lastSeenAt: new Date(now),
-          expiresAt: new Date(
-            Math.min(now + IDLE_MS, row.createdAt.getTime() + ABSOLUTE_MS)
-          ),
-        })
-        .where(eq(sessions.id, row.id)),
-  ])
+  if (now - row.lastSeenAt.getTime() > TOUCH_MS)
+    await db
+      .update(sessions)
+      .set({
+        lastSeenAt: new Date(now),
+        expiresAt: new Date(
+          Math.min(now + IDLE_MS, row.createdAt.getTime() + ABSOLUTE_MS)
+        ),
+      })
+      .where(eq(sessions.id, row.id))
 
   return {
     id: row.id,
@@ -119,8 +114,7 @@ export const getSession = cache(async (): Promise<Session | null> => {
       id: row.userId,
       name: row.name,
       email: row.email,
-      role: row.role,
-      productIds: members.map((m) => m.productId),
+      platform: row.platformRole === "SUPER_ADMIN",
     },
   }
 })

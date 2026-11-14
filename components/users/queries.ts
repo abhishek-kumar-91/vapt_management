@@ -15,18 +15,20 @@ export class HttpError extends Error {
   }
 }
 
-async function fetchUsers(): Promise<TeamUser[]> {
-  const response = await fetch("/api/users", { cache: "no-store" })
+async function fetchUsers(org: string): Promise<TeamUser[]> {
+  const response = await fetch(`/api/o/${encodeURIComponent(org)}/members`, {
+    cache: "no-store",
+  })
   const body = await response.json().catch(() => ({}))
   if (!response.ok)
     throw new HttpError(body.error ?? "Couldn’t load users.", response.status)
   return body
 }
 
-export function useUsers(enabled = true) {
+export function useUsers(org: string, enabled = true) {
   return useQuery({
-    queryKey: USERS_KEY,
-    queryFn: fetchUsers,
+    queryKey: [...USERS_KEY, org],
+    queryFn: () => fetchUsers(org),
     enabled,
     staleTime: 15_000,
     // A 401/403 won't fix itself by retrying.

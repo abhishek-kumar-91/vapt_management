@@ -1,13 +1,6 @@
 "use client"
 
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ReferenceLine,
-  XAxis,
-  YAxis,
-} from "recharts"
+import dynamic from "next/dynamic"
 import { TrendingUpIcon } from "lucide-react"
 
 import {
@@ -18,13 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { SEVERITY_DOT } from "@/components/status"
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart"
-import { formatDate } from "@/lib/dates"
 import { metricsFor } from "@/lib/metrics"
 import { SEVERITIES } from "@/lib/sop"
 import type { CoverageSnapshot, Finding, Product } from "@/lib/types"
@@ -118,9 +104,13 @@ export function FindingsChart({
   )
 }
 
-const coverageConfig = {
-  value: { label: "Avg. coverage", color: "var(--chart-1)" },
-} satisfies ChartConfig
+// Recharts is ~85KB gzipped and only this plot uses it: load it after the
+// page renders, into a box of the same height so nothing shifts.
+const CoveragePlot = dynamic(
+  () =>
+    import("@/components/overview/coverage-plot").then((m) => m.CoveragePlot),
+  { ssr: false, loading: () => <div aria-hidden className="h-64 w-full" /> }
+)
 
 export function CoverageChart({
   products,
@@ -154,84 +144,7 @@ export function CoverageChart({
       </CardHeader>
       <CardContent>
         {points.length >= 2 ? (
-          <ChartContainer
-            config={coverageConfig}
-            className="aspect-auto h-64 w-full animate-reveal-chart"
-          >
-            <AreaChart data={points} margin={{ left: -16, right: 8, top: 8 }}>
-              <defs>
-                <linearGradient id="coverage-fill" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="0%"
-                    stopColor="var(--color-value)"
-                    stopOpacity={0.28}
-                  />
-                  <stop
-                    offset="100%"
-                    stopColor="var(--color-value)"
-                    stopOpacity={0.02}
-                  />
-                </linearGradient>
-              </defs>
-              <CartesianGrid vertical={false} strokeDasharray="3 4" />
-              <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(v: string) => formatDate(v)}
-              />
-              <YAxis
-                domain={[0, 100]}
-                ticks={[0, 25, 50, 80, 100]}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(v: number) => `${v}%`}
-              />
-              <ReferenceLine
-                y={80}
-                stroke="var(--muted-foreground)"
-                strokeDasharray="4 4"
-                label={{
-                  value: "Close-out 80%",
-                  position: "insideTopRight",
-                  fill: "var(--muted-foreground)",
-                  fontSize: 11,
-                }}
-              />
-              <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    labelFormatter={(value) =>
-                      formatDate(String(value), {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })
-                    }
-                    formatter={(value) => (
-                      <span className="flex w-full justify-between gap-4">
-                        <span className="text-muted-foreground">
-                          Avg. coverage
-                        </span>
-                        <span className="font-medium tabular">{value}%</span>
-                      </span>
-                    )}
-                  />
-                }
-              />
-              <Area
-                isAnimationActive={false}
-                dataKey="value"
-                type="monotone"
-                stroke="var(--color-value)"
-                strokeWidth={2.5}
-                fill="url(#coverage-fill)"
-                dot={{ r: 3.5, fill: "var(--card)", strokeWidth: 2 }}
-                activeDot={{ r: 5 }}
-              />
-            </AreaChart>
-          </ChartContainer>
+          <CoveragePlot points={points} />
         ) : (
           <div className="grid h-64 place-content-center justify-items-center gap-2 text-center text-sm text-muted-foreground">
             <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary">

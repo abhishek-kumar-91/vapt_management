@@ -1,6 +1,6 @@
 import { pgEnum } from "drizzle-orm/pg-core"
 
-import { ROLES } from "../../lib/auth/roles"
+import { ORG_ROLES, PLATFORM_ROLES, PRODUCT_ACCESS } from "../../lib/auth/roles"
 import {
   AREA_STATUSES,
   FINDING_STATUSES,
@@ -13,18 +13,37 @@ import type { EventType, ReportType } from "../../lib/types"
 type Tuple<T> = [T, ...T[]]
 const tuple = <T>(values: readonly T[]) => values as Tuple<T>
 
-export const userRole = pgEnum("user_role", ROLES)
+// Identity and tenancy
+export const platformRole = pgEnum("platform_role", tuple(PLATFORM_ROLES))
+export const orgRole = pgEnum("org_role", tuple(ORG_ROLES))
+export const productAccess = pgEnum("product_access", tuple(PRODUCT_ACCESS))
+/** invited: has no password yet (accepts through an invite link). disabled: blocked platform-wide. */
 export const userStatus = pgEnum("user_status", [
   "invited",
   "active",
+  "disabled",
+])
+export const membershipStatus = pgEnum("membership_status", [
+  "invited",
+  "active",
   "suspended",
-  "deactivated",
+  "removed",
+])
+export const orgStatus = pgEnum("org_status", [
+  "draft",
+  "pending_review",
+  "active",
+  "rejected",
+  "suspended",
+  "closed",
 ])
 export const tokenPurpose = pgEnum("token_purpose", [
-  "invite",
+  "email_verify",
+  "org_invite",
   "password_reset",
 ])
 
+// VAPT domain
 export const productStatus = pgEnum("product_status", tuple(PRODUCT_STATUSES))
 export const areaStatus = pgEnum("area_status", tuple(AREA_STATUSES))
 export const areaResult = pgEnum("area_result", [
@@ -43,6 +62,7 @@ export const eventType = pgEnum("event_type", [
   "Close-out",
   "Blocker",
   "Incident",
+  "Access",
 ] satisfies Tuple<EventType>)
 export const reportType = pgEnum("report_type", [
   "daily",
@@ -50,7 +70,23 @@ export const reportType = pgEnum("report_type", [
   "monthly",
   "closeout",
 ] satisfies Tuple<ReportType>)
+export const testingRequestStatus = pgEnum("testing_request_status", [
+  "submitted",
+  "accepted",
+  "declined",
+  "scheduled",
+  "in_progress",
+  "completed",
+  "cancelled",
+])
 
+// Platform
+export const emailStatus = pgEnum("email_status", [
+  "pending",
+  "sent",
+  "failed",
+  "cancelled",
+])
 export const auditOutcome = pgEnum("audit_outcome", [
   "success",
   "denied",

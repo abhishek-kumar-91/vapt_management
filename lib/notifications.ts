@@ -38,7 +38,7 @@ export function buildNotices(
 
   for (const f of findings) {
     if (isClosed(f)) continue
-    const href = `/dashboard/products/${f.product}`
+    const href = `/products/${f.product}`
     if (f.status === "Ready for Retest") {
       const due = retestDueFor(f)
       const over = due ? dateDiff(due, today) : 0
@@ -93,7 +93,7 @@ export function buildNotices(
               : `${row.title} is due in ${late(-over)}`,
         detail: `${p.name} · ${row.frequency}`,
         date: row.next,
-        href: `/dashboard/products/${p.id}`,
+        href: `/products/${p.id}`,
       })
     }
   }
@@ -114,8 +114,8 @@ export function buildNotices(
       detail: e.product ? `${name(e.product)} · ${e.text}` : e.text,
       date: e.date,
       href: e.product
-        ? `/dashboard/products/${e.product}`
-        : "/dashboard/activity",
+        ? `/products/${e.product}`
+        : "/activity",
     })
   })
 

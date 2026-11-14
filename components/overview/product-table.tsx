@@ -41,6 +41,7 @@ import { Paginated } from "@/components/ui/table-pagination"
 import { metricsFor } from "@/lib/metrics"
 import type { Finding, Product } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { useOrgPath } from "@/components/current-user"
 
 export function ProductTable({
   products,
@@ -57,6 +58,7 @@ export function ProductTable({
   tier: string
   onTier: (value: string) => void
 }) {
+  const to = useOrgPath()
   const router = useRouter()
   const toolbarRef = useStickyToolbar()
 
@@ -117,7 +119,7 @@ export function ProductTable({
               <TableBody>
                 {rows.map((product) => {
                   const m = metricsFor(product, findings)
-                  const href = `/dashboard/products/${product.id}`
+                  const href = to(`/products/${product.id}`)
                   return (
                     <TableRow
                       key={product.id}

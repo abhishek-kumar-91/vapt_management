@@ -1,14 +1,14 @@
-import type { Permission, Role } from "./auth/roles"
+import type { OrgRole, Permission } from "./auth/roles"
 import { EMAIL_PATTERN } from "./auth/shared"
 
 export const EMAIL = EMAIL_PATTERN
 
-/** A user as the Users page sees it (from GET /api/users). Never includes hashes or tokens. */
+/** A member as the Team page sees it (from GET /api/users). Never includes hashes or tokens. */
 export interface TeamUser {
   id: string
   name: string
   email: string
-  role: Role
+  role: OrgRole
   status: UserStatus
   createdAt: string
   lastLoginAt: string | null
@@ -36,11 +36,12 @@ export const PERMISSION_ROWS: { label: string; permission: Permission }[] = [
     label: "Move findings to In Fix and request retests",
     permission: "finding.transition",
   },
-  { label: "Create, edit and pause products", permission: "product.manage" },
+  { label: "Edit product details and record cycles", permission: "product.edit" },
   { label: "Generate and save reports", permission: "report.generate" },
-  { label: "Invite users and change roles", permission: "user.manage" },
-  { label: "Change workspace settings", permission: "settings.manage" },
-  { label: "Read the audit log", permission: "audit.read" },
+  { label: "Invite members and change roles", permission: "member.manage" },
+  { label: "Add products and request Pentest Scout testing", permission: "product.create" },
+  { label: "Change company settings", permission: "org.manage" },
+  { label: "Read the company audit log", permission: "org.audit" },
 ]
 
 export function initials(name: string) {

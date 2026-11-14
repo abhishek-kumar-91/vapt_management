@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 /**
  * Route loading state: the keyring mark at work. The keyhole holds still while the
  * open ring sweeps around it and a scope pulse spreads outward. Fades in late so
- * fast navigations never flash it; a static mark under reduced motion.
+ * fast navigations never flash it; under reduced motion the still mark breathes.
  */
 export function BrandLoader({
   fullscreen = false,
@@ -70,7 +70,7 @@ export function BrandLoader({
               <path d="M30 31h4l1.6 9.5h-7.2z" />
             </g>
           </svg>
-          <BrandMark className="absolute inset-0 size-16 motion-safe:hidden" />
+          <BrandMark className="absolute inset-0 size-16 animate-breathe motion-safe:hidden" />
         </div>
         {fullscreen && (
           <span className="text-sm font-semibold tracking-tight">

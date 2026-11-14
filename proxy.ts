@@ -2,15 +2,16 @@ import { NextResponse, type NextRequest } from "next/server"
 
 import { SESSION_COOKIE } from "@/lib/auth/shared"
 
+/** Areas that need a signed-in person. The pages themselves re-check against the database. */
+const GATED = /^\/(?:dashboard|o|admin|onboarding)(?:\/|$)/
+const ORG_PATH = /^\/o\/([a-z0-9-]{1,40})(?:\/|$)/
+
 /** Per-request nonce CSP plus the baseline security headers this dashboard always needs. */
 export function proxy(request: NextRequest) {
   // Optimistic gate: no session cookie means no dashboard. The layout and every
   // server action still validate the session against the database.
   const { pathname, search } = request.nextUrl
-  if (
-    pathname.startsWith("/dashboard") &&
-    !request.cookies.has(SESSION_COOKIE)
-  ) {
+  if (GATED.test(pathname) && !request.cookies.has(SESSION_COOKIE)) {
     const login = new URL("/login", request.url)
     login.searchParams.set("next", pathname + search)
     return NextResponse.redirect(login)
@@ -45,6 +46,16 @@ export function proxy(request: NextRequest) {
     "camera=(), microphone=(), geolocation=()"
   )
   response.headers.set("Cache-Control", "no-store")
+  // Remember the company last opened, so /dashboard and sign-in land back in it.
+  const org = ORG_PATH.exec(pathname)?.[1]
+  if (org && request.cookies.get("last_org")?.value !== org)
+    response.cookies.set("last_org", org, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 180,
+    })
   return response
 }
 

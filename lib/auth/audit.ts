@@ -23,8 +23,14 @@ const redact = <T extends Record<string, unknown> | null | undefined>(obj: T) =>
     Object.entries(obj).filter(([key]) => !SECRET.test(key))
   ) as T)
 
+/** IP, user agent and request id of the current request. Outside a request (tests, scripts) all are blank. */
 export async function requestMeta() {
-  const h = await headers()
+  let h: Headers
+  try {
+    h = await headers()
+  } catch {
+    return { ip: null, userAgent: null, requestId: randomUUID() }
+  }
   const forwarded = h.get("x-forwarded-for")?.split(",")[0]?.trim()
   const ip = [forwarded, h.get("x-real-ip")].find((v) => v && isIP(v)) ?? null
   return {

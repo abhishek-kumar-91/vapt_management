@@ -7,7 +7,7 @@ import { toast } from "sonner"
 import {
   inviteUserAction,
   updateUserAction,
-} from "@/app/dashboard/users/actions"
+} from "@/app/o/[org]/users/actions"
 import { useCurrentUser } from "@/components/current-user"
 import type { AccessLink } from "@/components/users/access-link-dialog"
 import { useUsersMutation } from "@/components/users/queries"
@@ -124,13 +124,13 @@ function UserForm({
     setPending(true)
     const payload = { name: values.name.trim(), email, role: values.role }
     if (user) {
-      const result = await mutate(() => updateUserAction(user.id, payload))
+      const result = await mutate(() => updateUserAction(me.org!.slug, user.id, payload))
       setPending(false)
       if (!result.ok) return setServerError(result.error)
       toast.success(`Saved changes for ${payload.name}`)
       onDone()
     } else {
-      const result = await mutate(() => inviteUserAction(payload))
+      const result = await mutate(() => inviteUserAction(me.org!.slug, payload))
       setPending(false)
       if (!result.ok) return setServerError(result.error)
       onDone()

@@ -16,6 +16,7 @@ import {
 import { formatDate, LONG_DATE } from "@/lib/dates"
 import type { ActivityEvent } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { useOrgPath } from "@/components/current-user"
 
 const EVENT_STYLE: Record<string, { icon: LucideIcon; tone: string }> = {
   Progress: { icon: TrendingUpIcon, tone: "bg-primary/10 text-primary" },
@@ -47,6 +48,7 @@ export function ActivityFeed({
   showProduct?: boolean
   longDates?: boolean
 }) {
+  const to = useOrgPath()
   if (!events.length) {
     return (
       <p className="px-3 py-8 text-center text-sm text-muted-foreground">
@@ -86,7 +88,7 @@ export function ActivityFeed({
                   event.product &&
                   productNames?.[event.product] && (
                     <Link
-                      href={`/dashboard/products/${event.product}`}
+                      href={to(`/products/${event.product}`)}
                       className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
                     >
                       {productNames[event.product]}

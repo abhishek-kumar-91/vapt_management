@@ -6,22 +6,11 @@ import {
   ChevronsUpDownIcon,
   DownloadIcon,
   LogOutIcon,
-  RotateCcwIcon,
   UsersIcon,
 } from "lucide-react"
 
 import { signOut } from "@/app/login/actions"
-import { useCurrentUser } from "@/components/current-user"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { useCurrentUser, useOrgPath } from "@/components/current-user"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,10 +43,10 @@ function UserAvatar({ name }: { name: string }) {
 
 /** Sidebar foot: who is signed in, their role, and the account menu. */
 export function NavUser() {
+  const to = useOrgPath()
   const user = useCurrentUser()
   const { actions } = useDashboard()
   const { isMobile, setOpenMobile } = useSidebar()
-  const [confirmReset, setConfirmReset] = React.useState(false)
   const [signingOut, startSignOut] = React.useTransition()
   const role = ROLE_LABELS[user.role]
 
@@ -105,27 +94,20 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              {roleHas(user.role, "user.read") && (
+              {roleHas(user.role, "member.read") && (
                 <DropdownMenuItem asChild>
                   <Link
-                    href="/dashboard/users"
+                    href={to("/users")}
                     onClick={() => setOpenMobile(false)}
                   >
                     <UsersIcon />
-                    Manage users
+                    Team
                   </Link>
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onSelect={actions.exportData}>
                 <DownloadIcon />
-                Export JSON
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                onSelect={() => setConfirmReset(true)}
-              >
-                <RotateCcwIcon />
-                Reset local data…
+                Export data
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -140,27 +122,6 @@ export function NavUser() {
         </DropdownMenu>
       </SidebarMenuItem>
 
-      <AlertDialog open={confirmReset} onOpenChange={setConfirmReset}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Reset local data?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This discards every local edit in this browser (test areas,
-              findings, cycle dates and saved reports) and restores the bundled
-              starting data. Export JSON first if you want to keep a copy.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={actions.resetData}
-            >
-              Reset data
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </SidebarMenu>
   )
 }

@@ -15,6 +15,8 @@ export type Health = "Green" | "Amber" | "Red" | "Paused" | "Not started"
 export type Tier = 1 | 2 | 3
 
 export interface TestArea {
+  /** Database id (set for areas loaded from the server). */
+  id?: string
   /** Area name */
   n: string
   /** High-risk (priority) area */
@@ -88,6 +90,8 @@ export interface FindingRecord {
   exploitationSuspected?: boolean
   validatedAt?: string
   reportedAt?: string
+  /** Raised by a Pentest Scout admin (shown as "Raised by Pentest Scout"). */
+  raisedByPlatform?: boolean
 }
 
 export interface Finding extends FindingRecord {

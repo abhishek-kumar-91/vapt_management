@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import {
   ArrowRightIcon,
   CircleAlertIcon,
@@ -187,9 +188,25 @@ export function LoginForm({ next, notice }: { next: string; notice?: string }) {
         )}
       </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
-        Forgot your password? Ask an Owner on your team for a reset link.
-      </p>
+      <div className="grid gap-1.5 text-center text-sm text-muted-foreground">
+        <p>
+          <Link
+            href="/forgot-password"
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            Forgot your password?
+          </Link>
+        </p>
+        <p>
+          New to Pentest Scout?{" "}
+          <Link
+            href="/signup"
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
+            Register your company
+          </Link>
+        </p>
+      </div>
     </form>
   )
 }

@@ -1,8 +1,8 @@
-// Create an account from the terminal. Used once for the platform SUPER_ADMIN, or to
-// bootstrap a customer's first OWNER. Everyone else is invited from the Users page.
+// Create a Pentest Scout Super Admin from the terminal. This is the only way to get one: the app
+// can't grant platform_role (trigger users_protect_platform_role). Companies sign themselves up
+// and invite their own people.
 //
-//   pnpm user:create --email you@company.com --name "Your Name"            (SUPER_ADMIN)
-//   pnpm user:create --email owner@client.com --name "Their Name" --role OWNER
+//   pnpm user:create --email you@pentestscout.com --name "Your Name"
 //
 // Prompts for the password (hidden). For automation, set CREATE_USER_PASSWORD instead.
 import readline from "node:readline"
@@ -10,7 +10,6 @@ import { parseArgs } from "node:util"
 
 import { hashPassword } from "../lib/auth/password.ts"
 import { passwordProblem } from "../lib/auth/password-rules.ts"
-import { ROLE_LABELS, ROLES } from "../lib/auth/roles.ts"
 
 import pg from "pg"
 
@@ -23,16 +22,13 @@ const { values } = parseArgs({
   options: {
     email: { type: "string" },
     name: { type: "string" },
-    role: { type: "string", default: "SUPER_ADMIN" },
   },
 })
 const email = values.email?.trim().toLowerCase()
 const name = values.name?.trim()
-const role = values.role?.toUpperCase()
 if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
   fail("Pass --email with a valid address.")
 if (!name) fail('Pass --name "Full Name".')
-if (!ROLES.includes(role)) fail(`--role must be one of: ${ROLES.join(", ")}.`)
 
 function ask(question) {
   return new Promise((resolve) => {
@@ -67,32 +63,32 @@ if (problem) fail(problem)
 try {
   process.loadEnvFile(".env")
 } catch {}
-if (!process.env.DATABASE_URL) fail("DATABASE_URL is not set (.env).")
+// Granting platform_role needs the table owner, not the app's restricted role.
+const url = process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL
+if (!url) fail("MIGRATION_DATABASE_URL (or DATABASE_URL) is not set (.env).")
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL })
+const pool = new pg.Pool({ connectionString: url })
 const client = await pool.connect()
 try {
   await client.query("begin")
+  // Lets the platform_role trigger accept this insert, for this transaction only.
+  await client.query("select set_config('app.cli', 'on', true)")
   const {
     rows: [user],
   } = await client.query(
-    `insert into users (email, name, password_hash, role, status, password_changed_at)
-     values ($1, $2, $3, $4, 'active', now()) returning id`,
-    [email, name, await hashPassword(password), role]
+    `insert into users (email, name, password_hash, platform_role, status, email_verified_at, password_changed_at)
+     values ($1, $2, $3, 'SUPER_ADMIN', 'active', now(), now()) returning id`,
+    [email, name, await hashPassword(password)]
   )
   await client.query(
-    `insert into audit_logs (action, outcome, entity_type, entity_id, changes, meta)
-     values ('user.created', 'success', 'user', $1, $2, '{"via":"cli"}')`,
-    [user.id, JSON.stringify({ role: [null, role] })]
+    `insert into audit_logs (action, outcome, actor_platform, entity_type, entity_id, changes, meta)
+     values ('user.created', 'success', true, 'user', $1, $2, '{"via":"cli"}')`,
+    [user.id, JSON.stringify({ platform_role: [null, "SUPER_ADMIN"] })]
   )
   await client.query("commit")
-  console.log(
-    `✓ ${ROLE_LABELS[role]} account created for ${email}. Sign in at /login.`
-  )
+  console.log(`✓ Super Admin account created for ${email}. Sign in at /login.`)
 } catch (error) {
   await client.query("rollback").catch(() => {})
-  if (error.constraint === "users_one_super_admin")
-    fail("A SUPER_ADMIN already exists. There can only be one.")
   if (error.constraint === "users_email_unique")
     fail("An account with this email already exists.")
   if (error.code === "42P01")

@@ -1,4 +1,6 @@
 export * from "./enums"
-export * from "./auth"
+export * from "./identity"
+export * from "./tenancy"
 export * from "./vapt"
+export * from "./platform"
 export * from "./audit"

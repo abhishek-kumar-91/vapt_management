@@ -36,13 +36,13 @@ export default async function SetPasswordPage({
             <>
               <div className="grid gap-2">
                 <h1 className="text-3xl font-semibold tracking-tight text-balance">
-                  {row.purpose === "invite"
-                    ? `Welcome, ${row.name.split(" ")[0]}`
+                  {row.purpose === "org_invite"
+                    ? `Join ${row.orgName ?? "your team"}`
                     : "Set a new password"}
                 </h1>
                 <p className="text-muted-foreground">
-                  {row.purpose === "invite"
-                    ? "Choose a password to activate your account. You’ll sign in with "
+                  {row.purpose === "org_invite"
+                    ? `Welcome, ${row.name.split(" ")[0]}. Choose a password to activate your account. You’ll sign in with `
                     : "Choose a new password for "}
                   <span className="font-medium text-foreground">
                     {row.email}

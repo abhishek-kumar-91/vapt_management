@@ -131,3 +131,44 @@ export const SOP_RULES = [
   "Areas are time-boxed: change approach after 1 day in testing; after 2 days, move to another area and record a reason.",
   "Daily, weekly, monthly and close-out reports are generated from live records and archived locally.",
 ]
+
+/** Test areas every new product starts with; high-risk ones count toward priority coverage. */
+const AREA_TEMPLATE: { name: string; highRisk: boolean; minTier: 1 | 2 | 3 }[] = [
+  { name: "Authentication and login", highRisk: true, minTier: 3 },
+  { name: "Password reset", highRisk: true, minTier: 3 },
+  { name: "OTP and two-factor", highRisk: true, minTier: 3 },
+  { name: "Session management", highRisk: true, minTier: 3 },
+  { name: "Access control (IDOR)", highRisk: true, minTier: 3 },
+  { name: "Privilege escalation", highRisk: true, minTier: 3 },
+  { name: "Input validation and injection", highRisk: false, minTier: 3 },
+  { name: "API authorisation", highRisk: true, minTier: 3 },
+  { name: "Rate limiting and brute force", highRisk: false, minTier: 3 },
+  { name: "Payments and transactions", highRisk: true, minTier: 3 },
+  { name: "Business logic", highRisk: false, minTier: 3 },
+  { name: "File upload", highRisk: false, minTier: 3 },
+  { name: "Error handling", highRisk: false, minTier: 3 },
+  { name: "Security headers", highRisk: false, minTier: 3 },
+  { name: "TLS and cipher settings", highRisk: false, minTier: 3 },
+  { name: "CORS configuration", highRisk: false, minTier: 3 },
+  { name: "Sensitive data exposure", highRisk: true, minTier: 3 },
+  { name: "Admin panel", highRisk: true, minTier: 3 },
+  { name: "Third-party integrations", highRisk: false, minTier: 2 },
+  { name: "Webhooks", highRisk: false, minTier: 2 },
+  { name: "Logging and monitoring", highRisk: false, minTier: 1 },
+  { name: "Dependency review", highRisk: false, minTier: 1 },
+  { name: "Cloud configuration", highRisk: false, minTier: 1 },
+]
+
+/** Starting areas for a tier: tier 1 (most critical) gets the full list, tier 3 the core. */
+export const areasForTier = (tier: 1 | 2 | 3) =>
+  AREA_TEMPLATE.filter((a) => tier <= a.minTier)
+
+/** Lower-case URL key: "Stores of India!" → "stores-of-india". */
+export const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40)
+    .replace(/-+$/, "")

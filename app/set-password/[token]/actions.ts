@@ -1,11 +1,12 @@
 "use server"
 
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import { redirect } from "next/navigation"
 
-import { db } from "@/db"
-import { authTokens, users } from "@/db/schema"
-import { findToken } from "@/lib/auth/tokens"
+import { memberships, users } from "@/db/schema"
+import { consumeToken, findToken } from "@/lib/auth/tokens"
+import { withSystem } from "@/server/context"
+import { refreshOrgStats } from "@/server/stats"
 import { audit, requestMeta } from "@/lib/auth/audit"
 import { hashPassword } from "@/lib/auth/password"
 import { passwordProblem } from "@/lib/auth/password-rules"
@@ -31,7 +32,7 @@ export async function setPassword(
 
   let sessionToken: string | null
   try {
-    sessionToken = await db.transaction(async (tx) => {
+    sessionToken = await withSystem(async (tx) => {
       const row = await findToken(token, tx, true)
       if (!row) return null
       const problem = passwordProblem(password, row.email)
@@ -39,33 +40,41 @@ export async function setPassword(
       if (password !== confirm)
         throw new PasswordInputError("Passwords don’t match.", "confirm")
 
+      const invite = row.purpose === "org_invite"
       await tx
         .update(users)
         .set({
           passwordHash: await hashPassword(password),
           passwordChangedAt: new Date(),
           status: "active",
+          // Opening a link sent to this address proves they own it.
+          ...(invite ? { emailVerifiedAt: new Date() } : {}),
         })
         .where(eq(users.id, row.userId))
-      await tx
-        .update(authTokens)
-        .set({ usedAt: new Date() })
-        .where(eq(authTokens.id, row.tokenId))
+      if (invite)
+        await tx
+          .update(memberships)
+          .set({ status: "active", joinedAt: new Date() })
+          .where(
+            and(
+              eq(memberships.orgId, row.orgId!),
+              eq(memberships.userId, row.userId),
+              eq(memberships.status, "invited")
+            )
+          )
+      if (invite) await refreshOrgStats(tx, row.orgId!)
+      await consumeToken(tx, row.tokenId)
       // A new password ends every existing session, wherever it is.
       await revokeUserSessions(tx, row.userId)
       await audit(
         {
-          action:
-            row.purpose === "invite" ? "user.activated" : "user.password_reset",
+          action: invite ? "member.joined" : "user.password_reset",
           outcome: "success",
           actorId: row.userId,
-          actorRole: row.role,
+          orgId: row.orgId,
           entityType: "user",
           entityId: row.userId,
-          changes:
-            row.purpose === "invite"
-              ? { status: ["invited", "active"] }
-              : undefined,
+          changes: invite ? { status: ["invited", "active"] } : undefined,
         },
         tx
       )

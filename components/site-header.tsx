@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { PAGES } from "@/components/app-sidebar"
+import { useOrgPath } from "@/components/current-user"
 import { GlobalSearch } from "@/components/global-search"
 import { NotificationBell } from "@/components/notifications"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -23,17 +24,17 @@ import { useDashboard } from "@/lib/store"
 function useCrumbs() {
   const pathname = usePathname()
   const { data } = useDashboard()
-  const product = /^\/dashboard\/products\/([^/]+)/.exec(pathname)?.[1]
+  const to = useOrgPath()
+  const local = pathname.slice(to().length)
+  const product = /^\/products\/([^/]+)/.exec(local)?.[1]
   if (product) {
     return [
-      { label: "Overview", href: "/dashboard" },
+      { label: "Overview", href: to() },
       { label: data.products[decodeURIComponent(product)]?.name ?? "Product" },
     ]
   }
   const page = PAGES.find((nav) =>
-    nav.href === "/dashboard"
-      ? pathname === "/dashboard"
-      : pathname.startsWith(nav.href)
+    nav.href === "" ? local === "" : local.startsWith(nav.href)
   )
   return [{ label: page?.label ?? "Overview" }]
 }

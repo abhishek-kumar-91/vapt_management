@@ -39,3 +39,15 @@ export function useCan(permission: Permission, productId?: string) {
     ? roleHas(user.role, permission)
     : can(user, permission, productId)
 }
+
+/**
+ * Builds console links inside the current company: useOrgPath()("/findings") → "/o/acme/findings".
+ * Every in-console href goes through this, so links never leave the company being viewed.
+ */
+export function useOrgPath() {
+  const slug = useCurrentUser().org?.slug
+  return React.useCallback(
+    (path = "") => (slug ? `/o/${slug}${path}` : "/dashboard"),
+    [slug]
+  )
+}

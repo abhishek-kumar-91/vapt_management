@@ -92,7 +92,7 @@ export async function signIn(
     const [user] = await db
       .select({
         id: users.id,
-        role: users.role,
+        platformRole: users.platformRole,
         status: users.status,
         passwordHash: users.passwordHash,
       })
@@ -113,7 +113,8 @@ export async function signIn(
         action: "auth.login",
         outcome: "failure",
         actorId: user?.id ?? null,
-        actorRole: user?.role ?? null,
+        actorRole: user?.platformRole ?? null,
+        actorPlatform: !!user?.platformRole,
         emailHash: hash,
         meta: {
           reason: !user
@@ -137,7 +138,8 @@ export async function signIn(
           action: "auth.login",
           outcome: "success",
           actorId: user.id,
-          actorRole: user.role,
+          actorRole: user.platformRole,
+          actorPlatform: !!user.platformRole,
           entityType: "user",
           entityId: user.id,
           emailHash: hash,
@@ -166,7 +168,8 @@ export async function signOut() {
             action: "auth.logout",
             outcome: "success",
             actorId: session.user.id,
-            actorRole: session.user.role,
+            actorRole: session.user.platform ? "SUPER_ADMIN" : null,
+            actorPlatform: session.user.platform,
           },
           tx
         )

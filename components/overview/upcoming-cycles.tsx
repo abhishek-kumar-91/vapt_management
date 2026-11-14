@@ -12,8 +12,10 @@ import { dateDiff, formatDate, todayIso } from "@/lib/dates"
 import { cycleRows } from "@/lib/metrics"
 import type { Product } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { useOrgPath } from "@/components/current-user"
 
 export function UpcomingCycles({ products }: { products: Product[] }) {
+  const to = useOrgPath()
   const today = todayIso()
   const upcoming = products
     .flatMap((product) =>
@@ -38,7 +40,7 @@ export function UpcomingCycles({ products }: { products: Product[] }) {
               return (
                 <li key={`${row.product.id}-${row.key}`}>
                   <Link
-                    href={`/dashboard/products/${row.product.id}`}
+                    href={to(`/products/${row.product.id}`)}
                     className="flex items-center gap-3 rounded-3xl px-3 py-2 transition-colors outline-none hover:bg-muted/70 focus-visible:ring-3 focus-visible:ring-ring/30"
                   >
                     <span

@@ -26,6 +26,7 @@ import { retestMailto } from "@/lib/reports"
 import { useDashboard } from "@/lib/store"
 import type { Finding } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { useOrgPath } from "@/components/current-user"
 
 const EXIT_STATUSES = ["Closed", "Rejected", "Risk Accepted", "Won't Fix"]
 
@@ -48,6 +49,7 @@ export function FindingsTable({
   /** Changes to this (the active filters) send paging back to page 1. */
   resetKey?: string
 }) {
+  const to = useOrgPath()
   const { data, actions } = useDashboard()
   const today = todayIso()
 
@@ -72,11 +74,16 @@ export function FindingsTable({
     const retestDue = retestDueFor(finding)
     const productLink = (
       <Link
-        href={`/dashboard/products/${finding.product}`}
+        href={to(`/products/${finding.product}`)}
         className="underline-offset-4 hover:text-primary hover:underline"
       >
         {productName}
       </Link>
+    )
+    const platformTag = finding.raisedByPlatform && (
+      <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-primary">
+        Raised by Pentest Scout
+      </span>
     )
     const status = (wide: boolean) => (
       <>
@@ -134,7 +141,7 @@ export function FindingsTable({
         <TooltipContent>Download SOP report (.md)</TooltipContent>
       </Tooltip>
     )
-    return { productLink, overdue, deadline, status, download }
+    return { productLink, platformTag, overdue, deadline, status, download }
   }
 
   return (
@@ -156,7 +163,7 @@ export function FindingsTable({
                         {showProduct && (
                           <>
                             <span aria-hidden>·</span>
-                            {v.productLink}
+                            {v.productLink}{v.platformTag}
                           </>
                         )}
                         {finding.late && (
@@ -227,7 +234,7 @@ export function FindingsTable({
                             {showProduct && (
                               <span className="contents @min-[58rem]:hidden">
                                 <span aria-hidden>·</span>
-                                {v.productLink}
+                                {v.productLink}{v.platformTag}
                               </span>
                             )}
                             <span className="basis-full tabular @min-[58rem]:hidden">
@@ -241,7 +248,7 @@ export function FindingsTable({
                       </TableCell>
                       {showProduct && (
                         <TableCell className="hidden py-3.5 text-sm @min-[58rem]:table-cell">
-                          {v.productLink}
+                          {v.productLink}{v.platformTag}
                         </TableCell>
                       )}
                       <TableCell className="py-3.5">

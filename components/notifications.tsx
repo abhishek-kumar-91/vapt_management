@@ -13,7 +13,7 @@ import {
   TimerIcon,
 } from "lucide-react"
 
-import { useCurrentUser } from "@/components/current-user"
+import { useCurrentUser, useOrgPath } from "@/components/current-user"
 import { Button } from "@/components/ui/button"
 import {
   Popover,
@@ -63,6 +63,7 @@ function subscribe(listener: () => void) {
 export function useNotifications() {
   const { data, products, findings, hydrated } = useDashboard()
   const user = useCurrentUser()
+  const to = useOrgPath()
   const raw = React.useSyncExternalStore(
     subscribe,
     () => readRaw(user.id),
@@ -76,8 +77,14 @@ export function useNotifications() {
     }
   }, [raw])
   const items = React.useMemo(
-    () => (hydrated ? buildNotices(data, products, findings, todayIso()) : []),
-    [data, products, findings, hydrated]
+    () =>
+      hydrated
+        ? buildNotices(data, products, findings, todayIso()).map((n) => ({
+            ...n,
+            href: to(n.href),
+          }))
+        : [],
+    [data, products, findings, hydrated, to]
   )
   const unread = items.filter((n) => !read.has(n.id)).length
 
@@ -172,6 +179,7 @@ export function NoticeRow({
 
 export function NotificationBell() {
   const { items, unread, isRead, markRead, markAllRead } = useNotifications()
+  const to = useOrgPath()
   const [open, setOpen] = React.useState(false)
   const latest = items.slice(0, 6)
 
@@ -236,7 +244,7 @@ export function NotificationBell() {
         <div className="border-t p-1.5">
           <Button variant="ghost" className="w-full justify-center" asChild>
             <Link
-              href="/dashboard/notifications"
+              href={to("/notifications")}
               onClick={() => setOpen(false)}
             >
               View all notifications

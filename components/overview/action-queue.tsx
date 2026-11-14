@@ -16,6 +16,7 @@ import { isClosed, retestDueFor } from "@/lib/metrics"
 import { SEVERITIES } from "@/lib/sop"
 import type { DashboardData, Finding } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { useOrgPath } from "@/components/current-user"
 
 function dueLabel(due: string | undefined) {
   if (!due) return { text: "No deadline", late: false }
@@ -32,6 +33,7 @@ export function ActionQueue({
   data: DashboardData
   findings: Finding[]
 }) {
+  const to = useOrgPath()
   const retests = findings
     .filter((f) => f.status === "Ready for Retest")
     .map((f) => ({ finding: f, kind: "retest" as const, due: retestDueFor(f) }))
@@ -61,7 +63,7 @@ export function ActionQueue({
         </CardDescription>
         <CardAction>
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/findings">
+            <Link href={to("/findings")}>
               All findings <ArrowRightIcon data-icon="inline-end" />
             </Link>
           </Button>
@@ -75,7 +77,7 @@ export function ActionQueue({
               return (
                 <li key={finding.id}>
                   <Link
-                    href={`/dashboard/products/${finding.product}`}
+                    href={to(`/products/${finding.product}`)}
                     className="flex items-center gap-3 rounded-3xl px-3 py-2.5 transition-colors outline-none hover:bg-muted/70 focus-visible:ring-3 focus-visible:ring-ring/30"
                   >
                     <SeverityDot severity={finding.severity} />

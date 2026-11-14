@@ -9,6 +9,7 @@ import { AppearanceProvider, useAppearance } from "@/components/appearance"
 import { CurrentUserProvider } from "@/components/current-user"
 import type { Appearance } from "@/lib/appearance"
 import type { SessionUser } from "@/lib/auth/shared"
+import type { DashboardData } from "@/lib/types"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { DashboardProvider, useDashboard } from "@/lib/store"
@@ -23,7 +24,11 @@ function Content({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       ) : (
-        <BrandLoader />
+        // A screen tall, so the footer starts below the fold instead of
+        // jumping down when the page arrives (layout shift).
+        <div className="min-h-svh">
+          <BrandLoader />
+        </div>
       )}
     </div>
   )
@@ -33,14 +38,17 @@ export function ConsoleShell({
   children,
   initialAppearance,
   user,
+  data,
 }: {
   children: React.ReactNode
   initialAppearance: Appearance
   user: SessionUser
+  /** The company's data for this person, loaded on the server. */
+  data: DashboardData
 }) {
   return (
     <CurrentUserProvider user={user}>
-      <DashboardProvider>
+      <DashboardProvider data={data} org={user.org?.slug ?? ""}>
         <AppearanceProvider initial={initialAppearance}>
           <Frame>{children}</Frame>
         </AppearanceProvider>

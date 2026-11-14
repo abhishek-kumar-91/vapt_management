@@ -138,7 +138,7 @@ The system explicitly refuses the category default it was built against: a dark 
 - Status is always colour plus a word or letter, never colour alone.
 - Pill-shaped controls, 1.625rem-radius cards, inset rounded app canvas beside a light sidebar.
 - Figtree throughout with tabular numerals; Geist Mono only for ticket IDs and report text.
-- Motion: data reveals left to right, content settles in; all of it collapses under reduced motion.
+- Motion: data reveals left to right, content settles in; under reduced motion these become short fades.
 - Light and dark themes are both first-class, defined token for token.
 
 ## Colors
@@ -254,8 +254,8 @@ A segmented pill (6/8/12px heights) on the muted track: Tested in ink, In testin
 - **Appearance switch:** Settings → Appearance offers Default and Dark sidebar (dark navigation frame on `--sidebar-contrast`, light content inset; the sidebar subtree takes the full `.dark` token set). Persisted in the `pentest_scout_appearance` cookie and rendered on the server; switching cross-fades over 320ms.
 - **Theme switch:** the new theme is revealed by a circle growing from the toggle button (View Transitions, 560ms, same expo ease; `lib/theme-transition.ts`). The `D` hotkey uses the same reveal. Instant switch without View Transitions support or under reduced motion.
 - **Sign-in brand panel:** the keyring mark, drawn large in white on ink as a dial with tick ring and faint scope circles. The open ring draws in once (1400ms), then scans slowly (one turn per ~2.5 min); while the pointer is over the panel it turns its opening toward the pointer and the keyhole leans a little the same way, both eased per frame. A 260px lens brightens the dot field under the pointer. No product data on this screen: the platform is generic. Static under reduced motion.
-- **Route loading:** no top progress bar. A centred brand loader (`components/brand-loader.tsx`): the keyhole holds still while the ring sweeps round it (1.6s, arc grows 8%→74% and back as it orbits) and a scope pulse spreads outward. It appears only after 180ms so fast navigations never flash. `app/dashboard/loading.tsx` shows it inside the content canvas (sidebar and header stay); `app/loading.tsx` shows it full screen with the wordmark (e.g. signing in). Reduced motion swaps in the static mark.
-- **Reduced motion:** every animation and transition collapses to 1ms.
+- **Route loading:** no top progress bar. A centred brand loader (`components/brand-loader.tsx`): the keyhole holds still while the ring sweeps round it (1.6s, arc grows 8%→74% and back as it orbits) and a scope pulse spreads outward. It appears only after 180ms so fast navigations never flash. `app/dashboard/loading.tsx` shows it inside the content canvas (sidebar and header stay); `app/loading.tsx` shows it full screen with the wordmark (e.g. signing in). Reduced motion swaps in the still mark, breathing slowly in opacity so it still reads as working.
+- **Reduced motion:** fewer and gentler, not none. Wipes, ring draws and the page settle become a 160ms fade; dialogs, sheets and menus fade without sliding or zooming; the sidebar collapse snaps. Colour, opacity and focus transitions keep their normal timing, because they confirm actions.
 
 ## Do's and Don'ts
 

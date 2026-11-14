@@ -7,7 +7,8 @@ export default defineConfig({
   schema: "./db/schema/index.ts",
   out: "./db/migrations",
   casing: "snake_case",
-  dbCredentials: { url: process.env.DATABASE_URL! },
+  // Migrations run as the table owner; the app itself connects as a member of app_user.
+  dbCredentials: { url: (process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL)! },
   strict: true,
   verbose: true,
 })

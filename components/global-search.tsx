@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { CornerDownLeftIcon, PlusIcon, SearchIcon } from "lucide-react"
 
 import { PAGES } from "@/components/app-sidebar"
-import { useCan } from "@/components/current-user"
+import { useCan, useOrgPath } from "@/components/current-user"
 import { ProductAvatar } from "@/components/product-avatar"
 import { SeverityDot } from "@/components/status"
 import { Button } from "@/components/ui/button"
@@ -35,8 +35,9 @@ function matchAllWords(value: string, search: string, keywords?: string[]) {
 export function GlobalSearch() {
   const router = useRouter()
   const { products, findings } = useDashboard()
-  const canSeeUsers = useCan("user.read")
+  const canSeeUsers = useCan("member.read")
   const canReport = useCan("finding.create")
+  const to = useOrgPath()
   const [open, setOpen] = React.useState(false)
   const [query, setQuery] = React.useState("")
   const typed = query.trim().length > 0
@@ -55,10 +56,10 @@ export function GlobalSearch() {
   const go = (href: string) => {
     setOpen(false)
     setQuery("")
-    router.push(href)
+    router.push(to(href))
   }
   const pages = PAGES.filter(
-    (page) => page.href !== "/dashboard/users" || canSeeUsers
+    (page) => page.href !== "/users" || canSeeUsers
   )
 
   return (
@@ -97,7 +98,7 @@ export function GlobalSearch() {
               <CommandGroup heading="Actions">
                 <CommandItem
                   value="Report finding new create"
-                  onSelect={() => go("/dashboard/findings?new=1")}
+                  onSelect={() => go("/findings?new=1")}
                 >
                   <PlusIcon />
                   Report a finding
@@ -124,7 +125,7 @@ export function GlobalSearch() {
                   key={product.id}
                   value={product.name}
                   keywords={[product.domain ?? "", `tier ${product.tier}`]}
-                  onSelect={() => go(`/dashboard/products/${product.id}`)}
+                  onSelect={() => go(`/products/${product.id}`)}
                 >
                   <ProductAvatar
                     id={product.id}
@@ -148,7 +149,7 @@ export function GlobalSearch() {
                     value={`${finding.id} ${finding.title}`}
                     keywords={[finding.severity, finding.status]}
                     onSelect={() =>
-                      go(`/dashboard/products/${finding.product}`)
+                      go(`/products/${finding.product}`)
                     }
                   >
                     <SeverityDot severity={finding.severity} />
@@ -171,7 +172,7 @@ export function GlobalSearch() {
                     <CommandItem
                       key={`${product.id}-${index}`}
                       value={`${area.n} · ${product.name}`}
-                      onSelect={() => go(`/dashboard/products/${product.id}`)}
+                      onSelect={() => go(`/products/${product.id}`)}
                     >
                       <span className="truncate">{area.n}</span>
                       <CommandShortcut className="max-w-48 shrink-0 truncate pl-3 tracking-normal whitespace-nowrap">
