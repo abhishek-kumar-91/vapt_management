@@ -1,0 +1,76 @@
+---
+title: Setup
+description: Install dependencies, configure the environment and run the console and these docs locally.
+---
+
+# Setup
+
+Get the console and these docs running locally. This takes about five minutes on a machine that already has Node.js.
+
+## Requirements
+
+| Tool | Version | Notes |
+| --- | --- | --- |
+| Node.js | 20.9 or newer | Node 24 LTS is the recommended default |
+| pnpm | `12.18.0` | Pinned in `packageManager`. Run `corepack enable` and pnpm picks it up |
+| Python | 3.9 or newer | Only for rebuilding `data.json` with `tools/build_data.py` (standard library only) |
+
+## Install
+
+The repo is a pnpm workspace with two packages: the console at the root and this documentation site in `docs/`. One install covers both.
+
+```bash
+corepack enable
+pnpm install
+```
+
+:::note[Build scripts]
+pnpm blocks dependency build scripts unless they are allowed. The workspace allows `esbuild` (used by `drizzle-kit` and the docs toolchain) in `pnpm-workspace.yaml` under `allowBuilds`. If a new dependency needs a build step, add it there rather than running `pnpm approve-builds` ad hoc.
+:::
+
+## Configure the environment
+
+Copy the example file and fill in the database URL:
+
+```bash
+cp .env.example .env
+```
+
+```bash title=".env"
+# Neon Postgres connection string (Neon console → Connect). Server-only; never prefix with NEXT_PUBLIC_.
+DATABASE_URL=postgresql://user:password@ep-xxxx.region.aws.neon.tech/neondb?sslmode=require
+```
+
+`DATABASE_URL` is read only by `db/index.ts` and `drizzle.config.ts`. The console UI works without it, because all product and finding data still comes from `data.json` and the browser store. Only `GET /api/health` and the `db:*` scripts need a reachable database. See [Database](/architecture/database).
+
+:::danger[Never commit `.env`]
+`.gitignore` excludes every `.env*` file except `.env.example`. Keep connection strings out of commits, screenshots and docs.
+:::
+
+## Run the console
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). `/` redirects to `/login`. Sign-in is not connected to an identity provider yet, so any well-formed email and password opens the console at `/dashboard`.
+
+## Run these docs
+
+```bash
+pnpm docs:dev     # http://localhost:3001, hot reload
+pnpm docs:build   # static build into docs/build, fails on broken links
+pnpm docs:serve   # serve the production build
+```
+
+The docs run on port **3001** so they can sit beside the console on 3000.
+
+## Verify your setup
+
+Run the same checks CI should run before you open a pull request:
+
+```bash
+pnpm typecheck && pnpm lint && pnpm build && pnpm docs:build
+```
+
+If all four pass, your environment is good. A full list of scripts is in [Scripts and environment](/reference/scripts).

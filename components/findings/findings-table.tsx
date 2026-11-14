@@ -33,7 +33,7 @@ export function FindingsTable({
 }: {
   findings: Finding[]
   showProduct?: boolean
-  emptyText?: string
+  emptyText?: React.ReactNode
 }) {
   const { data, actions } = useDashboard()
   const today = todayIso()
@@ -67,7 +67,7 @@ export function FindingsTable({
             <TableRow key={finding.id} className="align-top">
               <TableCell className="max-w-[22rem] py-3.5 pl-6 whitespace-normal">
                 <div className="grid gap-1">
-                  <span className="font-medium text-pretty">
+                  <span className="font-medium text-pretty wrap-anywhere">
                     {finding.title}
                   </span>
                   <span className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">

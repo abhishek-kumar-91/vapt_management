@@ -10,6 +10,7 @@ import {
   SirenIcon,
   TrendingUpIcon,
   ArrowLeftRightIcon,
+  UserCogIcon,
 } from "lucide-react"
 
 import { formatDate, LONG_DATE } from "@/lib/dates"
@@ -32,6 +33,7 @@ const EVENT_STYLE: Record<string, { icon: LucideIcon; tone: string }> = {
   },
   "Close-out": { icon: FlagIcon, tone: "bg-success/12 text-success" },
   Blocker: { icon: BanIcon, tone: "bg-critical/12 text-critical" },
+  Access: { icon: UserCogIcon, tone: "bg-primary/10 text-primary" },
 }
 
 export function ActivityFeed({
@@ -97,7 +99,7 @@ export function ActivityFeed({
                   {formatDate(event.date, longDates ? LONG_DATE : undefined)}
                 </time>
               </div>
-              <p className="text-sm text-pretty text-muted-foreground">
+              <p className="text-sm text-pretty wrap-anywhere text-muted-foreground">
                 {event.text}
               </p>
             </div>

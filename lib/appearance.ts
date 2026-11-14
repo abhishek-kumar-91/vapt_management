@@ -1,2 +1,2 @@
 export type Appearance = "default" | "dark-sidebar"
-export const APPEARANCE_COOKIE = "sentinel_appearance"
+export const APPEARANCE_COOKIE = "pentest_scout_appearance"

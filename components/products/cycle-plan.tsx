@@ -9,7 +9,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { DatePicker } from "@/components/ui/date-picker"
 import { formatDate, LONG_DATE, todayIso } from "@/lib/dates"
 import { cycleRows } from "@/lib/metrics"
 import { useDashboard } from "@/lib/store"
@@ -67,17 +67,12 @@ export function CyclePlan({ product }: { product: Product }) {
                     : "Not scheduled"}
               </span>
               <span className="flex items-center gap-2">
-                <Input
-                  type="date"
+                <DatePicker
                   aria-label={`${row.eventBased ? "Last review" : "Last done"}: ${row.title}`}
                   className="h-8 w-38 bg-background"
                   value={value}
-                  onChange={(e) =>
-                    actions.updateCycleDate(
-                      product.id,
-                      row.source,
-                      e.target.value
-                    )
+                  onChange={(v) =>
+                    actions.updateCycleDate(product.id, row.source, v)
                   }
                 />
                 <Button

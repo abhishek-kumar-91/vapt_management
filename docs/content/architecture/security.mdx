@@ -1,0 +1,75 @@
+---
+title: Security
+description: The per-request CSP, security headers, data-handling rules and hosting requirements.
+---
+
+# Security
+
+Pentest Scout displays security findings, so the console itself has to meet a high bar. This page covers what the code enforces and what the deployment must provide.
+
+<Source path="proxy.ts" />
+
+## Content-Security-Policy
+
+`proxy.ts` (Next 16's replacement for `middleware.ts`) creates a fresh nonce for every page request and sends this policy:
+
+```text
+default-src 'self';
+script-src 'self' 'nonce-<random>' 'strict-dynamic';   (+ 'unsafe-eval' in development)
+style-src 'self' 'unsafe-inline';
+img-src 'self' data: blob:;
+font-src 'self';
+connect-src 'self';                                    (+ ws: in development)
+object-src 'none';
+base-uri 'none';
+form-action 'self';
+frame-ancestors 'none'
+```
+
+- The nonce goes to the app on the **request** header `x-nonce`. `app/layout.tsx` reads it and passes it to `ThemeProvider`, so the theme's inline script can run.
+- `'strict-dynamic'` lets scripts loaded by a nonced script run, which is how Next's chunks load.
+- Fonts are self-hosted by `next/font`, so `font-src 'self'` is enough. **Don't add third-party script, font or image origins.** If a feature seems to need one, raise it in review first.
+
+Because each page needs its own nonce, pages are **rendered per request**. Run the app with `next start` or on a platform that supports the Next.js proxy. A static export would break the CSP.
+
+## Response headers
+
+| Header | Value | Why |
+| --- | --- | --- |
+| `X-Content-Type-Options` | `nosniff` | No MIME sniffing |
+| `X-Frame-Options` | `DENY` | No framing (alongside `frame-ancestors 'none'`) |
+| `Referrer-Policy` | `no-referrer` | Finding URLs never leak to other sites |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | No device access |
+| `Cache-Control` | `no-store` | Finding data is never cached by browsers or proxies |
+
+The root metadata also sets `robots: noindex, nofollow` and `referrer: no-referrer`.
+
+## Matcher
+
+```ts
+matcher: [{
+  source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
+  missing: [
+    { type: "header", key: "next-router-prefetch" },
+    { type: "header", key: "purpose", value: "prefetch" },
+  ],
+}]
+```
+
+API routes, static assets and router prefetches skip the proxy. If you add an API route that returns HTML, give it its own headers.
+
+## Authentication
+
+:::danger[There is no real sign-in yet]
+`components/auth/login-form.tsx` accepts any well-formed email and password and goes to `/dashboard`. User roles in `lib/users.ts` are seeded, and the current user is fixed to `CURRENT_USER_ID`. Until an identity provider is wired in, the app **must** be hosted behind authentication at the network or platform layer, for example SSO, deployment protection or a VPN.
+:::
+
+## Data-handling rules
+
+These apply to code, sample data, tests and these docs:
+
+1. **No real data in the repo.** `data.json`, `tools/source/*` and `tools/exports/*` are sample data and must stay that way.
+2. **Evidence is redacted when it is entered.** No credentials, tokens, session cookies, customer PII or working exploit payloads in any finding field.
+3. **Secrets live only in the environment.** `DATABASE_URL` is server-only. Never prefix it with `NEXT_PUBLIC_`, and never log it.
+4. **Errors don't leak internals.** Return generic messages such as `{ ok: false, db: "down" }`, and log details on the server.
+5. **Keep repositories private** whenever they hold real findings, and restrict who can access exported JSON.

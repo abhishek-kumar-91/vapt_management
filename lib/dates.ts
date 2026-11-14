@@ -1,5 +1,5 @@
 const pad = (n: number) => String(n).padStart(2, "0")
-const toIso = (d: Date) =>
+export const toIso = (d: Date) =>
   `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 const local = (value: string) => new Date(`${value}T00:00:00`)
 

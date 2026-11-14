@@ -1,7 +1,21 @@
 import { NextResponse, type NextRequest } from "next/server"
 
+import { SESSION_COOKIE } from "@/lib/auth/shared"
+
 /** Per-request nonce CSP plus the baseline security headers this dashboard always needs. */
 export function proxy(request: NextRequest) {
+  // Optimistic gate: no session cookie means no dashboard. The layout and every
+  // server action still validate the session against the database.
+  const { pathname, search } = request.nextUrl
+  if (
+    pathname.startsWith("/dashboard") &&
+    !request.cookies.has(SESSION_COOKIE)
+  ) {
+    const login = new URL("/login", request.url)
+    login.searchParams.set("next", pathname + search)
+    return NextResponse.redirect(login)
+  }
+
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64")
   const isDev = process.env.NODE_ENV === "development"
   const csp = [

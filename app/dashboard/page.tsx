@@ -49,7 +49,7 @@ export default function OverviewPage() {
           <span className="inline-flex flex-wrap items-center gap-2">
             Testing progress, remediation and product risk across the portfolio.
             <ToneBadge tone="warning" dot>
-              Sample data · {formatDate(data.generated, LONG_DATE)}
+              Data as of {formatDate(data.generated, LONG_DATE)}
             </ToneBadge>
           </span>
         }

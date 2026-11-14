@@ -1,0 +1,53 @@
+---
+title: Reports
+description: How daily, weekly, monthly and close-out reports and SOP finding reports are generated.
+---
+
+# Reports
+
+All reports are **Markdown generated from live records**. Nothing is templated by hand, so a report can never disagree with the console. The builders are in `lib/reports.ts`, and the UI is `app/dashboard/reports/page.tsx`.
+
+<Source path="lib/reports.ts" />
+
+## Report types
+
+| `type` | Label | Period covered | Side effect when saved |
+| --- | --- | --- | --- |
+| `daily` | Daily update | the report date | none |
+| `weekly` | Weekly report | report date − 6 days … report date | adds a coverage snapshot to `history` |
+| `monthly` | Monthly review | first of the month … report date | none |
+| `closeout` | Baseline close-out | the report date | if the product passes close-out, stamps `closeout` and `done.baseline` |
+
+The table above comes from `REPORT_TYPES`. Each entry has a `label` (for the picker), a `title` (the report heading) and an `archiveTitle` (for the saved list).
+
+## `buildReport(data, type, form, products, findings)`
+
+This returns the report body as a string. `form: ReportForm` carries the tester's narrative fields: `tested`, `methods`, `findingNotes`, `blocked`, `tomorrow`, `lessons`, `resources` and `manager`, plus `date` and `productId`.
+
+- **Daily** is a short stand-up: target, what was tested (with the live checklist count), methods, findings validated that day, notes, blockers and tomorrow's plan.
+- **Weekly, monthly and close-out** start with the reporting period, then `## Portfolio coverage and plan`, `## Metrics` and `## Open Critical/High ageing`.
+- **Monthly** adds `## Product register` and `## Review notes and lessons`.
+- **Close-out** adds `## Close-out: <product>`. `saveReport` looks for this heading to find the product it should stamp.
+- The longer reports end with `## Target switches, blockers and next plan` and `## Activity`, both drawn from the events in the period.
+
+Every report ends with a confidentiality line. Keep it if you add a report type.
+
+## `buildFindingReport(finding, product)`
+
+This produces the SOP-formatted ticket for one finding: title as `[Product][Feature][Severity] Title`, then ticket metadata, Description, Steps to reproduce, Impact, **Redacted** evidence, Recommendation, exit reason and late-finding details. Missing fields render as *Not recorded* rather than being left out, so gaps are visible to reviewers.
+
+`actions.downloadFinding(id)` downloads it as Markdown.
+
+## Helpers
+
+```ts
+retestMailto(email, finding, productName, readyDate): string
+// mailto: with an encoded subject "Retest requested: SEC-123 (High)" and body
+
+downloadText(body, filename, type = "text/markdown;charset=utf-8"): void
+// Blob → object URL → temporary <a download>, then the URL is revoked
+```
+
+:::danger[Evidence is redacted by contract]
+Report bodies are archived in `localStorage` and downloaded as files. The `evidence` field must already be redacted when it is entered: no credentials, tokens, customer data or working exploit payloads. The reports repeat this warning, but the generator has no way to enforce it.
+:::

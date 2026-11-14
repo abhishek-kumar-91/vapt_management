@@ -4,28 +4,14 @@ import * as React from "react"
 import { usePathname } from "next/navigation"
 
 import { AppSidebar } from "@/components/app-sidebar"
+import { BrandLoader } from "@/components/brand-loader"
 import { AppearanceProvider, useAppearance } from "@/components/appearance"
+import { CurrentUserProvider } from "@/components/current-user"
 import type { Appearance } from "@/lib/appearance"
+import type { SessionUser } from "@/lib/auth/shared"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { Skeleton } from "@/components/ui/skeleton"
 import { DashboardProvider, useDashboard } from "@/lib/store"
-
-function PageSkeleton() {
-  return (
-    <div className="grid gap-6" aria-busy="true" aria-label="Loading dashboard">
-      <div className="grid gap-2">
-        <Skeleton className="h-8 w-56 rounded-full" />
-        <Skeleton className="h-4 w-80 rounded-full" />
-      </div>
-      <Skeleton className="h-40 rounded-4xl" />
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Skeleton className="h-72 rounded-4xl" />
-        <Skeleton className="h-72 rounded-4xl" />
-      </div>
-    </div>
-  )
-}
 
 function Content({ children }: { children: React.ReactNode }) {
   const { hydrated } = useDashboard()
@@ -37,7 +23,7 @@ function Content({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       ) : (
-        <PageSkeleton />
+        <BrandLoader />
       )}
     </div>
   )
@@ -46,16 +32,20 @@ function Content({ children }: { children: React.ReactNode }) {
 export function ConsoleShell({
   children,
   initialAppearance,
+  user,
 }: {
   children: React.ReactNode
   initialAppearance: Appearance
+  user: SessionUser
 }) {
   return (
-    <DashboardProvider>
-      <AppearanceProvider initial={initialAppearance}>
-        <Frame>{children}</Frame>
-      </AppearanceProvider>
-    </DashboardProvider>
+    <CurrentUserProvider user={user}>
+      <DashboardProvider>
+        <AppearanceProvider initial={initialAppearance}>
+          <Frame>{children}</Frame>
+        </AppearanceProvider>
+      </DashboardProvider>
+    </CurrentUserProvider>
   )
 }
 
@@ -73,8 +63,8 @@ function Frame({ children }: { children: React.ReactNode }) {
         <SiteHeader />
         <Content>{children}</Content>
         <footer className="flex flex-wrap justify-between gap-2 px-4 pb-5 text-xs text-muted-foreground md:px-8">
-          <span>Sentinel security console</span>
-          <span>Confidential · internal use only · sample data</span>
+          <span>Pentest Scout security console</span>
+          <span>Confidential · internal use only</span>
         </footer>
       </SidebarInset>
     </SidebarProvider>

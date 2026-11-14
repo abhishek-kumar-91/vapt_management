@@ -1,0 +1,61 @@
+---
+title: Add a store action
+description: Add a state change that validates, refuses with a reason, updates a record and leaves an audit event.
+---
+
+# Add a store action
+
+Every change to console state goes through an action in `lib/store.tsx`. This guide adds `updateFindingCvss(findingId, cvss)`.
+
+## The pattern
+
+1. **Read the current record** from `data` (not inside `setData`), so you can validate it.
+2. **Refuse with a toast** that names the problem and the fix, then `return`. Don't throw.
+3. **Make one functional `setData`** that replaces the record immutably **and** adds an event to the front of `events`.
+4. **Confirm with a toast** if the user started the change.
+
+```tsx title="lib/store.tsx"
+const updateFindingCvss = (findingId: string, cvss: string) => {
+  const existing = data.findings[findingId]
+  if (!existing) return
+  const vector = cvss.trim()
+  if (!vector.startsWith("CVSS:")) {
+    toast.warning("Enter a full CVSS vector", {
+      description: "It should start with CVSS:3.1/ or CVSS:4.0/.",
+    })
+    return
+  }
+  setData((state) => ({
+    ...state,
+    findings: { ...state.findings, [findingId]: { ...existing, cvss: vector } },
+    events: [
+      {
+        date: todayIso(),
+        type: "Finding",
+        product: existing.product,
+        text: `${findingId} CVSS vector updated to ${vector}.`,
+      },
+      ...state.events,
+    ],
+  }))
+  toast.success(`${findingId} updated`)
+}
+```
+
+Then expose it:
+
+```diff title="lib/store.tsx"
+     actions: {
+       updateFinding,
++      updateFindingCvss,
+       addFinding,
+```
+
+The store type is `ReturnType<typeof useDashboardState>`, so `useDashboard().actions.updateFindingCvss` is typed automatically.
+
+## Rules of thumb
+
+- **The rule goes in `lib/sop.ts` or `lib/metrics.ts`, and the refusal goes in the action.** If a rule could be reused, write it as a pure function in `metrics.ts` and call it from the action, the way `meetsCloseoutCriteria` is called.
+- **Log anything the SOP audit trail cares about:** status changes, dates and reasons. Pure text edits (`updateAreaField`) don't need an event.
+- **Persisted fields are additive.** Saved data from older versions is merged over the sample, so new optional fields are safe. If you rename or remove a field, bump the storage key and say so in the PR.
+- **Copy is the product's language.** Say "Record a blocker reason first", not "Validation failed".

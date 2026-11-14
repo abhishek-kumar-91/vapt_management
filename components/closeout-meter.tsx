@@ -14,7 +14,7 @@ const SEGMENTS = [
 ] as const
 
 /**
- * Sentinel's signature: a segmented coverage pill (tested / in testing / blocked / to do)
+ * Pentest Scout's signature: a segmented coverage pill (tested / in testing / blocked / to do)
  * with a tick at the SOP's 80% baseline close-out line.
  */
 export function CloseoutMeter({

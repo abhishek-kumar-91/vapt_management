@@ -1,2 +1,9 @@
+packages:
+  - "."
+  - docs
 minimumReleaseAgeExclude:
   - lucide-react@1.73.0
+allowBuilds:
+  esbuild: true
+  core-js: false
+  "@swc/core": true

@@ -57,26 +57,26 @@
 }
 
 :root {
-  --background: oklch(0.982 0.004 275);
-  --foreground: oklch(0.2 0.02 275);
+  --background: oklch(0.982 0 0);
+  --foreground: oklch(0.2 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 275);
+  --card-foreground: oklch(0.2 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.02 275);
-  --primary: oklch(0.51 0.2 274);
-  --primary-foreground: oklch(0.985 0.005 275);
-  --secondary: oklch(0.955 0.012 275);
-  --secondary-foreground: oklch(0.3 0.06 275);
-  --muted: oklch(0.962 0.006 275);
-  --muted-foreground: oklch(0.5 0.02 275);
-  --accent: oklch(0.95 0.02 275);
-  --accent-foreground: oklch(0.3 0.08 275);
+  --popover-foreground: oklch(0.2 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.955 0 0);
+  --secondary-foreground: oklch(0.3 0 0);
+  --muted: oklch(0.962 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --accent: oklch(0.95 0 0);
+  --accent-foreground: oklch(0.3 0 0);
   --destructive: oklch(0.57 0.22 25);
-  --border: oklch(0.915 0.008 275);
-  --input: oklch(0.915 0.01 275);
-  --ring: oklch(0.6 0.17 274);
-  --chart-1: oklch(0.51 0.2 274);
-  --chart-2: oklch(0.7 0.13 274);
+  --border: oklch(0.915 0 0);
+  --input: oklch(0.915 0 0);
+  --ring: oklch(0.55 0 0);
+  --chart-1: oklch(0.205 0 0);
+  --chart-2: oklch(0.62 0 0);
   --chart-3: oklch(0.62 0.13 175);
   --chart-4: oklch(0.75 0.14 75);
   --chart-5: oklch(0.6 0.16 340);
@@ -88,38 +88,38 @@
   --warning: oklch(0.7 0.15 70);
   --paused: oklch(0.56 0.15 295);
   --radius: 0.625rem;
-  --sidebar: oklch(0.982 0.004 275);
-  --sidebar-foreground: oklch(0.3 0.02 275);
-  --sidebar-primary: oklch(0.51 0.2 274);
-  --sidebar-primary-foreground: oklch(0.985 0.005 275);
-  --sidebar-accent: oklch(0.94 0.018 275);
-  --sidebar-accent-foreground: oklch(0.25 0.06 275);
-  --sidebar-border: oklch(0.915 0.008 275);
-  --sidebar-ring: oklch(0.6 0.17 274);
-  --sidebar-contrast: oklch(0.165 0.012 275);
+  --sidebar: oklch(0.982 0 0);
+  --sidebar-foreground: oklch(0.3 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.94 0 0);
+  --sidebar-accent-foreground: oklch(0.25 0 0);
+  --sidebar-border: oklch(0.915 0 0);
+  --sidebar-ring: oklch(0.55 0 0);
+  --sidebar-contrast: oklch(0.165 0 0);
 }
 
 .dark {
-  --background: oklch(0.165 0.012 275);
-  --foreground: oklch(0.96 0.005 275);
-  --card: oklch(0.21 0.014 275);
-  --card-foreground: oklch(0.96 0.005 275);
-  --popover: oklch(0.23 0.015 275);
-  --popover-foreground: oklch(0.96 0.005 275);
-  --primary: oklch(0.7 0.15 274);
-  --primary-foreground: oklch(0.18 0.03 275);
-  --secondary: oklch(0.27 0.02 275);
-  --secondary-foreground: oklch(0.94 0.01 275);
-  --muted: oklch(0.26 0.014 275);
-  --muted-foreground: oklch(0.72 0.02 275);
-  --accent: oklch(0.29 0.03 275);
-  --accent-foreground: oklch(0.95 0.01 275);
+  --background: oklch(0.165 0 0);
+  --foreground: oklch(0.96 0 0);
+  --card: oklch(0.21 0 0);
+  --card-foreground: oklch(0.96 0 0);
+  --popover: oklch(0.23 0 0);
+  --popover-foreground: oklch(0.96 0 0);
+  --primary: oklch(0.96 0 0);
+  --primary-foreground: oklch(0.18 0 0);
+  --secondary: oklch(0.27 0 0);
+  --secondary-foreground: oklch(0.94 0 0);
+  --muted: oklch(0.26 0 0);
+  --muted-foreground: oklch(0.72 0 0);
+  --accent: oklch(0.29 0 0);
+  --accent-foreground: oklch(0.95 0 0);
   --destructive: oklch(0.7 0.19 22);
   --border: oklch(1 0 0 / 9%);
   --input: oklch(1 0 0 / 13%);
-  --ring: oklch(0.62 0.15 274);
-  --chart-1: oklch(0.7 0.15 274);
-  --chart-2: oklch(0.55 0.13 274);
+  --ring: oklch(0.62 0 0);
+  --chart-1: oklch(0.96 0 0);
+  --chart-2: oklch(0.58 0 0);
   --chart-3: oklch(0.7 0.12 175);
   --chart-4: oklch(0.8 0.13 75);
   --chart-5: oklch(0.7 0.15 340);
@@ -130,15 +130,15 @@
   --success: oklch(0.72 0.13 160);
   --warning: oklch(0.8 0.14 75);
   --paused: oklch(0.7 0.13 295);
-  --sidebar: oklch(0.165 0.012 275);
-  --sidebar-foreground: oklch(0.9 0.01 275);
-  --sidebar-primary: oklch(0.7 0.15 274);
-  --sidebar-primary-foreground: oklch(0.18 0.03 275);
-  --sidebar-accent: oklch(0.26 0.02 275);
-  --sidebar-accent-foreground: oklch(0.96 0.005 275);
+  --sidebar: oklch(0.165 0 0);
+  --sidebar-foreground: oklch(0.9 0 0);
+  --sidebar-primary: oklch(0.96 0 0);
+  --sidebar-primary-foreground: oklch(0.18 0 0);
+  --sidebar-accent: oklch(0.26 0 0);
+  --sidebar-accent-foreground: oklch(0.96 0 0);
   --sidebar-border: oklch(1 0 0 / 9%);
-  --sidebar-ring: oklch(0.62 0.15 274);
-  --sidebar-contrast: oklch(0.165 0.012 275);
+  --sidebar-ring: oklch(0.62 0 0);
+  --sidebar-contrast: oklch(0.145 0 0);
 }
 
 @layer base {
@@ -211,6 +211,75 @@
 
 @utility animate-reveal-chart {
   animation: reveal-chart 1100ms var(--ease-out-expo) 120ms both;
+}
+
+@keyframes draw-ring {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+/* Draws a pathLength=1 stroke once, start to end. */
+@utility animate-draw-ring {
+  stroke-dasharray: 1;
+  animation: draw-ring 1400ms var(--ease-out-expo) 150ms both;
+}
+
+/* Brand loader (components/brand-loader.tsx): ring sweeps round a still keyhole. */
+@keyframes scout-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scout-sweep {
+  0% {
+    stroke-dasharray: 0.08 1;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 0.74 1;
+    stroke-dashoffset: -0.16;
+  }
+  100% {
+    stroke-dasharray: 0.08 1;
+    stroke-dashoffset: -1;
+  }
+}
+
+@keyframes scope-pulse {
+  from {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+@keyframes appear-late {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+@utility animate-scout-orbit {
+  animation: scout-orbit 1.6s linear infinite;
+}
+
+@utility animate-scout-sweep {
+  animation: scout-sweep 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@utility animate-scope-pulse {
+  animation: scope-pulse 1.6s var(--ease-out-expo) infinite;
+}
+
+/* Waits 180ms so quick navigations never flash the loader. */
+@utility animate-appear-late {
+  animation: appear-late 420ms var(--ease-out-expo) 180ms both;
 }
 
 @utility animate-settle {

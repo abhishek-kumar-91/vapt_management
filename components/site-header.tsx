@@ -3,8 +3,15 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { DownloadIcon, LogOutIcon, RotateCcwIcon } from "lucide-react"
+import {
+  DownloadIcon,
+  LogOutIcon,
+  RotateCcwIcon,
+  UsersIcon,
+} from "lucide-react"
 
+import { signOut } from "@/app/login/actions"
+import { useCurrentUser } from "@/components/current-user"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 import { NAV_ITEMS } from "@/components/app-sidebar"
@@ -39,7 +46,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { ROLE_LABELS, roleHas } from "@/lib/auth/roles"
 import { useDashboard } from "@/lib/store"
+import { initials } from "@/lib/users"
 
 function useCrumbs() {
   const pathname = usePathname()
@@ -62,7 +71,9 @@ function useCrumbs() {
 export function SiteHeader() {
   const crumbs = useCrumbs()
   const { actions } = useDashboard()
+  const user = useCurrentUser()
   const [confirmReset, setConfirmReset] = React.useState(false)
+  const [signingOut, startSignOut] = React.useTransition()
 
   return (
     <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 rounded-t-3xl border-b bg-background/85 px-3 backdrop-blur-md md:px-5">
@@ -104,20 +115,30 @@ export function SiteHeader() {
             >
               <Avatar className="size-8">
                 <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                  ST
+                  {initials(user.name)}
                 </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-60">
             <DropdownMenuLabel className="grid font-normal">
-              <span className="font-medium text-foreground">Security team</span>
-              <span className="text-xs text-muted-foreground">
-                Dashboard editor · this browser
+              <span className="truncate font-medium text-foreground">
+                {user.name}
+              </span>
+              <span className="truncate text-xs text-muted-foreground">
+                {ROLE_LABELS[user.role]} · {user.email}
               </span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              {roleHas(user.role, "user.read") && (
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/users">
+                    <UsersIcon />
+                    Manage users
+                  </Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onSelect={actions.exportData}>
                 <DownloadIcon />
                 Export JSON
@@ -127,15 +148,16 @@ export function SiteHeader() {
                 onSelect={() => setConfirmReset(true)}
               >
                 <RotateCcwIcon />
-                Reset sample data…
+                Reset local data…
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/login">
-                <LogOutIcon />
-                Sign out
-              </Link>
+            <DropdownMenuItem
+              disabled={signingOut}
+              onSelect={() => startSignOut(() => signOut())}
+            >
+              <LogOutIcon />
+              {signingOut ? "Signing out…" : "Sign out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -144,11 +166,11 @@ export function SiteHeader() {
       <AlertDialog open={confirmReset} onOpenChange={setConfirmReset}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Reset to sample data?</AlertDialogTitle>
+            <AlertDialogTitle>Reset local data?</AlertDialogTitle>
             <AlertDialogDescription>
               This discards every local edit in this browser (test areas,
               findings, cycle dates and saved reports) and restores the bundled
-              sample data. Export JSON first if you want to keep a copy.
+              starting data. Export JSON first if you want to keep a copy.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

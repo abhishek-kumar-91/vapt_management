@@ -25,30 +25,37 @@ function Preview({ dark }: { dark: boolean }) {
     <div
       aria-hidden
       className={cn(
-        "flex h-28 gap-1.5 rounded-2xl p-1.5 ring-1 ring-foreground/5",
+        // A real screen proportion, so the miniature never stretches flat on wide layouts.
+        "flex aspect-16/10 gap-1.5 rounded-2xl p-1.5 ring-1 ring-foreground/5",
         dark ? "bg-sidebar-contrast" : "bg-sidebar"
       )}
     >
       <div className="flex w-[30%] flex-col gap-1.5 p-1.5">
-        <span className="size-3 rounded-full bg-primary" />
+        <span
+          className={cn(
+            "size-3 rounded-full",
+            dark ? "bg-white" : "bg-primary"
+          )}
+        />
         {[70, 55, 62, 48].map((w, i) => (
           <span
             key={w}
             className={cn(
               "h-1.5 rounded-full",
               dark ? "bg-white/20" : "bg-foreground/12",
-              i === 0 && "bg-primary/60"
+              i === 0 && (dark ? "bg-white/60" : "bg-primary/60")
             )}
             style={{ width: `${w}%` }}
           />
         ))}
       </div>
-      <div className="flex flex-1 flex-col gap-1.5 rounded-xl bg-white p-2 shadow-sm">
+      {/* Content follows the current theme in both appearances, like the real inset. */}
+      <div className="flex flex-1 flex-col gap-1.5 rounded-xl bg-card p-2 shadow-sm ring-1 ring-foreground/5">
         <span className="h-1.5 w-1/3 rounded-full bg-foreground/15" />
-        <span className="h-6 rounded-lg bg-[oklch(0.962_0.006_275)]" />
+        <span className="h-[22%] rounded-lg bg-muted" />
         <div className="grid flex-1 grid-cols-2 gap-1.5">
-          <span className="rounded-lg bg-[oklch(0.962_0.006_275)]" />
-          <span className="rounded-lg bg-[oklch(0.962_0.006_275)]" />
+          <span className="rounded-lg bg-muted" />
+          <span className="rounded-lg bg-muted" />
         </div>
       </div>
     </div>
@@ -59,7 +66,7 @@ export function AppearancePicker() {
   const { appearance, setAppearance } = useAppearance()
 
   return (
-    <fieldset className="grid gap-3 sm:grid-cols-2">
+    <fieldset className="grid max-w-xl gap-3 @md:grid-cols-2">
       <legend className="sr-only">Shell appearance</legend>
       {OPTIONS.map((option) => {
         const selected = appearance === option.value

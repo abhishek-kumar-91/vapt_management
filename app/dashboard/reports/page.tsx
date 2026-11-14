@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { DatePicker } from "@/components/ui/date-picker"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -121,11 +122,10 @@ export default function ReportsPage() {
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field>
                   <FieldLabel htmlFor="r-date">Report date</FieldLabel>
-                  <Input
+                  <DatePicker
                     id="r-date"
-                    type="date"
                     value={form.date}
-                    onChange={(e) => set("date", e.target.value)}
+                    onChange={(v) => set("date", v)}
                   />
                 </Field>
                 {(type === "daily" || type === "closeout") && (

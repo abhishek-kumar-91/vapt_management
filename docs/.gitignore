@@ -1,0 +1,11 @@
+# dependencies
+/node_modules
+
+# docusaurus output and caches
+/build
+/.docusaurus
+.cache-loader
+
+# misc
+.DS_Store
+*.log

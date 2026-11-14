@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pentest Scout Marks</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:oklch(0.982 0.004 275);--card:oklch(1 0 0);--ink:oklch(0.2 0.02 275);--muted:oklch(0.5 0.02 275);--line:oklch(0.915 0.008 275);--brand:oklch(0.51 0.2 274);--brand-fg:oklch(0.985 0.005 275);--wash:oklch(0.962 0.006 275)}
+@media (prefers-color-scheme:dark){:root{--bg:oklch(0.165 0.012 275);--card:oklch(0.21 0.014 275);--ink:oklch(0.96 0.005 275);--muted:oklch(0.7 0.02 275);--line:oklch(0.3 0.015 275);--brand:oklch(0.7 0.15 274);--brand-fg:oklch(0.18 0.02 275);--wash:oklch(0.25 0.016 275);color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 Figtree,ui-sans-serif,system-ui,sans-serif}
+main{max-width:1120px;margin:0 auto;padding:48px 16px 80px}
+h1{font-size:2rem;font-weight:600;letter-spacing:-.025em;margin:0 0 6px}
+header p{color:var(--muted);margin:0 0 36px;max-width:60ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.opt{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px;display:grid;gap:16px;align-content:start}
+.opt b{font-weight:600}
+.hero{display:grid;place-items:center;aspect-ratio:4/3;border-radius:16px;background:var(--wash);color:var(--brand)}
+.hero svg{width:38%;height:auto}
+.row{display:flex;gap:10px;align-items:center}
+.tile{display:grid;place-items:center;border-radius:11px;width:36px;height:36px}
+.tile svg{width:22px;height:22px}
+.t-brand{background:var(--brand);color:var(--brand-fg)}
+.t-white{background:#fff;color:oklch(0.51 0.2 274);box-shadow:inset 0 0 0 1px var(--line)}
+.t-dark{background:oklch(0.17 0.01 275);color:#fff}
+.sizes{margin-left:auto;display:flex;gap:10px;align-items:center}
+.lockup{display:flex;align-items:center;gap:9px;padding-top:14px;border-top:1px solid var(--line)}
+.lockup svg{width:28px;height:28px;color:var(--brand)}
+.lockup span{font-size:17px;font-weight:600;letter-spacing:-.02em}
+.opt p{margin:0;color:var(--muted);font-size:13.5px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- round 2 picks -->
+  <symbol id="p7" viewBox="0 0 64 64"><circle cx="32" cy="32" r="7" fill="currentColor"/><path d="M50.5 22 A21 21 0 1 1 42 13.6" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/></symbol>
+  <mask id="k8" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><circle cx="32" cy="26" r="8" fill="#000"/><path d="M28.5 28 H35.5 L38 46 H26 Z" fill="#000" stroke="#000" stroke-width="2" stroke-linejoin="round"/></mask>
+  <symbol id="p8" viewBox="0 0 64 64"><rect x="7" y="7" width="50" height="50" rx="16" fill="currentColor" mask="url(#k8)"/></symbol>
+
+  <!-- A Keyring: ping ring around a keyhole -->
+  <symbol id="a" viewBox="0 0 64 64"><path d="M50.5 22 A21 21 0 1 1 42 13.6" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/><g fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><circle cx="32" cy="28.5" r="6"/><path d="M30 31 H34 L35.6 40.5 H28.4 Z"/></g></symbol>
+
+  <!-- B Lock-on: reticle around a keyhole -->
+  <symbol id="b" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"><circle cx="32" cy="32" r="19"/><path d="M32 4.5 V12 M32 52 V59.5 M4.5 32 H12 M52 32 H59.5"/></g><g fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><circle cx="32" cy="29" r="5.5"/><path d="M30.2 31 H33.8 L35.2 40 H28.8 Z"/></g></symbol>
+
+  <!-- C Open lock -->
+  <mask id="kc" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><g fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round"><circle cx="32" cy="39" r="4.5"/><path d="M30.4 41 H33.6 L34.8 49 H29.2 Z"/></g></mask>
+  <symbol id="c" viewBox="0 0 64 64"><path d="M21 28 V18 A11 11 0 0 1 43 18 V21" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/><rect x="12" y="27" width="40" height="30" rx="9" fill="currentColor" mask="url(#kc)"/></symbol>
+
+  <!-- D Shield keyhole -->
+  <mask id="kd" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><g fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round"><circle cx="32" cy="27" r="6"/><path d="M29.4 30 H34.6 L36.4 43 H27.6 Z"/></g></mask>
+  <symbol id="d" viewBox="0 0 64 64"><path d="M32 6 L52 13 V30 C52 44 43 53 32 58 C21 53 12 44 12 30 V13 Z" fill="currentColor" stroke="currentColor" stroke-width="4" stroke-linejoin="round" mask="url(#kd)"/></symbol>
+
+  <!-- E Shield point: shield outline, one target inside -->
+  <symbol id="e" viewBox="0 0 64 64"><path d="M32 6 L52 13 V30 C52 44 43 53 32 58 C21 53 12 44 12 30 V13 Z" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><circle cx="32" cy="30" r="6.5" fill="currentColor"/></symbol>
+
+  <!-- F Key -->
+  <symbol id="f" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="19" cy="32" r="10"/><path d="M29 32 H55 V40 M46 32 V38"/></g></symbol>
+
+  <!-- G Closed lock -->
+  <symbol id="g" viewBox="0 0 64 64"><path d="M21 28 V19 A11 11 0 0 1 43 19 V28" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/><rect x="12" y="27" width="40" height="30" rx="9" fill="currentColor" mask="url(#kc)"/></symbol>
+
+  <!-- H Keyhole outline -->
+  <symbol id="h" viewBox="0 0 64 64"><path d="M27 34.66 A10 10 0 1 1 37 34.66 L40 52 H24 Z" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linejoin="round"/></symbol>
+
+  <!-- I Round keyhole -->
+  <mask id="ki" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><g fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round"><circle cx="32" cy="27" r="7"/><path d="M29 30 H35 L37.2 45 H26.8 Z"/></g></mask>
+  <symbol id="i" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="currentColor" mask="url(#ki)"/></symbol>
+
+  <!-- J Breach: a shield with one gap -->
+  <symbol id="j" viewBox="0 0 64 64"><path d="M52 23 V30 C52 44 43 53 32 58 C21 53 12 44 12 30 V13 L32 6 L43 9.9" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="31" r="6.5" fill="currentColor"/></symbol>
+
+  <!-- K Fingerprint -->
+  <symbol id="k" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"><path d="M14 40 A18 18 0 0 1 50 40"/><path d="M22 47 V40 A10 10 0 0 1 42 40 V45"/><path d="M32 40 V52"/><path d="M8 32 A24.5 24.5 0 0 1 56 32" opacity="0"/><path d="M12 26 A22 22 0 0 1 52 26"/></g></symbol>
+
+  <!-- L Hex keyhole -->
+  <mask id="kl" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><g fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round"><circle cx="32" cy="28" r="6.5"/><path d="M29.4 31 H34.6 L36.6 44 H27.4 Z"/></g></mask>
+  <symbol id="l" viewBox="0 0 64 64"><path d="M32 7 L53.6 19.5 V44.5 L32 57 L10.4 44.5 V19.5 Z" fill="currentColor" stroke="currentColor" stroke-width="5" stroke-linejoin="round" mask="url(#kl)"/></symbol>
+
+  <!-- M Scan: viewfinder around a keyhole -->
+  <symbol id="m" viewBox="0 0 64 64"><path d="M10 22 V10 H22 M42 10 H54 V22 M54 42 V54 H42 M22 54 H10 V42" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/><g fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><circle cx="32" cy="28.5" r="6"/><path d="M30 31 H34 L35.6 40.5 H28.4 Z"/></g></symbol>
+
+  <!-- N Password -->
+  <symbol id="n" viewBox="0 0 64 64"><rect x="6" y="18" width="52" height="28" rx="14" fill="none" stroke="currentColor" stroke-width="5"/><g fill="currentColor"><circle cx="21" cy="32" r="4"/><circle cx="32" cy="32" r="4"/><circle cx="43" cy="32" r="4"/></g></symbol>
+</defs></svg>
+
+<main>
+  <header>
+    <h1>Pentest Scout: logo options, round 4</h1>
+    <p>Built from your two picks, Ping and Keyhole, with more security in them: locks, keyholes, shields and keys. The same rule as round 2: each logo is two or three plain shapes. Your picks come first, then round 3 (A–F), then eight more (G–N).</p>
+  </header>
+  <section class="grid" id="grid"></section>
+</main>
+
+<template id="card">
+  <article class="opt">
+    <b></b>
+    <div class="hero"><svg viewBox="0 0 64 64"><use/></svg></div>
+    <div class="row">
+      <div class="tile t-brand"><svg viewBox="0 0 64 64"><use/></svg></div>
+      <div class="tile t-white"><svg viewBox="0 0 64 64"><use/></svg></div>
+      <div class="tile t-dark"><svg viewBox="0 0 64 64"><use/></svg></div>
+      <div class="sizes">
+        <svg width="16" height="16" viewBox="0 0 64 64"><use/></svg>
+        <svg width="24" height="24" viewBox="0 0 64 64"><use/></svg>
+      </div>
+    </div>
+    <p></p>
+    <div class="lockup"><svg viewBox="0 0 64 64"><use/></svg><span>Pentest Scout</span></div>
+  </article>
+</template>
+
+<script>
+const options=[
+  ["p7","Ping (your pick)","Round 2. A point inside an open ring, like a radar locking on."],
+  ["p8","Keyhole (your pick)","Round 2. A keyhole in a rounded square."],
+  ["a","A · Keyring","Your two picks joined: the Ping ring now circles a keyhole. Finding the way in."],
+  ["b","B · Lock-on","A keyhole inside a target reticle. The lock is the target: that's what a pentest is."],
+  ["c","C · Open lock","A padlock with its shackle lifted. The most direct way to say “we found the way in”."],
+  ["d","D · Shield keyhole","A solid shield with a keyhole cut through it. Protection, and the weak point you test."],
+  ["e","E · Shield point","A shield outline with one point inside, like Ping placed in a shield. Calm and light."],
+  ["f","F · Key","A plain key: ring, shaft, two teeth. Simple to read at any size."],
+  ["g","G · Closed lock","The padlock shut. The plainest security sign there is."],
+  ["h","H · Keyhole outline","Just the keyhole, drawn as one line. The lightest lock-themed option, and the same line weight as Ping."],
+  ["i","I · Round keyhole","Your Keyhole pick in a circle instead of a square. Softer, and pairs with Ping."],
+  ["j","J · Breach","A shield with one gap in its edge and a point inside: the weak spot you found."],
+  ["k","K · Fingerprint","Three ridges of a fingerprint. Identity and access, kept to a few lines."],
+  ["l","L · Hex keyhole","Your first reference's hexagon with a keyhole cut through it."],
+  ["m","M · Scan","Viewfinder corners framing a keyhole. Scouting for the way in."],
+  ["n","N · Password","A password field with masked characters. Instantly familiar from every login screen."],
+];
+const tpl=document.getElementById('card'),grid=document.getElementById('grid');
+for(const [id,name,desc] of options){
+  const n=tpl.content.cloneNode(true);
+  n.querySelector('b').textContent=name;
+  n.querySelector('p').textContent=desc;
+  n.querySelectorAll('use').forEach(u=>u.setAttribute('href','#'+id));
+  grid.appendChild(n);
+}
+</script>
+</body>
+</html>

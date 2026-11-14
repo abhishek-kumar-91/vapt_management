@@ -17,6 +17,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { Field, FieldLabel } from "@/components/ui/field"
+import { DatePicker } from "@/components/ui/date-picker"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -181,18 +182,14 @@ function AreaRow({
               <FieldLabel htmlFor={`${id}-date`}>
                 {area.s === "Tested" ? "Tested on" : "Started on"}
               </FieldLabel>
-              <Input
+              <DatePicker
                 id={`${id}-date`}
-                type="date"
                 className="bg-background"
                 value={
                   (area.s === "Tested" ? area.testedAt : area.startedAt) || ""
                 }
-                onChange={(e) =>
-                  field(
-                    area.s === "Tested" ? "testedAt" : "startedAt",
-                    e.target.value
-                  )
+                onChange={(v) =>
+                  field(area.s === "Tested" ? "testedAt" : "startedAt", v)
                 }
               />
             </Field>

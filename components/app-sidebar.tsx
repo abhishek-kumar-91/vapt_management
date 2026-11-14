@@ -5,19 +5,19 @@ import { usePathname } from "next/navigation"
 import {
   ActivityIcon,
   FileTextIcon,
-  InfoIcon,
   LayoutDashboardIcon,
   type LucideIcon,
   SettingsIcon,
   ShieldAlertIcon,
+  UsersIcon,
 } from "lucide-react"
 
-import { SentinelMark } from "@/components/sentinel-mark"
+import { BrandMark } from "@/components/brand-mark"
+import { useCan } from "@/components/current-user"
 import { ProductAvatar } from "@/components/product-avatar"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -36,6 +36,7 @@ export const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/dashboard/findings", label: "Findings", icon: ShieldAlertIcon },
   { href: "/dashboard/reports", label: "Reports", icon: FileTextIcon },
   { href: "/dashboard/activity", label: "Activity log", icon: ActivityIcon },
+  { href: "/dashboard/users", label: "Users", icon: UsersIcon },
   { href: "/dashboard/settings", label: "Settings", icon: SettingsIcon },
 ]
 
@@ -51,6 +52,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
   const { products, findings, hydrated } = useDashboard()
   const { setOpenMobile } = useSidebar()
+  const canSeeUsers = useCan("user.read")
+  const navItems = NAV_ITEMS.filter(
+    (item) => item.href !== "/dashboard/users" || canSeeUsers
+  )
   const openCount = findings.filter((finding) => !isClosed(finding)).length
   const isActive = (href: string) =>
     href === "/dashboard"
@@ -65,9 +70,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild className="rounded-full">
               <Link href="/dashboard" onClick={close}>
-                <SentinelMark className="size-8" />
+                <BrandMark className="size-8!" />
                 <span className="grid leading-tight group-data-[collapsible=icon]:hidden">
-                  <span className="font-semibold tracking-tight">Sentinel</span>
+                  <span className="font-semibold tracking-tight">
+                    Pentest Scout
+                  </span>
                   <span className="text-xs text-muted-foreground">
                     Security console
                   </span>
@@ -82,7 +89,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {NAV_ITEMS.map((item) => (
+              {navItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
@@ -151,16 +158,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter>
-        <div className="flex gap-2.5 rounded-3xl bg-warning/12 p-3 text-xs leading-relaxed text-[color-mix(in_oklch,var(--warning),black_50%)] group-data-[collapsible=icon]:hidden dark:text-warning">
-          <InfoIcon className="mt-0.5 size-4 shrink-0" />
-          <p>
-            <span className="font-semibold">Sample data only.</span> Don’t use
-            this as a live security report.
-          </p>
-        </div>
-      </SidebarFooter>
     </Sidebar>
   )
 }

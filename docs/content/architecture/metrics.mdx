@@ -1,0 +1,56 @@
+---
+title: Metrics engine
+description: metricsFor and the other pure derivations in lib/metrics.ts.
+---
+
+# Metrics engine
+
+`lib/metrics.ts` turns records into numbers. Every function in it is **pure**: no React, no storage, no clock other than `todayIso()`. Call these functions wherever you need a metric, and don't cache the results in the store.
+
+<Source path="lib/metrics.ts" />
+
+## `metricsFor(product, findings)`
+
+This is the main entry point. Pass a `Product` and **all** findings (it filters them by `product.id` itself):
+
+```ts
+import { metricsFor } from "@/lib/metrics"
+
+const m = metricsFor(product, findings)
+m.coverage          // 68
+m.priorityCoverage  // 100
+m.health            // "Amber"
+m.count.Critical    // open Critical findings
+```
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `areas` | `number` | Total test areas |
+| `counts` | `AreaCounts` | `{ Tested, "In Testing", Blocked, "To Do" }`. Pass it straight to `<CloseoutMeter>` |
+| `tested`, `highRisk`, `priorityTested` | `number` | Raw counts |
+| `coverage`, `priorityCoverage` | `number` | Whole-number percentages |
+| `findings`, `open` | `Finding[]` | This product's findings, and the active subset |
+| `count` | `Record<Severity, number>` | Open findings by severity |
+| `risk` | `number` | The [risk score](/concepts/sop-rules#risk-score) |
+| `health` | `Health` | See [Product health](/concepts/health) |
+| `overdueCritical`, `overdueHigh`, `overdueRetest`, `overdueCycle`, `stalled`, `missedStart`, `missedResume` | `boolean` | The flags behind health |
+| `planned`, `behind`, `elapsedWorkdays`, `endDate` | `number` / ISO | Plan-vs-actual |
+
+The return type is exported as `ProductMetrics`.
+
+## Other exports
+
+| Function | Use |
+| --- | --- |
+| `isClosed(finding)` | `true` for Closed and the exit statuses |
+| `retestDueFor(finding)` | The stored `retestDue`, or `readyDate` + 2 working days |
+| `areaCounts(areas)` | Area counts by status, for any list of areas |
+| `cycleRows(product)` | `CYCLE_RULES` resolved for this product: `{ last, next, frequency, eventBased }` |
+| `isFindingComplete(finding)` | All SOP report fields present, plus the late and exit fields where they apply |
+| `meetsCloseoutCriteria(product, metrics)` | The [baseline close-out](/concepts/sop-rules#baseline-close-out) check |
+| `nextFindingId(findings, project = "SEC")` | Highest `PROJECT-n` + 1 |
+| `coverageSnapshot(entries, date?)` | `{ date, cov }` for every product that has areas |
+
+## Performance
+
+`metricsFor` is O(areas + findings) per product, and the portfolio has a handful of products. Calling it inline in render is fine. If the portfolio grows to hundreds of products, memoise it per product with `useMemo` keyed on `data`, rather than adding a cache to the store.

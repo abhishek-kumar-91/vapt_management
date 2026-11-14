@@ -36,42 +36,66 @@ import type {
 const STORAGE_KEY = "vapt-dashboard-data-v1"
 const SAMPLE = sampleData as unknown as DashboardData
 
-function readSavedData(): DashboardData {
+const BACKUP_KEY = `${STORAGE_KEY}-unreadable`
+
+/** Loads saved records. Unreadable records are copied to BACKUP_KEY instead of being overwritten by sample data. */
+function loadSavedData(): { data: DashboardData; recovered: boolean } {
+  let saved: string | null = null
   try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (!saved) return SAMPLE
-    const parsed = JSON.parse(saved)
-    if (
-      !parsed ||
-      typeof parsed.products !== "object" ||
-      typeof parsed.findings !== "object"
-    ) {
-      throw new Error(
-        "Saved dashboard data is missing required product or finding records."
-      )
-    }
-    return {
-      ...SAMPLE,
-      ...parsed,
-      config: { ...SAMPLE.config, ...parsed.config },
-      reports: Array.isArray(parsed.reports) ? parsed.reports : [],
-      events: Array.isArray(parsed.events) ? parsed.events : [],
-      history: Array.isArray(parsed.history) ? parsed.history : [],
-    }
+    saved = localStorage.getItem(STORAGE_KEY)
+  } catch {
+    return { data: SAMPLE, recovered: false }
+  }
+  try {
+    return { data: readSavedData(saved), recovered: false }
   } catch (error) {
     console.error(
       "Unable to load saved dashboard data; using the bundled sample data.",
       error
     )
-    return SAMPLE
+    try {
+      if (saved) localStorage.setItem(BACKUP_KEY, saved)
+    } catch {
+      /* no room for a backup; the console error above is all we can do */
+    }
+    return { data: SAMPLE, recovered: true }
   }
 }
 
-function persistData(data: DashboardData) {
+const isRecord = (value: unknown) =>
+  !!value && typeof value === "object" && !Array.isArray(value)
+
+/** Parses saved records; throws when they are unreadable. */
+function readSavedData(saved: string | null): DashboardData {
+  if (!saved) return SAMPLE
+  const parsed = JSON.parse(saved)
+  if (
+    !isRecord(parsed) ||
+    !isRecord(parsed.products) ||
+    !isRecord(parsed.findings)
+  ) {
+    throw new Error(
+      "Saved dashboard data is missing required product or finding records."
+    )
+  }
+  return {
+    ...SAMPLE,
+    ...parsed,
+    config: { ...SAMPLE.config, ...parsed.config },
+    reports: Array.isArray(parsed.reports) ? parsed.reports : [],
+    events: Array.isArray(parsed.events) ? parsed.events : [],
+    history: Array.isArray(parsed.history) ? parsed.history : [],
+  }
+}
+
+/** Returns false when the browser refuses the write (storage full, blocked, or private mode). */
+function persistData(data: DashboardData): boolean {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    return true
   } catch (error) {
     console.error("Unable to save dashboard data in this browser.", error)
+    return false
   }
 }
 
@@ -104,13 +128,50 @@ function useDashboardState() {
 
   // localStorage only exists in the browser, so load after mount to keep SSR and hydration identical.
   React.useEffect(() => {
+    const { data: saved, recovered } = loadSavedData()
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time sync from localStorage after hydration
-    setData(readSavedData())
+    setData(saved)
     setHydrated(true)
+    if (recovered) {
+      toast.error("Saved records couldn’t be read", {
+        id: "load-recovered",
+        description:
+          "Showing sample data instead. The unreadable copy is kept in this browser’s storage, not deleted.",
+        duration: Infinity,
+      })
+    }
   }, [])
 
+  // Another tab saved: take its records so neither tab overwrites the other's work.
   React.useEffect(() => {
-    if (hydrated) persistData(data)
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== STORAGE_KEY) return
+      try {
+        setData(readSavedData(event.newValue))
+      } catch {
+        /* the other tab wrote something unreadable; keep what this tab has */
+      }
+    }
+    window.addEventListener("storage", onStorage)
+    return () => window.removeEventListener("storage", onStorage)
+  }, [])
+
+  const saveFailed = React.useRef(false)
+  React.useEffect(() => {
+    if (!hydrated) return
+    const saved = persistData(data)
+    if (saved) {
+      if (saveFailed.current) toast.dismiss("save-failed")
+      saveFailed.current = false
+    } else if (!saveFailed.current) {
+      saveFailed.current = true
+      toast.error("Changes aren’t being saved", {
+        id: "save-failed",
+        description:
+          "This browser’s storage is full or blocked, so your edits will be lost when you close the tab. Export JSON to keep a copy.",
+        duration: Infinity,
+      })
+    }
   }, [data, hydrated])
 
   const products = React.useMemo(
@@ -601,7 +662,7 @@ function useDashboardState() {
       /* storage unavailable; state reset below still applies */
     }
     setData(SAMPLE)
-    toast.success("Bundled sample data restored")
+    toast.success("Local data reset")
   }
 
   return {

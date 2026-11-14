@@ -1,0 +1,43 @@
+---
+title: Deployment
+description: Build, host and ship the console and the docs, and the checks to run first.
+---
+
+# Deployment
+
+## The console
+
+```bash
+pnpm build
+pnpm start          # next start on port 3000
+```
+
+What the host must provide:
+
+| Requirement | Why |
+| --- | --- |
+| **Authentication in front of the app** | There is no identity provider in the code yet. See [Security](/architecture/security#authentication) |
+| **HTTPS** | The app handles security findings |
+| **Per-request rendering with Next.js proxy support** | The CSP nonce changes on every request. A static export would break it |
+| `DATABASE_URL` set as a server-only secret | Used by `db/` and `/api/health` |
+| Node.js 20.9+ (24 LTS recommended) | Next.js 16 requirement |
+
+On Vercel, the proxy, per-request rendering and environment variables work without extra setup. Put the deployment behind Deployment Protection or SSO until real sign-in exists.
+
+### Pre-release checks
+
+```bash
+pnpm typecheck && pnpm lint && pnpm build
+curl -sf https://<host>/api/health     # {"ok":true,"db":"up"}
+curl -sI https://<host>/login | grep -i content-security-policy
+```
+
+## The docs
+
+The docs build to static files and need no server:
+
+```bash
+pnpm docs:build       # → docs/build
+```
+
+The build **fails on broken links and anchors**, and that is deliberate. Host `docs/build` on any static host, behind the same access control as the console, because the docs describe internal security workflows. Set `url` and `baseUrl` in `docs/docusaurus.config.ts` to the real host before the first deploy. `noIndex: true` stays on.

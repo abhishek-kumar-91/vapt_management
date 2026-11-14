@@ -54,6 +54,7 @@ function FindingsView() {
     all: findings.length,
   }
   const q = query.trim().toLowerCase()
+  const filtered = !!q || severity !== "all" || product !== "all"
   const visible = findings.filter(
     (f) =>
       (view === "all" ||
@@ -135,7 +136,26 @@ function FindingsView() {
         <CardContent className="px-0">
           <FindingsTable
             findings={visible}
-            emptyText="No findings match these filters."
+            emptyText={
+              filtered ? (
+                <span className="grid justify-items-center gap-3">
+                  No findings match these filters.
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSeverity("all")
+                      setProduct("all")
+                      setQuery("")
+                    }}
+                  >
+                    Clear filters
+                  </Button>
+                </span>
+              ) : (
+                "No findings in this view."
+              )
+            }
           />
         </CardContent>
       </Card>

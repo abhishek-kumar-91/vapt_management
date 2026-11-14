@@ -12,7 +12,7 @@ Primary: the in-house **Security Tester** who works through vulnerability-assess
 
 ## Product Purpose
 
-Sentinel is a single place to track application-security testing against the internal Application Security Testing SOP v1.0: per-product coverage of test areas (with priority/high-risk coverage), validated findings and their fix deadlines, retest turnaround, tier-based test cycles, and the reports the SOP requires. Success means the tester always knows what to test next, nothing breaches an SLA unnoticed, and reports come straight from the records.
+Pentest Scout is a single place to track application-security testing against the internal Application Security Testing SOP v1.0: per-product coverage of test areas (with priority/high-risk coverage), validated findings and their fix deadlines, retest turnaround, tier-based test cycles, and the reports the SOP requires. Success means the tester always knows what to test next, nothing breaches an SLA unnoticed, and reports come straight from the records.
 
 ## Positioning
 
@@ -32,7 +32,8 @@ The workflow rules are the SOP itself, not generic issue tracking: coverage is c
 
 ## Brand Commitments
 
-- Name: **Sentinel** (Security Console), with its shield-and-check mark. Confirmed by the user 2026-11-14.
+- Name: **Pentest Scout** (Security Console), with its keyring mark: an open scouting ring around a keyhole. Confirmed by the user 2026-11-14; replaces Sentinel.
+- Brand colour is black and white only (no purple or other brand hue), for the logo and the whole site theme. Status, severity and health colours stay as they are. Confirmed by the user 2026-11-14.
 - Pinned by the user: Next.js (latest, App Router), Figtree typeface, shadcn/ui **Luma** style, fully rounded, clean product look.
 
 ## Evidence on Hand

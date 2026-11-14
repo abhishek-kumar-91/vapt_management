@@ -1,0 +1,91 @@
+---
+title: Database
+description: The Drizzle ORM and Neon Postgres layer, its conventions, and the health endpoint.
+---
+
+# Database
+
+Pentest Scout is moving toward shared storage on **Neon Postgres**, accessed through **Drizzle ORM**. The connection, tooling and health check are in place. The schema itself has **not been designed yet**, so no feature reads from or writes to the database today.
+
+<Source path="db/" />
+
+## Layout
+
+```text
+db/
+├── index.ts        Server-only Drizzle client (Neon WebSocket pool)
+├── schema.ts       Table definitions (currently empty: `export {}`)
+└── migrations/     Generated SQL + meta journal (drizzle-kit)
+drizzle.config.ts   dialect postgresql, snake_case, strict, verbose
+```
+
+## The client
+
+```ts title="db/index.ts"
+import "server-only"
+import { Pool } from "@neondatabase/serverless"
+import { drizzle } from "drizzle-orm/neon-serverless"
+import * as schema from "./schema"
+
+const url = process.env.DATABASE_URL
+if (!url) throw new Error("DATABASE_URL is not set. Copy .env.example to .env.")
+
+// One pool per server instance; reuse it across dev hot reloads instead of leaking connections.
+const globalForDb = globalThis as unknown as { pool?: Pool }
+const pool = (globalForDb.pool ??= new Pool({ connectionString: url }))
+
+export const db = drizzle({ client: pool, schema, casing: "snake_case" })
+```
+
+The conventions it sets:
+
+- **`server-only`.** Importing `@/db` from a client component fails the build. Reach the database from route handlers, server actions or server components.
+- **WebSocket `Pool`, not the HTTP driver**, so interactive transactions (`db.transaction(...)`) work.
+- **One pool per process**, kept on `globalThis` so dev hot reloads don't leak connections.
+- **`casing: "snake_case"`** in both the client and `drizzle.config.ts`. Write camelCase in TypeScript and get snake_case columns.
+- **Fail fast.** A missing `DATABASE_URL` throws when the module is imported, with a message that says how to fix it.
+
+## Workflow
+
+```bash
+# edit db/schema.ts, then:
+pnpm db:generate   # write a migration into db/migrations
+pnpm db:migrate    # apply pending migrations
+pnpm db:push       # (prototyping only) push schema without a migration
+pnpm db:studio     # browse data in Drizzle Studio
+```
+
+`drizzle.config.ts` loads `.env` itself (`process.loadEnvFile`), so these scripts work without exporting variables first. `strict: true` asks for confirmation before destructive statements.
+
+:::tip[Schema file growth]
+`db/schema.ts` is a single file until it grows. Then split it into `db/schema/*.ts` and re-export from `db/schema/index.ts`. The client imports `* as schema`, so nothing else needs to change.
+:::
+
+## Health endpoint
+
+```ts title="app/api/health/route.ts"
+export async function GET() {
+  try {
+    await db.execute(sql`select 1`)
+    return Response.json({ ok: true, db: "up" })
+  } catch {
+    return Response.json({ ok: false, db: "down" }, { status: 503 })
+  }
+}
+```
+
+```bash
+curl -s localhost:3000/api/health
+# {"ok":true,"db":"up"}
+```
+
+The response never includes connection details or error text. Keep it that way, because it may be reachable by an uptime monitor. `/api/*` is excluded from the proxy matcher, so the route doesn't get the page CSP.
+
+## When the schema lands
+
+The local store's types in `lib/types.ts` are the starting point for tables. Plan for these points:
+
+- **Ids:** findings keep their Jira keys (`SEC-123`) as natural keys. Products keep their slug ids.
+- **Events are append-only.** Model `activity_events` with no update path.
+- **Dates:** the client uses `YYYY-MM-DD` strings. Use `date` columns for day values and `timestamptz` for `reportedAt`.
+- **Health and coverage stay derived.** Keep calling `lib/metrics.ts` on read, and don't store them.

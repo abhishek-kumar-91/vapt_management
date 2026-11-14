@@ -3,6 +3,7 @@ import { Figtree, Geist_Mono } from "next/font/google"
 import { headers } from "next/headers"
 
 import "./globals.css"
+import { QueryProvider } from "@/components/query-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -12,7 +13,10 @@ const fontSans = Figtree({ subsets: ["latin"], variable: "--font-sans" })
 const fontMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
 
 export const metadata: Metadata = {
-  title: { default: "Sentinel · VAPT console", template: "%s · Sentinel" },
+  title: {
+    default: "Pentest Scout · VAPT console",
+    template: "%s · Pentest Scout",
+  },
   description:
     "Vulnerability assessment coverage, findings, retests and SOP reporting.",
   robots: { index: false, follow: false },
@@ -21,8 +25,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8f8fc" },
-    { media: "(prefers-color-scheme: dark)", color: "#16161f" },
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#161616" },
   ],
 }
 
@@ -40,10 +44,12 @@ export default async function RootLayout({
     >
       <body>
         <ThemeProvider nonce={nonce}>
-          <TooltipProvider>
-            {children}
-            <Toaster position="bottom-right" />
-          </TooltipProvider>
+          <QueryProvider>
+            <TooltipProvider>
+              {children}
+              <Toaster position="bottom-right" />
+            </TooltipProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

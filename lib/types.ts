@@ -104,6 +104,7 @@ export type EventType =
   | "Close-out"
   | "Blocker"
   | "Incident"
+  | "Access"
 
 export interface ActivityEvent {
   date: string

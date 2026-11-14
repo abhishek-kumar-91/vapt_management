@@ -1,18 +1,21 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
 import {
   ArrowRightIcon,
+  CircleAlertIcon,
   EyeIcon,
   EyeOffIcon,
   InfoIcon,
   LoaderCircleIcon,
 } from "lucide-react"
 
+import { signIn } from "@/app/login/actions"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -24,60 +27,118 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import { EMAIL_PATTERN } from "@/lib/auth/shared"
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-export function LoginForm() {
-  const router = useRouter()
+export function LoginForm({ next, notice }: { next: string; notice?: string }) {
+  const [state, formAction, pending] = React.useActionState(signIn, undefined)
   const [email, setEmail] = React.useState("")
-  const [password, setPassword] = React.useState("")
+  const [localErrors, setLocalErrors] = React.useState<{
+    email?: string
+    password?: string
+  }>({})
   const [showPassword, setShowPassword] = React.useState(false)
-  const [submitted, setSubmitted] = React.useState(false)
-  const [pending, startTransition] = React.useTransition()
+  const [capsLock, setCapsLock] = React.useState(false)
+  const passwordRef = React.useRef<HTMLInputElement>(null)
 
-  const emailError =
-    submitted && !EMAIL.test(email.trim())
-      ? "Enter a valid work email, like name@company.com."
-      : ""
-  const passwordError = submitted && !password ? "Enter your password." : ""
+  // After a failed attempt React clears the (uncontrolled) password; put the caret back there.
+  React.useEffect(() => {
+    if (state?.error) passwordRef.current?.focus()
+  }, [state])
 
-  const submit = (event: React.FormEvent) => {
-    event.preventDefault()
-    setSubmitted(true)
-    if (!EMAIL.test(email.trim()) || !password) return
-    // ponytail: no identity provider yet; any valid-looking credentials open the dashboard. Wire real auth here.
-    startTransition(() => router.push("/dashboard"))
+  const errors = { ...state?.fieldErrors, ...localErrors }
+
+  // Catch the obvious mistakes before a round trip; the server re-checks everything.
+  const check = (event: React.FormEvent<HTMLFormElement>) => {
+    const password = new FormData(event.currentTarget).get("password")
+    const found = {
+      email: EMAIL_PATTERN.test(email.trim())
+        ? undefined
+        : "Enter a valid work email, like name@company.com.",
+      password: password ? undefined : "Enter your password.",
+    }
+    setLocalErrors(found)
+    if (found.email || found.password) event.preventDefault()
   }
 
+  const trackCaps = (event: React.KeyboardEvent) =>
+    setCapsLock(event.getModifierState("CapsLock"))
+
   return (
-    <form noValidate onSubmit={submit} className="grid gap-6">
+    <form
+      noValidate
+      action={formAction}
+      onSubmit={check}
+      className="grid gap-6"
+    >
+      <input type="hidden" name="next" value={next} />
+
+      {state?.error ? (
+        <Alert variant="destructive" role="alert">
+          <CircleAlertIcon />
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
+      ) : (
+        notice && (
+          <p
+            role="status"
+            className="flex gap-2.5 rounded-3xl bg-muted px-4 py-3 text-sm text-muted-foreground"
+          >
+            <InfoIcon className="mt-0.5 size-4 shrink-0" />
+            {notice}
+          </p>
+        )
+      )}
+
       <FieldGroup className="gap-5">
-        <Field data-invalid={!!emailError || undefined}>
+        <Field data-invalid={!!errors.email || undefined}>
           <FieldLabel htmlFor="email">Work email</FieldLabel>
           <Input
             id="email"
+            name="email"
             type="email"
             autoComplete="username"
             autoFocus
+            spellCheck={false}
+            maxLength={254}
             placeholder="name@company.com"
             className="h-11 px-4"
             value={email}
-            aria-invalid={!!emailError || undefined}
-            onChange={(e) => setEmail(e.target.value)}
+            aria-invalid={!!errors.email || undefined}
+            aria-describedby={errors.email ? "email-error" : undefined}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              if (localErrors.email)
+                setLocalErrors((v) => ({ ...v, email: undefined }))
+            }}
           />
-          {emailError && <FieldError>{emailError}</FieldError>}
+          {errors.email && (
+            <FieldError id="email-error">{errors.email}</FieldError>
+          )}
         </Field>
-        <Field data-invalid={!!passwordError || undefined}>
+        <Field data-invalid={!!errors.password || undefined}>
           <FieldLabel htmlFor="password">Password</FieldLabel>
           <InputGroup className="h-11">
             <InputGroupInput
+              ref={passwordRef}
               id="password"
+              name="password"
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
+              maxLength={128}
               className="px-4"
-              value={password}
-              aria-invalid={!!passwordError || undefined}
-              onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={!!errors.password || undefined}
+              aria-describedby={
+                [errors.password && "password-error", capsLock && "caps-lock"]
+                  .filter(Boolean)
+                  .join(" ") || undefined
+              }
+              onKeyDown={trackCaps}
+              onKeyUp={trackCaps}
+              onBlur={() => setCapsLock(false)}
+              onChange={() => {
+                if (localErrors.password)
+                  setLocalErrors((v) => ({ ...v, password: undefined }))
+              }}
             />
             <InputGroupAddon align="inline-end">
               <InputGroupButton
@@ -90,7 +151,17 @@ export function LoginForm() {
               </InputGroupButton>
             </InputGroupAddon>
           </InputGroup>
-          {passwordError && <FieldError>{passwordError}</FieldError>}
+          {errors.password && (
+            <FieldError id="password-error">{errors.password}</FieldError>
+          )}
+          {capsLock && (
+            <FieldDescription
+              id="caps-lock"
+              className="text-[color-mix(in_oklch,var(--warning),black_45%)] dark:text-warning"
+            >
+              Caps Lock is on.
+            </FieldDescription>
+          )}
         </Field>
       </FieldGroup>
 
@@ -106,7 +177,7 @@ export function LoginForm() {
               className="animate-spin"
               data-icon="inline-start"
             />
-            Opening console…
+            Signing in…
           </>
         ) : (
           <>
@@ -116,12 +187,8 @@ export function LoginForm() {
         )}
       </Button>
 
-      <p className="flex gap-2.5 rounded-3xl bg-muted px-4 py-3 text-sm text-muted-foreground">
-        <InfoIcon className="mt-0.5 size-4 shrink-0" />
-        <span>
-          Sample environment: sign-in isn’t connected to an identity provider
-          yet, so any work email and password opens the dashboard.
-        </span>
+      <p className="text-center text-sm text-muted-foreground">
+        Forgot your password? Ask an Owner on your team for a reset link.
       </p>
     </form>
   )

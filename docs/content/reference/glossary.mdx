@@ -1,0 +1,38 @@
+---
+title: Glossary
+description: SOP and product terms used across the code and these docs.
+---
+
+# Glossary
+
+**Baseline test.** The first full test of a product against its test areas. It ends at close-out and is repeated yearly.
+
+**Close-out.** The point at which a baseline is complete: 100% priority coverage, at least 80% overall coverage, a close-out date, complete finding tickets, and reasons for every untested area. Checked by `meetsCloseoutCriteria`.
+
+**Close-out line.** The 80% mark on the [close-out meter](/design-system/components#close-out-meter), set by `CLOSEOUT_COVERAGE`.
+
+**Coverage.** Tested areas ÷ all areas, as a whole-number percentage. **Priority coverage** counts only high-risk areas.
+
+**Cycle.** A recurring test (regression, authentication, dependency, configuration, register review) with a frequency set by the product's tier. See `CYCLE_RULES`.
+
+**Escalation.** The same-day notification to the dev lead and the Manager for a Critical or High finding. It is logged as an event.
+
+**Exit status.** Rejected, Risk Accepted or Won't Fix. A finding is closed without a fix, and a reason is required.
+
+**Health.** The derived Red, Amber, Green, Paused or Not started state of a product. See [Product health](/concepts/health).
+
+**High-risk area (`hr`).** A priority test area. All of them must be Tested before close-out.
+
+**Late finding.** A finding in an area that was already marked Tested. It reopens the area and needs `previousTest`, `discoveryMethod` and `lateCause`.
+
+**Retest.** Verification of a fix. The target is 2 working days after the fix is marked ready.
+
+**Risk score.** The weighted count of open findings, multiplied by the tier weight. See [Risk score](/concepts/sop-rules#risk-score).
+
+**SOP.** The internal *Application Security Testing SOP v1.0*. It is the source of every rule in `lib/sop.ts`.
+
+**Switch.** A change to a product's baseline status. It needs Manager-approved handover text in `switchReason`.
+
+**Tier.** A product's risk class: 1 (highest), 2 or 3. It sets cycle frequency and the risk weight.
+
+**VAPT.** Vulnerability Assessment and Penetration Testing.

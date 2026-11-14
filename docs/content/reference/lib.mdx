@@ -1,0 +1,110 @@
+---
+title: lib/ API reference
+description: Every export in lib/, with its signature and a one-line contract.
+---
+
+# `lib/` API reference
+
+The exports of every module in `lib/`, grouped by file. Signatures are simplified for reading. The source is authoritative.
+
+## `lib/sop.ts`: SOP constants
+
+| Export | Value / type |
+| --- | --- |
+| `PRODUCT_ORDER` | `string[]`. Display order of known product ids |
+| `SEVERITIES` | `["Critical", "High", "Medium", "Low"]` |
+| `AREA_STATUSES` | `["To Do", "In Testing", "Blocked", "Tested"]` |
+| `FINDING_STATUSES` | All eight finding statuses |
+| `ACTIVE_FINDING_STATUSES` | `Open`, `Triaged`, `In Fix`, `Ready for Retest` |
+| `EXIT_STATUSES` | `Rejected`, `Risk Accepted`, `Won't Fix` |
+| `CLOSED_STATUSES` | `Closed` + `EXIT_STATUSES` |
+| `PRODUCT_STATUSES` | `Not started`, `In progress`, `Paused`, `Baseline complete`, `Continuous` |
+| `SEVERITY_DAYS` | `{ Critical: 7, High: 30, Medium: 90 }` |
+| `RETEST_WORKDAYS` | `2` |
+| `CLOSEOUT_COVERAGE` | `80` |
+| `TIER_WEIGHT` | `{ 1: 3, 2: 2, 3: 1 }` |
+| `SEVERITY_WEIGHT` | `{ Critical: 10, High: 5, Medium: 2, Low: 0.5 }` |
+| `CYCLE_RULES` | `CycleRule[]`. `{ key, title, source, months?, days?, eventBased? }` |
+| `SOP_RULES` | `string[]`. Human-readable rules shown in Settings |
+
+## `lib/metrics.ts`: derivations
+
+```ts
+isClosed(finding: Pick<Finding, "status">): boolean
+retestDueFor(finding: Finding): string                       // ISO or ""
+areaCounts(areas?: TestArea[]): AreaCounts
+cycleRows(product: ProductRecord): CycleRow[]
+metricsFor(product: Product, findings: Finding[]): ProductMetrics
+isFindingComplete(finding: Finding): boolean
+meetsCloseoutCriteria(product: Product, metrics: ProductMetrics): boolean
+nextFindingId(findings: Finding[], project = "SEC"): string
+coverageSnapshot(products: [id, ProductRecord][], date = todayIso()): CoverageSnapshot
+```
+
+See [Metrics engine](/architecture/metrics) for the `ProductMetrics` fields.
+
+## `lib/dates.ts`: ISO date helpers
+
+All values are local `YYYY-MM-DD` strings. Working days are Monday to Friday, with no holiday calendar.
+
+```ts
+todayIso(): string
+toIso(date: Date): string
+formatDate(value?: string, options = { day: "numeric", month: "short" }): string   // "14 Nov", or "—" when empty
+LONG_DATE: Intl.DateTimeFormatOptions                                               // "14 Nov 2026"
+isWorkday(date: Date): boolean
+workdaysBetween(from?: string, to?: string): number   // working days after `from`, up to and including `to`
+addWorkdays(from: string | undefined, count: number): string
+addMonths(value: string | undefined, count: number): string   // clamps to the end of the month (31 Jan + 1 → 28/29 Feb)
+addDays(value: string | undefined, count: number): string
+dateDiff(from?: string, to?: string): number                  // calendar days, to − from
+```
+
+## `lib/reports.ts`: report builders
+
+```ts
+REPORT_TYPES: { value: ReportType; label: string; title: string; archiveTitle: string }[]
+interface ReportForm { date; productId; tested; methods; findingNotes; blocked; tomorrow; lessons; resources; manager }
+buildReport(data, type, form, products, findings): string            // Markdown
+buildFindingReport(finding: Finding, product?: ProductRecord): string // SOP ticket Markdown
+retestMailto(email, finding, productName, readyDate): string         // mailto: URL
+downloadText(body: string, name: string, type = "text/markdown;charset=utf-8"): void
+```
+
+## `lib/store.tsx`: state
+
+```ts
+<DashboardProvider>{children}</DashboardProvider>
+useDashboard(): { data, hydrated, products, findings, actions }
+```
+
+The actions are listed in [State and persistence](/architecture/state#actions).
+
+## `lib/users.ts`: team and roles
+
+```ts
+ROLES: { value: Role; summary: string }[]
+PERMISSIONS: { label: string; roles: Role[] }[]
+USER_STATUSES: ["Active", "Invited", "Suspended"]
+CURRENT_USER_ID: string                       // seeded Owner until an identity provider exists
+SAMPLE_USERS: TeamUser[]
+EMAIL: RegExp
+initials(name: string): string
+accessChangeError(users, id, change: AccessChange | "remove", currentUserId?): string | null
+```
+
+## `lib/appearance.ts`, `lib/theme-transition.ts`, `lib/utils.ts`
+
+```ts
+type Appearance = "default" | "dark-sidebar"
+APPEARANCE_COOKIE = "pentest_scout_appearance"
+
+switchTheme(next: "light" | "dark", setTheme: (t: string) => void, origin?: Element | null): void
+fadeTransition(update: () => void): void
+
+cn(...classes: ClassValue[]): string     // clsx + tailwind-merge
+```
+
+## `lib/types.ts`
+
+See the [domain model](/concepts/domain-model).

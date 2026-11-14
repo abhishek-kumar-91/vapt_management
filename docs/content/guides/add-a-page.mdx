@@ -1,0 +1,81 @@
+---
+title: Add a dashboard page
+description: Add a route under /dashboard that reads the store, follows the layout grammar and appears in the sidebar.
+---
+
+# Add a dashboard page
+
+This guide adds a **Retests** page at `/dashboard/retests` that lists findings waiting for retest.
+
+## 1. Create the route
+
+Every `/dashboard/*` route already has the shell and the store, from `app/dashboard/layout.tsx`. A page only needs to be a client component that reads `useDashboard()`.
+
+```tsx title="app/dashboard/retests/page.tsx"
+"use client"
+
+import { PageHeader } from "@/components/page-header"
+import { FindingStatusBadge, SeverityBadge } from "@/components/status"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { formatDate } from "@/lib/dates"
+import { retestDueFor } from "@/lib/metrics"
+import { useDashboard } from "@/lib/store"
+
+export default function RetestsPage() {
+  const { findings, products } = useDashboard()
+  const waiting = findings.filter((f) => f.status === "Ready for Retest")
+  const name = (id: string) => products.find((p) => p.id === id)?.name ?? id
+
+  return (
+    <div className="grid gap-6">
+      <PageHeader
+        title="Retests"
+        description={`Sample data · ${waiting.length} waiting · target 2 working days`}
+      />
+      <Card>
+        <CardHeader>
+          <CardTitle>Waiting for retest</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-2">
+          {waiting.map((f) => (
+            <div key={f.id} className="flex items-center gap-3 text-sm">
+              <span className="font-mono text-xs">{f.id}</span>
+              <SeverityBadge severity={f.severity} />
+              <span className="min-w-0 flex-1 truncate">{f.title}</span>
+              <span className="text-muted-foreground">{name(f.product)}</span>
+              <span className="tabular-nums">{formatDate(retestDueFor(f))}</span>
+              <FindingStatusBadge status={f.status} />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+```
+
+The page follows the design rules: one `PageHeader`, the stack with a 24px gap, mono only for the ticket id, tabular dates, badges that carry words, and a description that says "Sample data".
+
+:::tip[Title metadata]
+Client pages can't export `metadata`. To give the page a browser title, add a small server `layout.tsx` beside it: `export const metadata = { title: "Retests" }`. The root template renders it as *Retests · Pentest Scout*.
+:::
+
+## 2. Add it to the sidebar
+
+```diff title="components/app-sidebar.tsx"
+ export const NAV_ITEMS = [
+   { href: "/dashboard", label: "Overview", icon: LayoutDashboardIcon },
+   { href: "/dashboard/findings", label: "Findings", icon: ShieldAlertIcon },
++  { href: "/dashboard/retests", label: "Retests", icon: RotateCcwIcon },
+   { href: "/dashboard/reports", label: "Reports", icon: FileTextIcon },
+```
+
+Import the icon from `lucide-react`, the project's only icon set.
+
+## 3. Handle the empty state
+
+A list with nothing in it should say so and suggest what to do next. Use `components/ui/empty.tsx` rather than leaving a blank card.
+
+## 4. Check it
+
+Before you open a pull request, check the page in light mode, in dark mode, at phone width and with keyboard-only navigation. Then run `pnpm typecheck && pnpm lint`.

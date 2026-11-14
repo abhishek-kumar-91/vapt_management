@@ -1,0 +1,101 @@
+---
+title: Foundations
+description: Colour, type, shape, depth and the rules that keep Pentest Scout consistent.
+---
+
+# Foundations
+
+Pentest Scout's visual system is **"The Close-out Line"**: a calm, product-grade console built on shadcn/ui Luma. Pill controls and deeply rounded cards sit on a pure neutral ground. The brand is black and white: ink carries action and progress. Every other colour means severity or health, and nothing else. `DESIGN.md` at the repo root is the system of record, and this page is the working summary for developers.
+
+<Source path="app/globals.css">Tokens are CSS variables, exposed to Tailwind via <code>@theme inline</code>.</Source>
+
+## Colour
+
+### Brand and neutrals
+
+<SwatchGrid>
+  <Swatch name="Scout Ink" token="--primary" preview="s-primary" value="oklch(0.205 0 0)" note="buttons, Tested segment, links; near-white in dark mode" />
+  <Swatch name="Paper Ground" token="--background" preview="s-ground" value="oklch(0.982 0 0)" note="page and sidebar" />
+  <Swatch name="Card White" token="--card" preview="s-card" value="oklch(1 0 0)" note="cards, popovers" />
+  <Swatch name="Ink" token="--foreground" preview="s-ink" value="oklch(0.2 0 0)" note="text" />
+  <Swatch name="Muted Text" token="--muted-foreground" preview="s-muted-ink" value="oklch(0.5 0 0)" note="12px or larger" />
+  <Swatch name="Accent Wash" token="--accent" preview="s-accent" value="oklch(0.95 0 0)" note="active nav, hover" />
+  <Swatch name="Hairline" token="--border" preview="s-hairline" value="oklch(0.915 0 0)" note="dividers" />
+</SwatchGrid>
+
+### Semantic: severity and health
+
+<SwatchGrid>
+  <Swatch name="Critical" token="--critical" preview="s-critical" value="oklch(0.57 0.21 25)" note="also Red health, Blocked" />
+  <Swatch name="High" token="--high" preview="s-high" value="oklch(0.66 0.17 50)" />
+  <Swatch name="Medium" token="--medium" preview="s-medium" value="oklch(0.76 0.15 80)" />
+  <Swatch name="Low" token="--low" preview="s-low" value="oklch(0.6 0.13 250)" />
+  <Swatch name="Health Green" token="--success" preview="s-success" value="oklch(0.58 0.13 160)" note="also passed close-out tick" />
+  <Swatch name="Health Amber" token="--warning" preview="s-warning" value="oklch(0.7 0.15 70)" />
+  <Swatch name="Paused" token="--paused" preview="s-paused" value="oklch(0.56 0.15 295)" note="also Ready for Retest" />
+</SwatchGrid>
+
+Values shown are the light theme. The chips follow the docs theme, so toggle dark mode to see the dark values. Every token is defined in both themes in `app/globals.css` (`:root` and `.dark`).
+
+### Rules
+
+- **No Brand Hue.** Ink (black in light mode, white in dark) is the only thing that means "brand" or "go". Red, orange, amber, blue, green and violet appear only when they mean severity or health. Never use them decoratively.
+- **Colour plus word.** Every semantic colour is paired with text. Badges carry the word (<Badge>High</Badge>), severity counts carry a letter (C/H/M/L), and health dots sit beside their label (<Badge dot>Amber</Badge>).
+- **Tinted badges.** A badge is a 12–20% tint of its tone, with text darkened by `color-mix(in oklch, var(--tone), black N%)` in light mode and the raw tone in dark mode. Every tone clears 4.5:1.
+
+## Typography
+
+| Role | Size / weight | Use |
+| --- | --- | --- |
+| Display | 1.875rem / 600, tight, tabular | Headline metrics (portfolio coverage) |
+| Headline | 1.5rem / 600, tight | Page titles (`PageHeader`) |
+| Title | 1rem / 500–600 | Card titles, section headings |
+| Body | 0.875rem / 400 | Rows, descriptions, form text (inputs are 1rem below `md`) |
+| Label | 0.75rem / 500 | Badges, legends, metadata. **The floor for readable text** |
+| Mono | 0.75rem Geist Mono | Ticket ids (`SEC-121`), method fields, report text. **Nothing else** |
+
+**Figtree** does all the speaking. Hierarchy comes from steps in size and weight, not from a second display face. Two rules:
+
+- **Tabular numerals** (`tabular-nums`) on every number that can change or be compared.
+- **12px floor.** Readable text never goes below 0.75rem.
+
+## Shape
+
+Everything is fully rounded. Buttons, inputs, badges, meters, avatars and dots are pills or circles.
+
+| Element | Radius | Tailwind |
+| --- | --- | --- |
+| Cards | 1.625rem | `rounded-4xl` |
+| Inset canvas, inputs, report previews | 1.375rem | `rounded-3xl` |
+| Sidebar menu items | 0.875rem | `rounded-xl` |
+| Buttons, badges, meters | pill | `rounded-full` |
+
+The radius scale is derived from `--radius: 0.625rem` (`--radius-4xl = radius × 2.6`).
+
+## Depth
+
+A surface is defined by its **hairline ring first**, then a soft ambient shadow:
+
+```css
+/* Card lift */
+box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+/* + ring-1 ring-foreground/5 (ring-foreground/10 in dark) */
+```
+
+Only cards, the inset canvas, small date tiles and overlays are raised. Focus is a 3px ring of the neutral focus grey at 30%. **No hard or offset shadows.**
+
+## Layout
+
+- The shell is a 17.5rem light sidebar on the ground, with content in a rounded (`rounded-3xl`) inset panel from `md` up. Below `md`, the sidebar becomes an off-canvas sheet.
+- Content is centred at `max-w-7xl` (80rem), with 16px gutters (32px at `md`) and 24px top padding (32px at `md`).
+- A page is a stack with a 24px gap: `PageHeader`, then one wide summary card, then cards two-up at `lg`.
+
+## Do and don't
+
+| Do | Don't |
+| --- | --- |
+| Use the close-out meter wherever coverage is shown | Build rows of identical KPI tiles |
+| Pair every severity and health colour with a word or letter | Put readable text below 0.75rem |
+| Keep one ink primary button per view | Add a second brand hue, or use semantic colours as decoration |
+| Label sample data wherever data appears | Use a dark navy sidebar by default (it is an opt-in appearance) |
+| Reveal data left to right, and settle content in | Use hard or offset shadows, or Geist Mono as decoration |

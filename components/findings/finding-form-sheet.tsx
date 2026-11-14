@@ -13,6 +13,7 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field"
+import { DatePicker } from "@/components/ui/date-picker"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -172,6 +173,17 @@ function FindingForm({
     label: area.n,
   }))
 
+  // `required` accepts spaces; refuse blank-looking answers with a message the browser shows inline.
+  const change =
+    (key: keyof NewFindingValues) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { value } = event.target
+      event.target.setCustomValidity(
+        value && !value.trim() ? "Enter more than spaces." : ""
+      )
+      set(key, value as never)
+    }
+
   const submit = (event: React.FormEvent) => {
     event.preventDefault()
     if (!product) return
@@ -190,7 +202,7 @@ function FindingForm({
         id={`f-${key}`}
         required
         value={String(values[key] ?? "")}
-        onChange={(event) => set(key, event.target.value as never)}
+        onChange={change(key)}
         {...props}
       />
     </Field>
@@ -210,7 +222,7 @@ function FindingForm({
         className="min-h-20"
         placeholder={placeholder}
         value={String(values[key] ?? "")}
-        onChange={(event) => set(key, event.target.value as never)}
+        onChange={change(key)}
       />
     </Field>
   )
@@ -267,11 +279,10 @@ function FindingForm({
                         <FieldLabel htmlFor="f-targetRelease">
                           Target release date
                         </FieldLabel>
-                        <Input
+                        <DatePicker
                           id="f-targetRelease"
-                          type="date"
                           value={values.targetRelease}
-                          onChange={(e) => set("targetRelease", e.target.value)}
+                          onChange={(v) => set("targetRelease", v)}
                         />
                       </Field>
                     ) : (
@@ -331,12 +342,11 @@ function FindingForm({
                         <FieldLabel htmlFor="f-previousTest">
                           Previously tested on
                         </FieldLabel>
-                        <Input
+                        <DatePicker
                           id="f-previousTest"
-                          type="date"
                           required
                           value={values.previousTest}
-                          onChange={(e) => set("previousTest", e.target.value)}
+                          onChange={(v) => set("previousTest", v)}
                         />
                       </Field>
                       <SelectField

@@ -1,0 +1,50 @@
+---
+title: Scripts and environment
+description: Every package script and environment variable.
+---
+
+# Scripts and environment
+
+## Root scripts
+
+| Script | Runs | Use |
+| --- | --- | --- |
+| `pnpm dev` | `next dev` | Local console on :3000 |
+| `pnpm build` | `next build` | Production build |
+| `pnpm start` | `next start` | Serve the production build |
+| `pnpm typecheck` | `tsc --noEmit` | Type-check the app (`docs/` is excluded) |
+| `pnpm lint` | `eslint` | Next core-web-vitals + TypeScript rules (`docs/` is ignored) |
+| `pnpm format` | `prettier --write "**/*.{ts,tsx}"` | No semicolons, double quotes, Tailwind class sorting |
+| `pnpm db:generate` | `drizzle-kit generate` | Write a migration from `db/schema.ts` |
+| `pnpm db:migrate` | `drizzle-kit migrate` | Apply migrations |
+| `pnpm db:push` | `drizzle-kit push` | Push the schema without a migration (prototyping only) |
+| `pnpm db:studio` | `drizzle-kit studio` | Browse the database |
+| `pnpm docs:dev` | `docusaurus start` in `docs/` | Docs on :3001 with hot reload |
+| `pnpm docs:build` | `docusaurus build` in `docs/` | Static docs build. Fails on broken links |
+| `pnpm docs:serve` | `docusaurus serve` in `docs/` | Serve the built docs |
+
+## Data build
+
+| Command | Use |
+| --- | --- |
+| `python3 tools/build_data.py` | Rebuild `data.json` |
+| `python3 tools/build_data.py --snapshot` | Also record today's coverage in `history.json` |
+
+All flags are listed in [Data pipeline](/architecture/data-pipeline#usage).
+
+## Environment variables
+
+| Variable | Scope | Required | Used by |
+| --- | --- | --- | --- |
+| `DATABASE_URL` | server only | For `db:*` and `/api/health` | `db/index.ts`, `drizzle.config.ts` |
+| `NODE_ENV` | set by Next | n/a | `proxy.ts` relaxes the CSP (`'unsafe-eval'`, `ws:`) in development |
+
+There are no `NEXT_PUBLIC_*` variables, and nothing secret should ever be made one.
+
+## Browser storage
+
+| Key | Where | Holds |
+| --- | --- | --- |
+| `vapt-dashboard-data-v1` | `localStorage` | The whole `DashboardData` state |
+| `pentest_scout_appearance` | cookie (1 year, `SameSite=Lax`) | `default` or `dark-sidebar` |
+| `theme` | `localStorage` (next-themes) | `light`, `dark` or `system` |

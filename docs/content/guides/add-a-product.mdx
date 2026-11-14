@@ -1,0 +1,59 @@
+---
+title: Add a product
+description: Add a product to the portfolio with its tier, register fields and test areas.
+---
+
+# Add a product
+
+Products are defined in `tools/source/products.json` and built into `data.json`. This guide adds a Tier 2 product called `partner-portal`.
+
+## 1. Add the record
+
+The key is the product id. It appears in URLs (`/dashboard/products/partner-portal`) and in CSV file names, so use lowercase kebab-case and don't change it later.
+
+```json title="tools/source/products.json"
+{
+  "partner-portal": {
+    "name": "partners/portal",
+    "tier": 2,
+    "status": "Not started",
+    "domain": "partners.example.com",
+    "owner": "Partner dev lead",
+    "jiraEpic": "SEC-9",
+    "baselineStart": "2026-12-01",
+    "estDays": 8,
+    "example": true,
+    "areas": [
+      { "n": "Authentication and login", "hr": true, "s": "To Do" },
+      { "n": "Session management", "hr": true, "s": "To Do" },
+      { "n": "Access control between partners", "hr": true, "s": "To Do" },
+      { "n": "File upload", "hr": false, "s": "To Do" }
+    ],
+    "done": {}
+  }
+}
+```
+
+- **`tier`** sets the [cycle frequencies](/concepts/sop-rules#test-cycles-by-tier) and the risk multiplier. Tier 1 is the highest risk.
+- **`hr: true`** marks priority areas. Close-out needs **100%** of these to be Tested.
+- **`example: true`** marks the record as sample data. Keep it on anything committed.
+- Don't set a `baselineStart` in the past for a Not started product unless you mean it. That makes it **Red** (missed start).
+
+## 2. Add its findings (optional)
+
+Export the product's Jira filter as CSV and save it as `tools/exports/partner-portal.csv`. See [Data pipeline](/architecture/data-pipeline#jira-csv-format) for the columns.
+
+## 3. Set its order (optional)
+
+The sidebar and the overview list products in `PRODUCT_ORDER` (`lib/sop.ts`), with any other products after them. Add the id there if it should appear in a particular position.
+
+## 4. Build and check
+
+```bash
+python3 tools/build_data.py
+pnpm dev
+```
+
+Open the account menu and choose **Reset sample data** to load the new `data.json`, then open `/dashboard/products/partner-portal`. The product should show <Badge dot>Not started</Badge> with an empty meter:
+
+<CloseoutMeter tested={0} todo={4} label="partners/portal" />

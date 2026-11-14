@@ -1,0 +1,90 @@
+---
+title: Components
+description: The product components every screen is built from, and how to use them.
+---
+
+# Components
+
+The primitives are shadcn/ui (`radix-luma` style) in `components/ui/`. On top of them sit a small set of product components that carry Pentest Scout's meaning. Use these rather than restyling primitives one screen at a time.
+
+## Close-out meter
+
+The signature element: a segmented pill showing Tested, In testing, Blocked and To do, with a tick at the SOP's 80% close-out line. The tick turns green once coverage passes the line.
+
+<CloseoutMeter tested={9} inTesting={2} blocked={1} todo={4} label="Below the line" />
+<CloseoutMeter tested={18} inTesting={1} blocked={0} todo={2} label="Past the line" />
+
+<Source path="components/closeout-meter.tsx" />
+
+```tsx
+import { CloseoutMeter, MeterLegend } from "@/components/closeout-meter"
+import { metricsFor } from "@/lib/metrics"
+
+const m = metricsFor(product, findings)
+<CloseoutMeter counts={m.counts} size="lg" />   // "sm" 6px · "default" 8px · "lg" 12px
+<MeterLegend />                                  // ship the legend where the meter is first introduced
+```
+
+- It is an accessible `role="meter"` with a full text label, and a tooltip shows the counts.
+- Segments are separated by 1px gaps, not borders. The 80% position reads `CLOSEOUT_COVERAGE`. Never hard-code it.
+- **Use it wherever coverage appears.** Don't build a second progress bar.
+
+## Status badges
+
+<Source path="components/status.tsx" />
+
+| Component | Renders | Example |
+| --- | --- | --- |
+| `<SeverityBadge severity>` | Tone badge with the severity word | <Badge>Critical</Badge> <Badge>High</Badge> <Badge>Medium</Badge> <Badge>Low</Badge> |
+| `<HealthBadge health>` | Badge with a leading dot | <Badge dot>Green</Badge> <Badge dot>Amber</Badge> <Badge dot>Red</Badge> <Badge dot>Paused</Badge> |
+| `<FindingStatusBadge status>` | Status tone | <Badge>Triaged</Badge> <Badge>In Fix</Badge> <Badge>Ready for Retest</Badge> <Badge>Closed</Badge> <Badge>Risk Accepted</Badge> |
+| `<SeverityCounts count>` | C/H/M/L letters with counts and dots | open counts in tables |
+| `<SeverityDot severity>` | Dot only. Always place it beside a label | legends |
+| `<ToneBadge tone dot?>` | The base tinted badge | custom states |
+
+The tones are mapped in one place: `SEVERITY_TONE`, `HEALTH_TONE` and `FINDING_TONE`. To add a status, add it to the type in `lib/types.ts` **and** to the tone map. TypeScript will flag the missing key.
+
+## Page header
+
+```tsx
+import { PageHeader, SectionHeading } from "@/components/page-header"
+
+<PageHeader
+  title="Findings"
+  description="Sample data · 24 open across 5 products"
+  actions={<Button>Report finding</Button>}
+/>
+```
+
+The title is the page's only `h1`. Actions align to the bottom edge, and they wrap below the title on small screens. Keep one primary action.
+
+## Shell pieces
+
+| Component | Role |
+| --- | --- |
+| `ConsoleShell` | Providers + sidebar frame + footer. Shows a skeleton until hydrated, then settles each route in |
+| `AppSidebar` | Brand mark, `NAV_ITEMS` with the open-finding count, product list with health, sample-data note |
+| `SiteHeader` | Sidebar toggle, breadcrumb, theme toggle, account menu (Export JSON, Reset sample data) |
+| `ProductAvatar` | Initials avatar for a product |
+| `BrandMark` | The keyring mark (open ring around a keyhole), drawn in `currentColor` |
+| `ActivityFeed` | Event list, used on the overview and the activity log |
+
+## Motion
+
+There is one grammar, defined as Tailwind utilities in `app/globals.css`:
+
+| Utility | Effect | Use |
+| --- | --- | --- |
+| `animate-reveal-x` | `clip-path` wipe from left to right, 900ms | Meters, severity bars |
+| `animate-reveal-chart` | Same, 1100ms after 120ms | The trend chart |
+| `animate-settle` | Rise 6px and fade, 320ms | Route content, tab panels |
+
+The easing is `cubic-bezier(0.16, 1, 0.3, 1)` everywhere. Under `prefers-reduced-motion`, every animation collapses to 1ms. Don't add other entrance effects.
+
+## Adding a primitive
+
+```bash
+pnpm dlx shadcn@latest add <component>
+```
+
+`components.json` pins the `radix-luma` style, lucide icons and the `@/components/ui` alias. Generated files are yours to edit. Keep the Luma radii and the focus-ring treatment.
