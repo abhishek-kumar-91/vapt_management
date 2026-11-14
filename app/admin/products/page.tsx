@@ -1,8 +1,9 @@
 import Link from "next/link"
 
-import { EmptyRow, FilterBar } from "@/components/admin/bits"
+import { EmptyRow, ListCard, ListToolbar } from "@/components/list-card"
 import { PageHeader } from "@/components/page-header"
-import { Card } from "@/components/ui/card"
+import { ProductAvatar } from "@/components/product-avatar"
+import { ToneBadge } from "@/components/status"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { listAllProducts } from "@/server/admin"
 
@@ -13,9 +14,8 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
   const rows = await listAllProducts(q)
   return (
     <div className="grid gap-6">
-      <PageHeader title="Products" description="Products across every company. Open one in its company’s console to work on it." />
-      <FilterBar q={q} placeholder="Search products, companies or domains" />
-      <Card className="gap-0 py-0">
+      <PageHeader title="Products" description="Products across every company. Open one to work on it in its company’s console." />
+      <ListCard toolbar={<ListToolbar search={{ label: "Search products", placeholder: "Search products, companies or domains" }} />}>
         <Table className="min-w-[760px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -29,24 +29,29 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
           <TableBody>
             {rows.map((r) => (
               <TableRow key={`${r.orgSlug}/${r.slug}`}>
-                <TableCell className="pl-6">
-                  <Link href={`/o/${r.orgSlug}/products/${r.slug}`} className="grid leading-tight hover:underline">
-                    <span className="font-medium">{r.name}{r.archivedAt ? " (archived)" : ""}</span>
-                    <span className="text-xs text-muted-foreground">{r.domain ?? ""}</span>
+                <TableCell className="py-3 pl-6">
+                  <Link href={`/o/${r.orgSlug}/products/${r.slug}`} className="flex items-center gap-3 underline-offset-4 hover:underline">
+                    <ProductAvatar id={r.slug} name={r.name} />
+                    <span className="grid min-w-0 gap-0.5">
+                      <span className="truncate font-medium">{r.name}</span>
+                      <span className="truncate text-xs text-muted-foreground">{r.domain ?? "—"}</span>
+                    </span>
                   </Link>
                 </TableCell>
-                <TableCell>
-                  <Link href={`/admin/companies/${r.orgSlug}`} className="hover:underline">{r.orgName}</Link>
+                <TableCell className="py-3">
+                  <Link href={`/admin/companies/${r.orgSlug}`} className="underline-offset-4 hover:underline">
+                    {r.orgName}
+                  </Link>
                 </TableCell>
-                <TableCell>Tier {r.tier}</TableCell>
-                <TableCell>{r.status}</TableCell>
-                <TableCell className="pr-6 text-right tabular">{r.openFindings}</TableCell>
+                <TableCell className="py-3">Tier {r.tier}</TableCell>
+                <TableCell className="py-3">{r.archivedAt ? <ToneBadge tone="neutral">Archived</ToneBadge> : r.status}</TableCell>
+                <TableCell className="py-3 pr-6 text-right tabular">{r.openFindings}</TableCell>
               </TableRow>
             ))}
-            {!rows.length && <EmptyRow cols={5}>No products match.</EmptyRow>}
+            {!rows.length && <EmptyRow cols={5} title="No products match">Try another search.</EmptyRow>}
           </TableBody>
         </Table>
-      </Card>
+      </ListCard>
     </div>
   )
 }

@@ -16,6 +16,7 @@ export default function ForgotPasswordPage() {
       </AuthHeading>
       <ActionForm
         action={requestPasswordReset}
+        size="lg"
         submitLabel="Send reset link"
         pendingLabel="Sending…"
         doneMessage="If that email has an account, a reset link is on its way. It expires in 24 hours."

@@ -26,7 +26,9 @@ if (!url) {
 }
 const { hostname } = new URL(url)
 if (!["", "localhost", "127.0.0.1", "[::1]"].includes(hostname) && process.env.ALLOW_DB_RESET !== "1") {
-  console.error(`✗ Refusing to seed non-local database "${hostname}".`)
+  console.error(
+    `✗ Refusing to seed non-local database "${hostname}". Run with ALLOW_DB_RESET=1 if you mean it.`
+  )
   process.exit(1)
 }
 
@@ -39,10 +41,10 @@ const COMPANIES = [
     prefix: "DEMO",
     status: "active",
     members: [
-      ["owner@demo.test", "Olivia Owner", "OWNER"],
-      ["manager@demo.test", "Marco Manager", "MANAGER"],
-      ["tester@demo.test", "Tara Tester", "SECURITY_TESTER"],
-      ["dev@demo.test", "Dev Patel", "DEVELOPER"],
+      ["demo.owner@pentestscout.com", "Olivia Owner", "OWNER"],
+      ["demo.manager@pentestscout.com", "Marco Manager", "MANAGER"],
+      ["demo.tester@pentestscout.com", "Tara Tester", "SECURITY_TESTER"],
+      ["demo.dev@pentestscout.com", "Dev Patel", "DEVELOPER"],
     ],
   },
   {
@@ -50,14 +52,14 @@ const COMPANIES = [
     name: "Acme Corp",
     prefix: "ACME",
     status: "active",
-    members: [["owner@acme.test", "Alex Acme", "OWNER"]],
+    members: [["acme.owner@pentestscout.com", "Alex Acme", "OWNER"]],
   },
   {
     slug: "northwind",
     name: "Northwind Traders",
     prefix: "NW",
     status: "pending_review",
-    members: [["owner@northwind.test", "Nina North", "OWNER"]],
+    members: [["northwind.owner@pentestscout.com", "Nina North", "OWNER"]],
   },
 ]
 
@@ -79,7 +81,7 @@ try {
     return rows[0].id
   }
 
-  await user("admin@pentestscout.test", "Sam Admin", "SUPER_ADMIN")
+  await user("admin@pentestscout.com", "Sam Admin", "SUPER_ADMIN")
 
   for (const c of COMPANIES) {
     const ownerId = await user(...c.members[0].slice(0, 2))
@@ -127,10 +129,10 @@ try {
   await db.query("commit")
 
   console.log(`✓ Seeded. Every account's password: ${PASSWORD}`)
-  console.log("  admin@pentestscout.test  Super Admin")
+  console.log("  admin@pentestscout.com            Super Admin")
   for (const c of COMPANIES)
     for (const [email, , role] of c.members)
-      console.log(`  ${email.padEnd(24)} ${role} · ${c.name} (${c.status})`)
+      console.log(`  ${email.padEnd(33)} ${role} · ${c.name} (${c.status})`)
 } catch (error) {
   await db.query("rollback").catch(() => {})
   console.error(`✗ ${error.message}`)
@@ -226,7 +228,7 @@ async function loadDomain(db) {
         )
   // Product access, so testers and developers have something to work on.
   const slugs = Object.keys(productIds)
-  for (const [email, count] of [["tester@demo.test", 3], ["dev@demo.test", 2], ["manager@demo.test", slugs.length]])
+  for (const [email, count] of [["demo.tester@pentestscout.com", 3], ["demo.dev@pentestscout.com", 2], ["demo.manager@pentestscout.com", slugs.length]])
     for (const slug of slugs.slice(0, count))
       await db.query(
         `insert into product_members (org_id, product_id, user_id, access)

@@ -41,14 +41,23 @@ function UserAvatar({ name }: { name: string }) {
   )
 }
 
-/** Sidebar foot: who is signed in, their role, and the account menu. */
-export function NavUser() {
-  const to = useOrgPath()
-  const user = useCurrentUser()
-  const { actions } = useDashboard()
-  const { isMobile, setOpenMobile } = useSidebar()
+/**
+ * Sidebar foot: who is signed in, their role, and the account menu. Shared by the company console
+ * and the admin console; `children` adds menu items above Sign out.
+ */
+export function AccountMenu({
+  name,
+  email,
+  role,
+  children,
+}: {
+  name: string
+  email: string
+  role: string
+  children?: React.ReactNode
+}) {
+  const { isMobile } = useSidebar()
   const [signingOut, startSignOut] = React.useTransition()
-  const role = ROLE_LABELS[user.role]
 
   return (
     <SidebarMenu>
@@ -57,14 +66,12 @@ export function NavUser() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              tooltip={`${user.name} · ${role}`}
+              tooltip={`${name} · ${role}`}
               className="h-14 rounded-3xl bg-card px-2.5 shadow-xs ring-1 ring-sidebar-border transition-[background-color,box-shadow] hover:bg-sidebar-accent hover:ring-foreground/15 data-[state=open]:bg-sidebar-accent data-[state=open]:ring-foreground/15 group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:shadow-none group-data-[collapsible=icon]:ring-0"
             >
-              <UserAvatar name={user.name} />
+              <UserAvatar name={name} />
               <span className="grid min-w-0 flex-1 leading-tight">
-                <span className="truncate text-sm font-medium">
-                  {user.name}
-                </span>
+                <span className="truncate text-sm font-medium">{name}</span>
                 <span className="truncate text-xs text-muted-foreground">
                   {role}
                 </span>
@@ -79,37 +86,25 @@ export function NavUser() {
             className="w-64"
           >
             <DropdownMenuLabel className="flex items-center gap-3 py-2 font-normal">
-              <UserAvatar name={user.name} />
+              <UserAvatar name={name} />
               <span className="grid min-w-0 leading-tight">
                 <span className="truncate font-medium text-foreground">
-                  {user.name}
+                  {name}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {user.email}
+                  {email}
                 </span>
                 <span className="mt-1 w-fit rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
                   {role}
                 </span>
               </span>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              {roleHas(user.role, "member.read") && (
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={to("/users")}
-                    onClick={() => setOpenMobile(false)}
-                  >
-                    <UsersIcon />
-                    Team
-                  </Link>
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onSelect={actions.exportData}>
-                <DownloadIcon />
-                Export data
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
+            {children && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>{children}</DropdownMenuGroup>
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               disabled={signingOut}
@@ -121,7 +116,30 @@ export function NavUser() {
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
-
     </SidebarMenu>
+  )
+}
+
+/** The company console's account menu: Team (if allowed) and Export data. */
+export function NavUser() {
+  const to = useOrgPath()
+  const user = useCurrentUser()
+  const { actions } = useDashboard()
+  const { setOpenMobile } = useSidebar()
+  return (
+    <AccountMenu name={user.name} email={user.email} role={ROLE_LABELS[user.role]}>
+      {roleHas(user.role, "member.read") && (
+        <DropdownMenuItem asChild>
+          <Link href={to("/users")} onClick={() => setOpenMobile(false)}>
+            <UsersIcon />
+            Team
+          </Link>
+        </DropdownMenuItem>
+      )}
+      <DropdownMenuItem onSelect={actions.exportData}>
+        <DownloadIcon />
+        Export data
+      </DropdownMenuItem>
+    </AccountMenu>
   )
 }

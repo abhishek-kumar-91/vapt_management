@@ -17,7 +17,7 @@ pnpm db:seed --domain                     # demo companies, people and the sampl
 pnpm dev
 ```
 
-Sign in at http://localhost:3000/login. The seed prints every account; they all use the password `scout-demo-2026!`. `admin@pentestscout.test` is a Super Admin (`/admin`), and `owner@demo.test` opens Demo Company (`/o/demo`). Register a new company at `/signup`.
+Sign in at http://localhost:3000/login. The seed prints every account; they all use the password `scout-demo-2026!`. `admin@pentestscout.com` is a Super Admin (`/admin`), and `demo.owner@pentestscout.com` opens Demo Company (`/o/demo`). Register a new company at `/signup`.
 
 | Command | What it does |
 |---|---|

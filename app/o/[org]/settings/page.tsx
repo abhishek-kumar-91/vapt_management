@@ -25,7 +25,9 @@ import { SOP_RULES } from "@/lib/sop"
 import { useDashboard } from "@/lib/store"
 import { saveOrgSettingsAction } from "@/app/o/[org]/actions"
 import { useCan, useCurrentUser } from "@/components/current-user"
-import { ActionForm } from "@/components/forms/action-form"
+import { SubmitButton, useFormAction } from "@/components/forms/action-form"
+import { Field, FieldError } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
 
 /** Every settings area, in page order. Add a section here and render it below. */
 const SECTIONS: SettingsNavItem[] = [
@@ -117,6 +119,35 @@ export default function SettingsPage() {
   )
 }
 
+const COMPANY_ROWS = [
+  {
+    name: "name",
+    label: "Company name",
+    description: "Shown in the sidebar and on reports.",
+    maxLength: 80,
+  },
+  {
+    name: "findingPrefix",
+    label: "Finding key prefix",
+    description: "Findings are numbered PREFIX-1, PREFIX-2… Locked once the first finding exists.",
+    maxLength: 10,
+  },
+  {
+    name: "retestEmail",
+    label: "Retest email",
+    description: "Retest requests open an email draft to this address. Leave empty to skip the draft.",
+    type: "email",
+    placeholder: "security-tester@company.com",
+  },
+  {
+    name: "jiraBaseUrl",
+    label: "Jira base URL",
+    description: "Jira keys on test areas and findings link here.",
+    type: "url",
+    placeholder: "https://company.atlassian.net/browse/",
+  },
+] as const
+
 function OrganizationSettings() {
   const { data } = useDashboard()
   const me = useCurrentUser()
@@ -126,64 +157,61 @@ function OrganizationSettings() {
     () => saveOrgSettingsAction.bind(null, org.slug),
     [org.slug]
   )
-  const values = [
-    ["Company name", org.name],
-    ["Finding key prefix", data.config.project ?? "—"],
-    ["Retest email", data.config.retestEmail || "Not set"],
-    ["Jira base URL", data.config.base || "Not set"],
-  ]
+  const { state, run, pending, key } = useFormAction(action)
+  const saved: Record<string, string> = {
+    name: org.name,
+    findingPrefix: data.config.project ?? "",
+    retestEmail: data.config.retestEmail ?? "",
+    jiraBaseUrl: data.config.base ?? "",
+  }
+  const values = state?.values ?? saved
+
   return (
-    <SettingsSection
-      id="organization"
-      title="Company"
-      description="Shared by everyone in this company. Changes are recorded in the audit log."
-      scope={canEdit ? "Owners" : "Read only"}
-    >
-      {canEdit ? (
-        <div className="py-5">
-          <ActionForm
-            action={action}
-            submitLabel="Save company settings"
-            pendingLabel="Saving…"
-            className="max-w-xl"
-            fields={[
-              { name: "name", label: "Company name", defaultValue: org.name, maxLength: 80 },
-              {
-                name: "findingPrefix",
-                label: "Finding key prefix",
-                defaultValue: data.config.project,
-                maxLength: 10,
-                half: true,
-                description: "Findings are numbered PREFIX-1, PREFIX-2… Locked once the first finding exists.",
-              },
-              {
-                name: "retestEmail",
-                label: "Retest email",
-                type: "email",
-                defaultValue: data.config.retestEmail,
-                half: true,
-                placeholder: "security-tester@company.com",
-                description: "Retest requests open an email draft to this address.",
-              },
-              {
-                name: "jiraBaseUrl",
-                label: "Jira base URL",
-                type: "url",
-                defaultValue: data.config.base,
-                placeholder: "https://company.atlassian.net/browse/",
-                description: "Jira keys on test areas and findings link here.",
-              },
-            ]}
-          />
-        </div>
-      ) : (
-        values.map(([label, value]) => (
-          <SettingsRow key={label} label={label}>
-            <p className="text-sm">{value}</p>
-          </SettingsRow>
-        ))
-      )}
-    </SettingsSection>
+    <form action={run} noValidate key={key}>
+      <SettingsSection
+        id="organization"
+        title="Company"
+        description="Shared by everyone in this company. Changes are recorded in the audit log."
+        scope={canEdit ? "Owners" : "Read only"}
+        footer={
+          canEdit && (
+            <>
+              <span aria-live="polite" className="mr-auto text-xs text-muted-foreground">
+                {state?.error ?? state?.notice ?? ""}
+              </span>
+              <SubmitButton pending={pending} label="Save changes" pendingLabel="Saving…" />
+            </>
+          )
+        }
+      >
+        {COMPANY_ROWS.map((row) => {
+          const id = `org-${row.name}`
+          const error = state?.fieldErrors?.[row.name]
+          return (
+            <SettingsRow key={row.name} label={row.label} description={row.description} htmlFor={id}>
+              {canEdit ? (
+                <Field data-invalid={!!error || undefined} className="max-w-sm">
+                  <Input
+                    id={id}
+                    name={row.name}
+                    type={"type" in row ? row.type : "text"}
+                    defaultValue={values[row.name] ?? ""}
+                    placeholder={"placeholder" in row ? row.placeholder : undefined}
+                    maxLength={"maxLength" in row ? row.maxLength : undefined}
+                    aria-invalid={!!error || undefined}
+                    aria-describedby={error ? `${id}-error` : undefined}
+                    className={row.name === "findingPrefix" ? "font-mono uppercase" : undefined}
+                  />
+                  {error && <FieldError id={`${id}-error`}>{error}</FieldError>}
+                </Field>
+              ) : (
+                <p className="text-sm">{saved[row.name] || "Not set"}</p>
+              )}
+            </SettingsRow>
+          )
+        })}
+      </SettingsSection>
+    </form>
   )
 }
 

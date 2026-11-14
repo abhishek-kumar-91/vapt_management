@@ -4,17 +4,20 @@ import * as admin from "@/server/admin"
 import * as testing from "@/server/testing"
 
 // Thin wrappers; every function in server/admin.ts re-checks the Super Admin role.
+/** `note` is optional: Approve sends none. */
+const text = (value: unknown) => (typeof value === "string" ? value : "")
+
 export const reviewCompanyAction = async (
   slug: string,
   decision: "approve" | "reject" | "changes",
-  note: string
-) => admin.reviewCompany(slug, decision, note)
+  note?: unknown
+) => admin.reviewCompany(slug, decision, text(note))
 
 export const setCompanyStatusAction = async (
   slug: string,
   next: "active" | "suspended" | "closed",
-  note = ""
-) => admin.setCompanyStatus(slug, next, typeof note === "string" ? note : "")
+  note?: unknown
+) => admin.setCompanyStatus(slug, next, text(note))
 
 export const resendVerificationAction = async (userId: string) =>
   admin.resendVerificationFor(userId)
@@ -30,12 +33,13 @@ export const adminResetLinkAction = async (userId: string) =>
 export const advanceTestingAction = async (
   id: string,
   step: "accept" | "decline" | "schedule" | "start" | "complete",
-  note: string | { start: string; end: string } = ""
+  input?: unknown
 ) => {
+  const range = input && typeof input === "object" ? (input as { start?: unknown; end?: unknown }) : null
   const result = await testing.advanceRequest(
     id,
     step,
-    typeof note === "string" ? { note } : note
+    range ? { start: text(range.start), end: text(range.end) } : { note: text(input) }
   )
   return result.ok ? { ok: true as const } : { ok: false as const, error: result.error ?? "Not done." }
 }

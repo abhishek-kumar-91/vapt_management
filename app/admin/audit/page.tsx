@@ -1,11 +1,9 @@
 import Link from "next/link"
 
-import { day, EmptyRow } from "@/components/admin/bits"
-import { ToneBadge } from "@/components/status"
+import { day } from "@/components/admin/bits"
+import { EmptyRow, ListCard, ListToolbar } from "@/components/list-card"
 import { PageHeader } from "@/components/page-header"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { ToneBadge } from "@/components/status"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { listAudit } from "@/server/admin"
 
@@ -14,21 +12,41 @@ export const metadata = { title: "Audit log" }
 export default async function AuditPage({
   searchParams,
 }: {
-  searchParams: Promise<{ org?: string; action?: string; before?: string }>
+  searchParams: Promise<{ org?: string; q?: string; before?: string }>
 }) {
   const p = await searchParams
-  const { rows, next } = await listAudit({ org: p.org, action: p.action, before: p.before ? Number(p.before) : undefined })
-  const more = new URLSearchParams({ ...(p.org ? { org: p.org } : {}), ...(p.action ? { action: p.action } : {}), ...(next ? { before: String(next) } : {}) })
+  const { rows, next } = await listAudit({
+    org: p.org,
+    action: p.q,
+    before: p.before ? Number(p.before) : undefined,
+  })
+  const more = new URLSearchParams({
+    ...(p.org ? { org: p.org } : {}),
+    ...(p.q ? { q: p.q } : {}),
+    ...(next ? { before: String(next) } : {}),
+  })
   return (
     <div className="grid gap-6">
-      <PageHeader title="Audit log" description="Every sign-in, change and refusal on the platform, newest first. Rows can only be added." />
-      <form method="get" className="flex flex-wrap items-center gap-2" role="search">
-        <Input name="org" defaultValue={p.org} placeholder="Company address, e.g. acme" aria-label="Company address" className="h-10 w-full sm:w-60" />
-        <Input name="action" defaultValue={p.action} placeholder="Action starts with, e.g. auth." aria-label="Action" className="h-10 w-full sm:w-60" />
-        <Button type="submit" variant="outline" className="h-10">Filter</Button>
-      </form>
-      <Card className="gap-0 py-0">
-        <Table className="min-w-[960px]">
+      <PageHeader
+        title="Audit log"
+        description={
+          p.org ? (
+            <>
+              Entries for <span className="font-medium text-foreground">/o/{p.org}</span>.{" "}
+              <Link href="/admin/audit" className="font-medium text-foreground underline underline-offset-4">
+                Show all
+              </Link>
+            </>
+          ) : (
+            "Every sign-in, change and refusal on the platform, newest first. Rows can only be added."
+          )
+        }
+      />
+      <ListCard
+        toolbar={<ListToolbar search={{ label: "Filter by action", placeholder: "Action starts with, e.g. org. or auth." }} />}
+        more={next ? { href: `/admin/audit?${more}`, label: "Show older entries" } : null}
+      >
+        <Table className="min-w-[980px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="pl-6">When</TableHead>
@@ -41,36 +59,45 @@ export default async function AuditPage({
           <TableBody>
             {rows.map((r) => (
               <TableRow key={r.id}>
-                <TableCell className="pl-6 tabular">{day(r.at, true)}</TableCell>
-                <TableCell>
+                <TableCell className="py-3 pl-6 tabular">{day(r.at, true)}</TableCell>
+                <TableCell className="py-3">
                   <span className="flex items-center gap-2">
-                    <code className="text-xs">{r.action}</code>
-                    {r.outcome !== "success" && <ToneBadge tone={r.outcome === "denied" ? "warning" : "critical"}>{r.outcome}</ToneBadge>}
+                    <code className="font-mono text-xs">{r.action}</code>
+                    {r.outcome !== "success" && (
+                      <ToneBadge tone={r.outcome === "denied" ? "warning" : "critical"}>{r.outcome}</ToneBadge>
+                    )}
                   </span>
                 </TableCell>
-                <TableCell>
-                  <span className="grid leading-tight">
-                    <span>{r.actor ?? "—"}{r.actorPlatform ? " · Pentest Scout" : ""}</span>
-                    <span className="text-xs text-muted-foreground">{r.actorRole ?? ""}{r.ip ? ` · ${r.ip}` : ""}</span>
+                <TableCell className="py-3">
+                  <span className="grid gap-0.5">
+                    <span>
+                      {r.actor ?? "—"}
+                      {r.actorPlatform ? " · Pentest Scout" : ""}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {r.actorRole ?? ""}
+                      {r.ip ? ` · ${r.ip}` : ""}
+                    </span>
                   </span>
                 </TableCell>
-                <TableCell>
-                  {r.orgSlug ? <Link href={`/admin/companies/${r.orgSlug}`} className="hover:underline">{r.org}</Link> : <span className="text-muted-foreground">Platform</span>}
+                <TableCell className="py-3">
+                  {r.orgSlug ? (
+                    <Link href={`/admin/audit?org=${r.orgSlug}`} className="underline-offset-4 hover:underline">
+                      {r.org}
+                    </Link>
+                  ) : (
+                    <span className="text-muted-foreground">Platform</span>
+                  )}
                 </TableCell>
-                <TableCell className="max-w-80 truncate pr-6 font-mono text-xs text-muted-foreground">
+                <TableCell className="max-w-80 truncate py-3 pr-6 font-mono text-xs text-muted-foreground">
                   {r.changes ? JSON.stringify(r.changes) : ""}
                 </TableCell>
               </TableRow>
             ))}
-            {!rows.length && <EmptyRow cols={5}>No entries match.</EmptyRow>}
+            {!rows.length && <EmptyRow cols={5} title="No entries match">Try another action prefix.</EmptyRow>}
           </TableBody>
         </Table>
-      </Card>
-      {next && (
-        <Button asChild variant="outline" className="w-fit">
-          <Link href={`/admin/audit?${more}`}>Older entries</Link>
-        </Button>
-      )}
+      </ListCard>
     </div>
   )
 }

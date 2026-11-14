@@ -1,8 +1,9 @@
 import Link from "next/link"
 
-import { day, EmptyRow } from "@/components/admin/bits"
+import { day } from "@/components/admin/bits"
+import { EmptyRow, ListCard, PersonCell } from "@/components/list-card"
 import { PageHeader } from "@/components/page-header"
-import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { listPending } from "@/server/admin"
 
@@ -14,40 +15,54 @@ export default async function ApprovalsPage() {
     <div className="grid gap-6">
       <PageHeader
         title="Approvals"
-        description="Companies waiting for review, oldest first. Open one to approve it, reject it, or ask for changes."
+        description="Companies waiting for review, oldest first. Open one to approve it, ask for changes or reject it."
       />
-      <Card className="gap-0 py-0">
-        <Table>
+      <ListCard>
+        <Table className="min-w-[760px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="pl-6">Company</TableHead>
               <TableHead>Owner</TableHead>
-              <TableHead>Industry · size</TableHead>
               <TableHead className="text-right">Products</TableHead>
-              <TableHead className="pr-6">Submitted</TableHead>
+              <TableHead>Submitted</TableHead>
+              <TableHead className="pr-6 text-right">
+                <span className="sr-only">Review</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.map((r) => (
               <TableRow key={r.slug}>
-                <TableCell className="pl-6">
-                  <Link href={`/admin/companies/${r.slug}`} className="font-medium hover:underline">{r.name}</Link>
-                </TableCell>
-                <TableCell>
-                  <span className="grid leading-tight">
-                    <span>{r.owner ?? "—"}</span>
-                    <span className="text-xs text-muted-foreground">{r.ownerEmail}</span>
+                <TableCell className="py-3 pl-6">
+                  <span className="grid gap-0.5">
+                    <Link href={`/admin/companies/${r.slug}`} className="font-medium underline-offset-4 hover:underline">
+                      {r.name}
+                    </Link>
+                    <span className="text-xs text-muted-foreground">
+                      {[r.industry, r.size].filter(Boolean).join(" · ")}
+                    </span>
                   </span>
                 </TableCell>
-                <TableCell className="text-muted-foreground">{[r.industry, r.size].filter(Boolean).join(" · ")}</TableCell>
-                <TableCell className="text-right tabular">{r.products}</TableCell>
-                <TableCell className="pr-6">{day(r.submittedAt, true)}</TableCell>
+                <TableCell className="py-3">
+                  {r.owner ? <PersonCell name={r.owner} detail={r.ownerEmail} /> : "—"}
+                </TableCell>
+                <TableCell className="py-3 text-right tabular">{r.products}</TableCell>
+                <TableCell className="py-3 tabular">{day(r.submittedAt, true)}</TableCell>
+                <TableCell className="py-3 pr-6 text-right">
+                  <Button asChild size="sm">
+                    <Link href={`/admin/companies/${r.slug}`}>Review</Link>
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
-            {!rows.length && <EmptyRow cols={5}>Nothing waiting. New companies appear here when they submit.</EmptyRow>}
+            {!rows.length && (
+              <EmptyRow cols={5} title="Nothing to review">
+                New companies appear here as soon as they submit.
+              </EmptyRow>
+            )}
           </TableBody>
         </Table>
-      </Card>
+      </ListCard>
     </div>
   )
 }

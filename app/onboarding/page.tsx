@@ -1,19 +1,43 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { and, asc, eq, isNull, sql } from "drizzle-orm"
-import { CircleAlertIcon, ClockIcon, MailIcon } from "lucide-react"
+import {
+  CheckCircle2Icon,
+  CircleDashedIcon,
+  CircleAlertIcon,
+  ClockIcon,
+  PencilIcon,
+  PlusIcon,
+} from "lucide-react"
 
 import { resendVerification } from "@/app/actions/account"
 import { signOut } from "@/app/login/actions"
 import { ActionButton } from "@/components/auth/action-button"
 import { AuthHeading, AuthShell } from "@/components/auth/auth-shell"
-import { ActionForm, type FieldSpec } from "@/components/forms/action-form"
+import { ActionForm } from "@/components/forms/action-form"
+import { FormSheet } from "@/components/forms/form-sheet"
+import { ProductAvatar } from "@/components/product-avatar"
+import { RunAction } from "@/components/run-action"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { organizations, products, users } from "@/db/schema"
 import { getSession } from "@/lib/auth/session"
-import { formatDate } from "@/lib/dates"
-import { COMPANY_SIZES, DATA_SENSITIVITY, INDUSTRIES } from "@/lib/orgs"
+import { formatDate, LONG_DATE } from "@/lib/dates"
+import { companyFields, PRODUCT_FIELDS, SLUG_FIELD } from "@/lib/form-specs"
 import { findOnboardingOrg, listMyOrgs, withScope } from "@/server/context"
 
 import {
@@ -26,86 +50,6 @@ import {
 
 export const metadata: Metadata = { title: "Set up your company" }
 
-const options = (values: readonly string[], placeholder: string) => [
-  { value: "", label: placeholder },
-  ...values.map((v) => ({ value: v, label: v })),
-]
-
-const profileFields = (defaults?: Record<string, string>): FieldSpec[] => [
-  {
-    name: "name",
-    label: "Company name",
-    autoComplete: "organization",
-    maxLength: 80,
-    defaultValue: defaults?.name,
-  },
-  {
-    name: "industry",
-    label: "Industry",
-    type: "select",
-    options: options(INDUSTRIES, "Choose one"),
-    half: true,
-    defaultValue: defaults?.industry,
-  },
-  {
-    name: "size",
-    label: "Company size",
-    type: "select",
-    options: options(COMPANY_SIZES, "Choose one"),
-    half: true,
-    defaultValue: defaults?.size,
-  },
-  {
-    name: "website",
-    label: "Website (optional)",
-    type: "url",
-    placeholder: "company.com",
-    maxLength: 200,
-    defaultValue: defaults?.website,
-  },
-]
-
-const productFields: FieldSpec[] = [
-  {
-    name: "name",
-    label: "Product name",
-    maxLength: 80,
-    placeholder: "Customer web app",
-  },
-  {
-    name: "tier",
-    label: "Tier",
-    type: "select",
-    half: true,
-    options: [
-      { value: "1", label: "Tier 1 · business-critical" },
-      { value: "2", label: "Tier 2 · important" },
-      { value: "3", label: "Tier 3 · standard" },
-    ],
-    description:
-      "Tier sets how often it’s retested and which test areas it starts with.",
-  },
-  {
-    name: "dataSensitivity",
-    label: "Data sensitivity",
-    type: "select",
-    half: true,
-    options: options(DATA_SENSITIVITY, "Not sure yet"),
-  },
-  {
-    name: "domain",
-    label: "Domain or URL (optional)",
-    placeholder: "app.company.com",
-    half: true,
-  },
-  {
-    name: "technology",
-    label: "Technology (optional)",
-    placeholder: "Next.js, Postgres",
-    half: true,
-  },
-]
-
 function SignOut() {
   return (
     <form action={signOut}>
@@ -116,9 +60,25 @@ function SignOut() {
   )
 }
 
+function Check({ done, children }: { done: boolean; children: React.ReactNode }) {
+  return (
+    <li className="flex items-start gap-3 text-sm">
+      {done ? (
+        <CheckCircle2Icon className="mt-0.5 size-4 shrink-0 text-success" aria-hidden />
+      ) : (
+        <CircleDashedIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+      )}
+      <span className={done ? undefined : "text-muted-foreground"}>
+        <span className="sr-only">{done ? "Done: " : "To do: "}</span>
+        {children}
+      </span>
+    </li>
+  )
+}
+
 /**
- * Self-serve onboarding: create the company, add products, then submit it for Pentest Scout's
- * review. While waiting (or after a rejection) everything stays editable here.
+ * Self-serve onboarding: create the company, add the products to track, then submit it for
+ * Pentest Scout's review. While waiting (or after a rejection) everything stays editable here.
  */
 export default async function OnboardingPage() {
   const session = await getSession()
@@ -129,28 +89,19 @@ export default async function OnboardingPage() {
   if (!pending) {
     const orgs = await listMyOrgs(session.user.id)
     if (orgs.length) redirect(`/o/${orgs[0].slug}`)
+    const [name, ...rest] = companyFields()
     return (
       <AuthShell wide aside={<SignOut />}>
         <AuthHeading title="Tell us about your company">
-          This becomes your company’s workspace on Pentest Scout. You’ll add the
-          products to track next.
+          This becomes your company’s workspace on Pentest Scout. You’ll add the products to
+          track next, then send it for review.
         </AuthHeading>
         <ActionForm
           action={createCompanyAction}
+          size="lg"
           submitLabel="Create company"
           pendingLabel="Creating…"
-          fields={[
-            ...profileFields().slice(0, 1),
-            {
-              name: "slug",
-              label: "Workspace address (optional)",
-              placeholder: "acme",
-              maxLength: 40,
-              description:
-                "Lower-case letters, numbers and dashes. Leave blank to use the company name. It can’t change later.",
-            },
-            ...profileFields().slice(1),
-          ]}
+          fields={[name, SLUG_FIELD, ...rest]}
         />
       </AuthShell>
     )
@@ -172,10 +123,7 @@ export default async function OnboardingPage() {
         })
         .from(organizations)
         .where(eq(organizations.id, pending.id)),
-      db
-        .select({ verified: users.emailVerifiedAt })
-        .from(users)
-        .where(eq(users.id, session.user.id)),
+      db.select({ verified: users.emailVerifiedAt }).from(users).where(eq(users.id, session.user.id)),
       db
         .select({
           slug: products.slug,
@@ -191,159 +139,178 @@ export default async function OnboardingPage() {
 
   const waiting = org.status === "pending_review"
   const canSubmit = org.status === "draft" || org.status === "rejected"
+  const verified = !!me?.verified
+  const ready = verified && list.length > 0
+  const details: [string, string][] = [
+    ["Workspace address", `/o/${org.slug}`],
+    ["Industry", org.industry ?? "—"],
+    ["Size", org.size ?? "—"],
+    ["Website", org.website ?? "—"],
+  ]
 
   return (
     <AuthShell wide aside={<SignOut />}>
-      <AuthHeading
-        title={
-          waiting ? `${org.name} is waiting for review` : `Set up ${org.name}`
-        }
-      >
+      <AuthHeading title={waiting ? `${org.name} is waiting for review` : `Set up ${org.name}`}>
         {waiting
-          ? "Pentest Scout reviews every company before it goes live. We’ll email you as soon as it’s approved. You can keep editing below."
+          ? "Pentest Scout reviews every company before it goes live, and we’ll email you as soon as it’s approved. You can keep editing below."
           : "Add the products you want to track, then submit your company for review. Pentest Scout approves every company before it goes live."}
       </AuthHeading>
 
       {waiting && org.submittedAt && (
         <Alert>
           <ClockIcon />
-          <AlertTitle>
-            Submitted {formatDate(org.submittedAt.toISOString().slice(0, 10))}
-          </AlertTitle>
-          <AlertDescription>
-            Reviews usually take one working day.
-          </AlertDescription>
+          <AlertTitle>Submitted {formatDate(org.submittedAt.toISOString().slice(0, 10), LONG_DATE)}</AlertTitle>
+          <AlertDescription>Reviews usually take one working day.</AlertDescription>
         </Alert>
       )}
       {org.reviewNote && !waiting && (
         <Alert variant={org.status === "rejected" ? "destructive" : "default"}>
           <CircleAlertIcon />
-          <AlertTitle>
-            {org.status === "rejected"
-              ? "Not approved yet"
-              : "Changes requested"}
-          </AlertTitle>
-          <AlertDescription>
-            {org.reviewNote} Update the details below, then submit again.
-          </AlertDescription>
+          <AlertTitle>{org.status === "rejected" ? "Not approved yet" : "Changes requested"}</AlertTitle>
+          <AlertDescription>{org.reviewNote} Make the changes below, then submit again.</AlertDescription>
         </Alert>
       )}
-      {!me?.verified && (
-        <Alert>
-          <MailIcon />
-          <AlertTitle>Confirm your email</AlertTitle>
-          <AlertDescription className="grid gap-3">
-            <span>
-              We sent a link to {session.user.email}. You can set everything up
-              now, but you need to confirm your email before submitting.
-            </span>
-            <ActionButton
-              action={resendVerification}
-              label="Send a new link"
-              pendingLabel="Sending…"
-              doneMessage="A new link is on its way. It expires in 24 hours."
-              variant="outline"
-              size="sm"
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{org.name}</CardTitle>
+          <CardDescription>Your company’s profile, as Pentest Scout reviews it</CardDescription>
+          <CardAction>
+            <FormSheet
+              triggerLabel="Edit"
+              triggerIcon={<PencilIcon data-icon="inline-start" />}
+              triggerVariant="outline"
+              title="Company details"
+              description="The workspace address can’t change."
+              action={updateCompanyAction}
+              fields={companyFields({
+                name: org.name,
+                industry: org.industry ?? "",
+                size: org.size ?? "",
+                website: org.website ?? "",
+              })}
+              submitLabel="Save details"
+              pendingLabel="Saving…"
+              success="Company details saved"
             />
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <section aria-labelledby="products-heading" className="grid gap-5">
-        <div className="grid gap-1">
-          <h2
-            id="products-heading"
-            className="text-xl font-semibold tracking-tight"
-          >
-            Products to track
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Each product starts with the standard test areas for its tier. You
-            can change them once your company is live.
-          </p>
-        </div>
-        {list.length > 0 && (
-          <ul className="grid divide-y rounded-3xl ring-1 ring-foreground/10">
-            {list.map((p) => (
-              <li key={p.slug} className="flex items-center gap-4 px-5 py-3">
-                <div className="grid min-w-0 flex-1">
-                  <span className="truncate font-medium">{p.name}</span>
-                  <span className="text-sm text-muted-foreground">
-                    Tier {p.tier} · {p.areas} test areas
-                  </span>
-                </div>
-                <ActionButton
-                  action={removeProductAction.bind(null, p.slug)}
-                  label="Remove"
-                  pendingLabel="Removing…"
-                  variant="ghost"
-                  size="sm"
-                />
-              </li>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+            {details.map(([k, v]) => (
+              <div key={k} className="grid gap-0.5">
+                <dt className="text-xs text-muted-foreground">{k}</dt>
+                <dd className="truncate text-sm">{v}</dd>
+              </div>
             ))}
-          </ul>
-        )}
-        <ActionForm
-          action={addProductAction}
-          fields={productFields}
-          submitLabel={list.length ? "Add another product" : "Add product"}
-          pendingLabel="Adding…"
-          className="rounded-3xl p-5 ring-1 ring-foreground/10"
-        />
-      </section>
+          </dl>
+        </CardContent>
+      </Card>
 
-      <section aria-labelledby="company-heading" className="grid gap-5">
-        <div className="grid gap-1">
-          <h2
-            id="company-heading"
-            className="text-xl font-semibold tracking-tight"
-          >
-            Company details
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Workspace address:{" "}
-            <span className="font-medium text-foreground">/o/{org.slug}</span>
-          </p>
-        </div>
-        <ActionForm
-          action={updateCompanyAction}
-          submitLabel="Save details"
-          pendingLabel="Saving…"
-          fields={profileFields({
-            name: org.name,
-            industry: org.industry ?? "",
-            size: org.size ?? "",
-            website: org.website ?? "",
-          })}
-        />
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle>Products to track</CardTitle>
+          <CardDescription>Each starts with the standard test areas for its tier</CardDescription>
+          <CardAction>
+            <FormSheet
+              triggerLabel="Add product"
+              triggerIcon={<PlusIcon data-icon="inline-start" />}
+              triggerVariant={list.length ? "outline" : "default"}
+              title="Add a product"
+              description="You can add more, change test areas and invite your team once the company is live."
+              action={addProductAction}
+              fields={PRODUCT_FIELDS}
+              submitLabel="Add product"
+              pendingLabel="Adding…"
+              success="Product added"
+            />
+          </CardAction>
+        </CardHeader>
+        <CardContent className="px-3">
+          {list.length ? (
+            <ul className="grid gap-0.5">
+              {list.map((p) => (
+                <li key={p.slug} className="flex items-center gap-3 rounded-3xl px-3 py-2.5">
+                  <ProductAvatar id={p.slug} name={p.name} />
+                  <span className="grid min-w-0 flex-1 gap-0.5">
+                    <span className="truncate text-sm font-medium">{p.name}</span>
+                    <span className="text-xs text-muted-foreground tabular">
+                      Tier {p.tier} · {p.areas} test areas
+                    </span>
+                  </span>
+                  <RunAction
+                    variant="ghost"
+                    label="Remove"
+                    pendingLabel="Removing…"
+                    success={`${p.name} removed.`}
+                    confirm={{
+                      title: `Remove ${p.name}?`,
+                      description: "It and its test areas are deleted. You can add it again any time before your company goes live.",
+                      confirmLabel: "Remove product",
+                      destructive: true,
+                    }}
+                    action={removeProductAction.bind(null, p.slug)}
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Empty className="py-8">
+              <EmptyHeader>
+                <EmptyTitle>No products yet</EmptyTitle>
+                <EmptyDescription>Add at least one product before you submit.</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
+        </CardContent>
+      </Card>
 
       {canSubmit && (
-        <section
-          aria-labelledby="submit-heading"
-          className="grid gap-3 border-t pt-8"
-        >
-          <h2
-            id="submit-heading"
-            className="text-xl font-semibold tracking-tight"
-          >
-            Submit for review
-          </h2>
-          <p className="text-sm text-pretty text-muted-foreground">
-            {!me?.verified
-              ? "Confirm your email first; the link is in your inbox."
-              : !list.length
-                ? "Add at least one product first."
-                : "Pentest Scout will review your company and email you when it’s approved."}
-          </p>
-          <ActionButton
-            action={submitAction}
-            label={
-              org.status === "rejected" ? "Submit again" : "Submit for review"
-            }
-            pendingLabel="Submitting…"
-          />
-        </section>
+        <Card>
+          <CardHeader>
+            <CardTitle>{org.status === "rejected" ? "Submit again" : "Submit for review"}</CardTitle>
+            <CardDescription>Pentest Scout reviews the company and emails you when it’s live</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-5">
+            <ul className="grid gap-2.5">
+              <Check done>Company details</Check>
+              <Check done={list.length > 0}>At least one product to track</Check>
+              <Check done={verified}>
+                Email confirmed
+                {!verified && <> · we sent a link to {session.user.email}</>}
+              </Check>
+            </ul>
+            <div className="flex flex-wrap items-center gap-3">
+              {ready ? (
+                <RunAction
+                  variant="default"
+                  size="default"
+                  label={org.status === "rejected" ? "Submit again" : "Submit for review"}
+                  pendingLabel="Submitting…"
+                  success="Submitted. We’ll email you when it’s approved."
+                  confirm={{
+                    title: `Submit ${org.name} for review?`,
+                    description: "You can keep editing while Pentest Scout reviews it.",
+                    confirmLabel: "Submit",
+                  }}
+                  action={submitAction}
+                />
+              ) : (
+                <Button disabled>Submit for review</Button>
+              )}
+              {!verified && (
+                <ActionButton
+                  action={resendVerification}
+                  label="Send a new confirmation link"
+                  pendingLabel="Sending…"
+                  doneMessage="A new link is on its way. It expires in 24 hours."
+                  variant="outline"
+                  size="sm"
+                />
+              )}
+            </div>
+          </CardContent>
+        </Card>
       )}
     </AuthShell>
   )

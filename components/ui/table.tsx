@@ -22,11 +22,12 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
     <div
       ref={ref}
       data-slot="table-container"
+      data-scrolls={scrolls || undefined}
       tabIndex={scrolls ? 0 : undefined}
       className={cn(
         // contain:inline-size keeps a wide table from stretching the page grid, so the
         // overflow above is measurable instead of widening the layout to fit.
-        "relative w-full rounded-xl outline-none [contain:inline-size] focus-visible:ring-2 focus-visible:ring-ring/50",
+        "group/table relative w-full rounded-xl outline-none [contain:inline-size] focus-visible:ring-2 focus-visible:ring-ring/50",
         scrolls && "overflow-x-auto"
       )}
     >
@@ -44,9 +45,10 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
     <thead
       data-slot="table-header"
       // Sticks under the 3.5rem site header, plus any sticky toolbar above it. Collapsed-table borders don't travel
-      // with a sticky row, so the divider is an inset shadow on each cell.
+      // with a sticky row, so the divider is an inset shadow on each cell. A table that scrolls sideways is its own
+      // scroll container, where that offset would push the header over the rows, so it stays in place there.
       className={cn(
-        "sticky top-[calc(3.5rem+var(--table-sticky-top,0px))] z-[5] bg-card [&_th]:shadow-[inset_0_-1px_0_var(--color-border)]",
+        "sticky top-[calc(3.5rem+var(--table-sticky-top,0px))] z-[5] bg-card group-data-[scrolls=true]/table:static [&_th]:shadow-[inset_0_-1px_0_var(--color-border)]",
         className
       )}
       {...props}

@@ -1,90 +1,168 @@
 import Link from "next/link"
-import { ArrowRightIcon } from "lucide-react"
+import {
+  ArrowRightIcon,
+  BadgeCheckIcon,
+  CheckCircle2Icon,
+  FlaskConicalIcon,
+  MailIcon,
+  UserPlusIcon,
+} from "lucide-react"
 
-import { EmptyRow } from "@/components/admin/bits"
-import { PageHeader, SectionHeading } from "@/components/page-header"
-import { Card } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { PageHeader } from "@/components/page-header"
+import { ToneBadge } from "@/components/status"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 import { overview } from "@/server/admin"
 
 export const metadata = { title: "Overview" }
 
-const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
+const plural = (n: number, one: string, many = `${one}s`) =>
+  `${n} ${n === 1 ? one : many}`
 
+function Stat({ label, value, children }: { label: string; value: React.ReactNode; children?: React.ReactNode }) {
+  return (
+    <div className="grid content-start gap-1.5">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-3xl font-semibold tracking-tight tabular">{value}</span>
+      {children && <div className="text-xs text-muted-foreground">{children}</div>}
+    </div>
+  )
+}
 
 export default async function AdminOverview() {
   const o = await overview()
-  const figures = [
-    { label: "Active companies", value: o.byStatus.active ?? 0, href: "/admin/companies?status=active" },
-    { label: "Open findings", value: o.totals.open, href: "/admin/products" },
-    { label: "Open critical", value: o.totals.critical, href: "/admin/companies?status=active" },
-    { label: "Past fix deadline", value: o.totals.overdue, href: "/admin/companies?status=active" },
-  ]
+  const active = o.byStatus.active ?? 0
+  const waiting = o.byStatus.pending_review ?? 0
+  const setup = (o.byStatus.draft ?? 0) + (o.byStatus.rejected ?? 0)
   const queue = [
-    { label: "Companies waiting for review", value: o.byStatus.pending_review ?? 0, href: "/admin/approvals" },
-    { label: "Testing requests to answer", value: o.requests, href: "/admin/testing" },
-    { label: "Emails with links to send by hand", value: o.outbox, href: "/admin/outbox" },
-    { label: "Sign-ups that haven’t confirmed their email", value: o.funnel.unverified, href: "/admin/signups" },
+    { label: "Companies waiting for review", value: waiting, href: "/admin/approvals", icon: BadgeCheckIcon },
+    { label: "Testing requests to answer", value: o.requests, href: "/admin/testing", icon: FlaskConicalIcon },
+    { label: "Emails with links to send by hand", value: o.outbox, href: "/admin/outbox", icon: MailIcon },
+    { label: "Sign-ups that haven’t confirmed their email", value: o.funnel.unverified, href: "/admin/signups", icon: UserPlusIcon },
   ]
+  const work = queue.filter((q) => q.value > 0)
+
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-6">
       <PageHeader
         title="Overview"
-        description={`${plural(o.funnel.signedUp7d, "sign-up")} this week · ${plural(o.totals.products, "product")} tracked · ${plural(o.totals.members, "person", "people")} across all companies`}
+        description={`${plural(o.funnel.signedUp7d, "sign-up")} in the last 7 days`}
       />
 
-      <dl className="grid grid-cols-2 divide-x divide-y rounded-3xl ring-1 ring-foreground/10 md:grid-cols-4 md:divide-y-0">
-        {figures.map((f) => (
-          <Link key={f.label} href={f.href} className="grid gap-1 px-5 py-4 outline-none first:rounded-l-3xl last:rounded-r-3xl hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/30">
-            <dt className="text-sm text-muted-foreground">{f.label}</dt>
-            <dd className="text-2xl font-semibold tracking-tight tabular">{f.value}</dd>
-          </Link>
-        ))}
-      </dl>
+      <Card>
+        <CardContent className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1.4fr)]">
+          <div className="grid content-start gap-3">
+            <Stat label="Active companies" value={active} />
+            <p className="text-sm text-muted-foreground tabular">
+              <span className="font-medium text-foreground">{waiting}</span> waiting for review ·{" "}
+              {setup} setting up
+              {o.byStatus.suspended ? <> · {o.byStatus.suspended} suspended</> : null}
+            </p>
+            <p className="text-sm text-muted-foreground tabular">
+              {plural(o.totals.products, "product")} tracked by{" "}
+              {plural(o.totals.members, "person", "people")}
+            </p>
+          </div>
 
-      <section className="grid gap-3">
-        <SectionHeading title="Needs you" description="Work waiting on a Pentest Scout admin." />
-        <ul className="grid divide-y rounded-3xl ring-1 ring-foreground/10">
-          {queue.map((q) => (
-            <li key={q.label}>
-              <Link href={q.href} className="flex items-center gap-3 px-5 py-3.5 outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/30">
-                <span className="flex-1 text-sm">{q.label}</span>
-                <span className={q.value ? "font-semibold tabular" : "text-muted-foreground tabular"}>{q.value}</span>
-                <ArrowRightIcon className="size-4 text-muted-foreground" aria-hidden />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+          <Separator orientation="vertical" className="hidden lg:block" />
 
-      <section className="grid gap-3">
-        <SectionHeading title="Companies with open risk" description="Open critical findings first, then most overdue." />
-        <Card className="gap-0 py-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="pl-6">Company</TableHead>
-                <TableHead className="text-right">Critical</TableHead>
-                <TableHead className="text-right">High</TableHead>
-                <TableHead className="pr-6 text-right">Overdue</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {o.hotspots.map((h) => (
-                <TableRow key={h.slug}>
-                  <TableCell className="pl-6">
-                    <Link href={`/admin/companies/${h.slug}`} className="font-medium hover:underline">{h.name}</Link>
-                  </TableCell>
-                  <TableCell className="text-right tabular">{h.openCritical}</TableCell>
-                  <TableCell className="text-right tabular">{h.openHigh}</TableCell>
-                  <TableCell className="pr-6 text-right tabular">{h.overdue}</TableCell>
-                </TableRow>
-              ))}
-              {!o.hotspots.length && <EmptyRow cols={4}>No company has open critical or overdue findings.</EmptyRow>}
-            </TableBody>
-          </Table>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Stat label="Open findings" value={o.totals.open}>
+              <span className="tabular">
+                <span className="font-medium text-critical">{o.totals.critical} Critical</span> ·{" "}
+                {o.totals.high} High
+              </span>
+            </Stat>
+            <Stat label="Past fix deadline" value={o.totals.overdue}>
+              Across every company
+            </Stat>
+            <Stat label="Testing requests" value={o.requests}>
+              {o.requests ? "Waiting for an answer" : "None waiting"}
+            </Stat>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Needs you</CardTitle>
+            <CardDescription>Work waiting on a Pentest Scout admin</CardDescription>
+          </CardHeader>
+          <CardContent className="px-3">
+            {work.length ? (
+              <ul className="grid gap-0.5">
+                {work.map((q) => (
+                  <li key={q.label}>
+                    <Link
+                      href={q.href}
+                      className="flex items-center gap-3 rounded-3xl px-3 py-2.5 transition-colors outline-none hover:bg-muted/70 focus-visible:ring-3 focus-visible:ring-ring/30"
+                    >
+                      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
+                        <q.icon className="size-4" />
+                      </span>
+                      <span className="flex-1 text-sm font-medium">{q.label}</span>
+                      <span className="text-sm font-semibold tabular">{q.value}</span>
+                      <ArrowRightIcon className="size-4 text-muted-foreground" aria-hidden />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="flex items-center gap-3 rounded-3xl bg-success/10 px-4 py-5 text-sm">
+                <CheckCircle2Icon className="size-5 text-success" />
+                <span>Nothing waiting. Approvals, testing requests and the outbox are clear.</span>
+              </div>
+            )}
+          </CardContent>
         </Card>
-      </section>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Open risk</CardTitle>
+            <CardDescription>Companies with open Critical findings or missed deadlines</CardDescription>
+            <CardAction>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/admin/companies?status=active">
+                  All companies <ArrowRightIcon data-icon="inline-end" />
+                </Link>
+              </Button>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="px-3">
+            {o.hotspots.length ? (
+              <ul className="grid gap-0.5">
+                {o.hotspots.map((h) => (
+                  <li key={h.slug}>
+                    <Link
+                      href={`/admin/companies/${h.slug}`}
+                      className="flex items-center gap-3 rounded-3xl px-3 py-2.5 transition-colors outline-none hover:bg-muted/70 focus-visible:ring-3 focus-visible:ring-ring/30"
+                    >
+                      <span className="flex-1 truncate text-sm font-medium">{h.name}</span>
+                      {h.openCritical > 0 && <ToneBadge tone="critical">{h.openCritical} Critical</ToneBadge>}
+                      {h.openHigh > 0 && <ToneBadge tone="high">{h.openHigh} High</ToneBadge>}
+                      {h.overdue > 0 && <ToneBadge tone="warning">{h.overdue} overdue</ToneBadge>}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="flex items-center gap-3 rounded-3xl bg-success/10 px-4 py-5 text-sm">
+                <CheckCircle2Icon className="size-5 text-success" />
+                <span>No company has open Critical findings or missed deadlines.</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

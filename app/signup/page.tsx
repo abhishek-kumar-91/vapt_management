@@ -20,6 +20,7 @@ export default async function SignUpPage() {
       </AuthHeading>
       <ActionForm
         action={signUp}
+        size="lg"
         honeypot
         submitLabel="Create account"
         pendingLabel="Creating account…"

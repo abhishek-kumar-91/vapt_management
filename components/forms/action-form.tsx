@@ -4,51 +4,84 @@ import * as React from "react"
 import { CircleAlertIcon, LoaderCircleIcon } from "lucide-react"
 
 import { DevLink } from "@/components/auth/dev-link"
+import { FormFields, type FieldSpec } from "@/components/forms/form-fields"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 
+export type { FieldSpec } from "@/components/forms/form-fields"
+
+/** What every server action behind a form returns. */
 export type ActionFormState =
   | {
       error?: string
       fieldErrors?: Record<string, string>
       values?: Record<string, string>
+      /** Development only: the link an email would carry. */
       devLink?: string
       done?: boolean
-      /** A short success line shown above the button (for edits that stay on the page). */
+      /** A short success line (for edits that stay on the page). */
       notice?: string
     }
   | undefined
 
-export interface FieldSpec {
-  name: string
-  label: string
-  type?: "text" | "email" | "password" | "url" | "date" | "select" | "textarea"
-  options?: readonly { value: string; label: string }[]
-  autoComplete?: string
-  placeholder?: string
-  description?: string
-  defaultValue?: string
-  maxLength?: number
-  /** Lays two short fields side by side on wide screens. */
-  half?: boolean
+export type FormAction = (
+  prev: ActionFormState,
+  form: FormData
+) => Promise<ActionFormState>
+
+/** Shared result handling for forms and sheets: keeps answers after a refusal, resets on success. */
+export function useFormAction(action: FormAction) {
+  const [state, run, pending] = React.useActionState(action, undefined)
+  // A new key per result: remounting restores the person's answers after a refusal (selects
+  // included) and clears the fields after a success.
+  const key = JSON.stringify(state ?? null)
+  return { state, run, pending, key }
 }
 
-const selectClass =
-  "h-11 w-full rounded-2xl border border-input bg-transparent px-3 text-sm outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 aria-invalid:border-destructive"
+export function FormError({ message }: { message?: string }) {
+  if (!message) return null
+  return (
+    <Alert variant="destructive" role="alert">
+      <CircleAlertIcon />
+      <AlertDescription>{message}</AlertDescription>
+    </Alert>
+  )
+}
+
+export function SubmitButton({
+  pending,
+  label,
+  pendingLabel,
+  size = "default",
+  form,
+  className,
+}: {
+  pending: boolean
+  label: string
+  pendingLabel: string
+  size?: "default" | "lg"
+  form?: string
+  className?: string
+}) {
+  return (
+    <Button
+      type="submit"
+      form={form}
+      disabled={pending}
+      className={cn(size === "lg" && "h-11", className)}
+    >
+      {pending && (
+        <LoaderCircleIcon className="animate-spin" data-icon="inline-start" />
+      )}
+      {pending ? pendingLabel : label}
+    </Button>
+  )
+}
 
 /**
- * A server-action form from a list of fields: keeps typed values after a refusal, shows field and
- * form errors from the server, a pending state, and (development only) the emailed link.
+ * An inline server-action form, for pages whose purpose is the form (sign-up, onboarding
+ * steps, settings). Forms that add something to a list open in a FormSheet instead.
  */
 export function ActionForm({
   action,
@@ -57,10 +90,11 @@ export function ActionForm({
   pendingLabel,
   doneMessage,
   honeypot = false,
+  size = "default",
   className,
   children,
 }: {
-  action: (prev: ActionFormState, form: FormData) => Promise<ActionFormState>
+  action: FormAction
   fields: FieldSpec[]
   submitLabel: string
   pendingLabel: string
@@ -68,10 +102,12 @@ export function ActionForm({
   doneMessage?: React.ReactNode
   /** Adds a hidden field only bots fill in. */
   honeypot?: boolean
+  size?: "default" | "lg"
   className?: string
   children?: React.ReactNode
 }) {
-  const [state, run, pending] = React.useActionState(action, undefined)
+  const { state, run, pending, key } = useFormAction(action)
+  const idPrefix = React.useId()
 
   if (state?.done && doneMessage)
     return (
@@ -84,74 +120,16 @@ export function ActionForm({
     )
 
   return (
-    // Keyed by the returned values: React resets a form after its action runs, and a remount is
-    // what puts the person's answers back into selects as well as inputs.
-    <form
-      key={JSON.stringify(state?.values ?? null)}
-      action={run}
-      noValidate
-      className={cn("grid gap-6", className)}
-    >
-      {state?.error && (
-        <Alert variant="destructive" role="alert">
-          <CircleAlertIcon />
-          <AlertDescription>{state.error}</AlertDescription>
-        </Alert>
-      )}
-      <FieldGroup className="grid gap-5 sm:grid-cols-2">
-        {fields.map((f) => {
-          const error = state?.fieldErrors?.[f.name]
-          const value = state?.values?.[f.name] ?? f.defaultValue ?? ""
-          const id = `f-${f.name}`
-          const common = {
-            id,
-            name: f.name,
-            "aria-invalid": !!error || undefined,
-            "aria-describedby": f.description ? `${id}-desc` : undefined,
-          }
-          return (
-            <Field
-              key={f.name}
-              data-invalid={!!error || undefined}
-              className={f.half ? undefined : "sm:col-span-2"}
-            >
-              <FieldLabel htmlFor={id}>{f.label}</FieldLabel>
-              {f.type === "select" ? (
-                <select {...common} defaultValue={value} className={selectClass}>
-                  {f.options?.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              ) : f.type === "textarea" ? (
-                <Textarea
-                  {...common}
-                  defaultValue={value}
-                  maxLength={f.maxLength}
-                  placeholder={f.placeholder}
-                  className="min-h-24"
-                />
-              ) : (
-                <Input
-                  {...common}
-                  type={f.type ?? "text"}
-                  defaultValue={f.type === "password" ? undefined : value}
-                  autoComplete={f.autoComplete}
-                  placeholder={f.placeholder}
-                  maxLength={f.maxLength}
-                  spellCheck={f.type === "email" || f.type === "url" ? false : undefined}
-                  className="h-11"
-                />
-              )}
-              {f.description && !error && (
-                <FieldDescription id={`${id}-desc`}>{f.description}</FieldDescription>
-              )}
-              {error && <FieldError>{error}</FieldError>}
-            </Field>
-          )
-        })}
-      </FieldGroup>
+    <form action={run} noValidate className={cn("grid gap-6", className)}>
+      <FormError message={state?.error} />
+      <FormFields
+        key={key}
+        fields={fields}
+        values={state?.values}
+        errors={state?.fieldErrors}
+        idPrefix={idPrefix}
+        size={size}
+      />
       {honeypot && (
         <input
           type="text"
@@ -163,15 +141,20 @@ export function ActionForm({
         />
       )}
       {children}
-      {state?.notice && (
-        <p role="status" className="text-sm text-muted-foreground">
-          {state.notice}
-        </p>
-      )}
-      <Button type="submit" className="h-11 w-full sm:w-fit" disabled={pending}>
-        {pending && <LoaderCircleIcon className="animate-spin" />}
-        {pending ? pendingLabel : submitLabel}
-      </Button>
+      <div className="flex flex-wrap items-center gap-3">
+        <SubmitButton
+          pending={pending}
+          label={submitLabel}
+          pendingLabel={pendingLabel}
+          size={size}
+          className="w-full sm:w-fit"
+        />
+        {state?.notice && (
+          <p role="status" className="text-sm text-muted-foreground">
+            {state.notice}
+          </p>
+        )}
+      </div>
     </form>
   )
 }

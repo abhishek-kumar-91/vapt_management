@@ -1,5 +1,9 @@
 import { day } from "@/components/admin/bits"
-import { PageHeader, SectionHeading } from "@/components/page-header"
+import { PageHeader } from "@/components/page-header"
+import { AppearancePicker } from "@/components/settings/appearance-picker"
+import { AdminSettingsLayout } from "@/components/admin/admin-settings-layout"
+import { SettingsRow, SettingsSection } from "@/components/settings/settings-layout"
+import { ThemePicker } from "@/components/settings/theme-picker"
 import { emailTransport } from "@/lib/email/send"
 import { listAdmins } from "@/server/admin"
 
@@ -10,27 +14,51 @@ export default async function AdminSettingsPage() {
   const transport = emailTransport()
   return (
     <div className="grid gap-8">
-      <PageHeader title="Settings" description="Platform settings. These are set in code and the environment, not here, so they can’t be changed by a compromised session." />
-      <section className="grid gap-3">
-        <SectionHeading title="Super Admins" description="Created only from the terminal: pnpm user:create --email … --name …" />
-        <ul className="grid divide-y rounded-3xl ring-1 ring-foreground/10">
+      <PageHeader
+        title="Settings"
+        description="How the admin console looks. Platform settings live in code and the environment, so a stolen session can’t change them."
+      />
+      <AdminSettingsLayout>
+        <SettingsSection
+          id="appearance"
+          title="Appearance"
+          description="Saved in this browser only."
+          scope="This browser"
+        >
+          <SettingsRow label="Theme" description="System follows your device’s light or dark setting. Press D anywhere to toggle.">
+            <ThemePicker />
+          </SettingsRow>
+          <SettingsRow label="Navigation frame" description="Dark sidebar keeps a dark frame around light content, whatever the theme.">
+            <AppearancePicker />
+          </SettingsRow>
+        </SettingsSection>
+
+        <SettingsSection
+          id="admins"
+          title="Super Admins"
+          description="Created only from the terminal with pnpm user:create, so no one can grant this from the app."
+          scope="Read only"
+        >
           {admins.map((a) => (
-            <li key={a.email} className="flex flex-wrap items-baseline gap-x-3 px-5 py-3 text-sm">
-              <span className="font-medium">{a.name}</span>
-              <span className="text-muted-foreground">{a.email}</span>
-              <span className="ml-auto text-muted-foreground">Last sign-in {day(a.lastLoginAt)}</span>
-            </li>
+            <SettingsRow key={a.email} label={a.name} description={a.email}>
+              <p className="text-sm text-muted-foreground tabular">Last sign-in {day(a.lastLoginAt)}</p>
+            </SettingsRow>
           ))}
-        </ul>
-      </section>
-      <section className="grid gap-3">
-        <SectionHeading title="Email" />
-        <p className="rounded-3xl px-5 py-4 text-sm ring-1 ring-foreground/10">
-          {transport === "outbox"
-            ? "Not connected. Emails wait in the Outbox and you send their links yourself. Set EMAIL_TRANSPORT once a provider is connected (phase 10)."
-            : "Development mode: emails are queued in the Outbox and printed to the server console, and links appear on screen where they’re created."}
-        </p>
-      </section>
+        </SettingsSection>
+
+        <SettingsSection id="email" title="Email" description="How the platform’s emails leave the app." scope="Environment">
+          <SettingsRow
+            label={transport === "outbox" ? "Not connected" : "Development"}
+            description={
+              transport === "outbox"
+                ? "Emails wait in the Outbox and you send their links yourself. Connecting a provider is phase 10."
+                : "Emails are queued in the Outbox, printed to the server console, and their links appear on screen where they’re created."
+            }
+          >
+            <code className="font-mono text-xs">EMAIL_TRANSPORT={transport}</code>
+          </SettingsRow>
+        </SettingsSection>
+      </AdminSettingsLayout>
     </div>
   )
 }

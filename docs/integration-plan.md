@@ -67,7 +67,7 @@ Why this order:
 - Invites create the membership (`invited`) at invite time. The token only carries `org_id`. A new person sets their password at `/set-password/<token>`, which also activates the membership and marks the email verified. Invites to an existing account link to `/invite/<token>`, which phase 3 builds.
 - Name and email belong to the person. The Team page can correct them only while the invite is pending and it's their only company.
 - Suspending or removing a member signs them out only if they have no other active company. A password reset link can't be made for someone who also belongs to another company.
-- `pnpm db:seed` creates `admin@pentestscout.test` (Super Admin), Demo Company (Owner, Manager, Tester, Developer), Acme Corp, and Northwind Traders (waiting for review). The password for all of them is `scout-demo-2026!`.
+- `pnpm db:seed` creates `admin@pentestscout.com` (Super Admin), Demo Company (Owner, Manager, Tester, Developer), Acme Corp, and Northwind Traders (waiting for review). The password for all of them is `scout-demo-2026!`.
 
 ---
 

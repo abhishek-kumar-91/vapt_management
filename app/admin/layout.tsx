@@ -1,7 +1,10 @@
 import type { Metadata } from "next"
 import { eq, sql } from "drizzle-orm"
 
+import { cookies } from "next/headers"
+
 import { AdminShell } from "@/components/admin/admin-shell"
+import { APPEARANCE_COOKIE } from "@/lib/appearance"
 import { organizations, testingRequests } from "@/db/schema"
 import { adminRead, requirePlatform } from "@/server/admin"
 
@@ -30,6 +33,11 @@ export default async function AdminLayout({
   )
   return (
     <AdminShell
+      initialAppearance={
+        (await cookies()).get(APPEARANCE_COOKIE)?.value === "dark-sidebar"
+          ? "dark-sidebar"
+          : "default"
+      }
       user={{ name: session.user.name, email: session.user.email }}
       counts={{ approvals: approvals.n, testing: testing.n }}
     >

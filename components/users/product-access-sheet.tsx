@@ -9,7 +9,16 @@ import {
   setProductAccessAction,
 } from "@/app/o/[org]/users/actions"
 import { useCurrentUser } from "@/components/current-user"
+import { SHEET_CONTENT } from "@/components/forms/form-sheet"
+import { ProductAvatar } from "@/components/product-avatar"
 import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Sheet,
   SheetContent,
@@ -39,7 +48,7 @@ export function ProductAccessSheet({
 }) {
   const org = useCurrentUser().org!.slug
   const [rows, setRows] = React.useState<
-    { productId: string; name: string; editable: boolean; level: Level; initial: Level }[] | null
+    { productId: string; slug: string; name: string; editable: boolean; level: Level; initial: Level }[] | null
   >(null)
   const [saving, setSaving] = React.useState(false)
 
@@ -55,6 +64,7 @@ export function ProductAccessSheet({
         }
         const next = list.map((r) => ({
           productId: r.productId,
+          slug: r.slug,
           name: r.name,
           editable: r.editable,
           level: (r.access ?? "none") as Level,
@@ -92,12 +102,14 @@ export function ProductAccessSheet({
 
   return (
     <Sheet open={!!user} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="flex flex-col gap-0 sm:max-w-md">
+      <SheetContent className={SHEET_CONTENT}>
         <SheetHeader className="border-b px-6 py-5">
-          <SheetTitle>Product access</SheetTitle>
+          <SheetTitle className="text-lg">
+            Product access{user ? ` for ${user.name}` : ""}
+          </SheetTitle>
           <SheetDescription>
-            {user?.name} sees only the products set to View or Edit. Edit lets them
-            work on a product as their role allows.
+            They see only products set to View or Edit. Edit lets them work on a
+            product as their role allows.
           </SheetDescription>
         </SheetHeader>
         <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -111,34 +123,32 @@ export function ProductAccessSheet({
             <ul className="grid divide-y">
               {rows.map((r) => (
                 <li key={r.productId} className="flex items-center gap-3 py-3">
+                  <ProductAvatar id={r.slug} name={r.name} />
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">
                     {r.name}
                   </span>
-                  <div
-                    role="radiogroup"
-                    aria-label={`Access to ${r.name}`}
-                    className="flex rounded-full bg-muted p-0.5"
+                  <Select
+                    value={r.level}
+                    disabled={!r.editable}
+                    onValueChange={(v) =>
+                      setRows((all) =>
+                        all!.map((x) =>
+                          x.productId === r.productId ? { ...x, level: v as Level } : x
+                        )
+                      )
+                    }
                   >
-                    {LEVELS.map((l) => (
-                      <button
-                        key={l.value}
-                        type="button"
-                        role="radio"
-                        aria-checked={r.level === l.value}
-                        disabled={!r.editable}
-                        onClick={() =>
-                          setRows((all) =>
-                            all!.map((x) =>
-                              x.productId === r.productId ? { ...x, level: l.value } : x
-                            )
-                          )
-                        }
-                        className="rounded-full px-2.5 py-1 text-xs font-medium text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50 aria-checked:bg-background aria-checked:text-foreground aria-checked:shadow-sm"
-                      >
-                        {l.label}
-                      </button>
-                    ))}
-                  </div>
+                    <SelectTrigger size="sm" aria-label={`Access to ${r.name}`} className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LEVELS.map((l) => (
+                        <SelectItem key={l.value} value={l.value}>
+                          {l.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </li>
               ))}
             </ul>
@@ -148,8 +158,8 @@ export function ProductAccessSheet({
             </p>
           )}
         </div>
-        <SheetFooter className="flex-row justify-end gap-2 border-t px-6 py-4">
-          <Button variant="ghost" onClick={onClose}>
+        <SheetFooter className="flex-row justify-end border-t px-6 py-4">
+          <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
           <Button onClick={save} disabled={saving || !rows}>

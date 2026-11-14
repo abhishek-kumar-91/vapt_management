@@ -933,3 +933,25 @@ export async function listAdmins() {
       .orderBy(asc(users.name))
   })
 }
+
+/** How many companies are in each status, for the Companies tabs. */
+export async function companyCounts() {
+  return adminRead(async (tx) => {
+    const rows = await tx
+      .select({ status: organizations.status, n: sql<number>`count(*)::int` })
+      .from(organizations)
+      .groupBy(organizations.status)
+    return Object.fromEntries(rows.map((r) => [r.status, r.n])) as Record<string, number>
+  })
+}
+
+/** How many testing requests are in each status, for the Testing requests tabs. */
+export async function testingCounts() {
+  return adminRead(async (tx) => {
+    const rows = await tx
+      .select({ status: testingRequests.status, n: sql<number>`count(*)::int` })
+      .from(testingRequests)
+      .groupBy(testingRequests.status)
+    return Object.fromEntries(rows.map((r) => [r.status, r.n])) as Record<string, number>
+  })
+}

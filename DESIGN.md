@@ -119,6 +119,22 @@ components:
     backgroundColor: "{colors.accent-wash}"
     textColor: "{colors.ink}"
     rounded: "{rounded.xl}"
+  sheet:
+    backgroundColor: "{colors.card-white}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.4xl}"
+    padding: "24px"
+    width: "32rem"
+  dialog:
+    backgroundColor: "{colors.card-white}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.4xl}"
+    padding: "24px"
+  tab-list:
+    backgroundColor: "{colors.muted-wash}"
+    textColor: "{colors.muted-text}"
+    rounded: "{rounded.full}"
+    height: "36px"
 ---
 
 # Design System: Pentest Scout
@@ -131,6 +147,8 @@ Pentest Scout is a calm, product-grade security console built on shadcn Luma: pi
 
 The one recurring idea is the SOP close-out line. The close-out meter (a segmented pill with a tick at 80%) appears in the portfolio summary, the product table and the product header, and the motion grammar reinforces it: data marks draw in left to right, as if being filled toward that line. Content settles in rather than performing.
 
+The same world dresses three shells. The **company console** (`/o/<company>`) is where testers, managers and owners work. The **admin console** (`/admin`) is Pentest Scout's own view across every company, built from the identical frame with platform navigation, so moving between them never feels like changing products. The **account pages** (sign-up, sign-in, onboarding, invites, password links) are one calm column on the same rounded canvas.
+
 The system explicitly refuses the category default it was built against: a dark navy sidebar, four identical KPI tiles and 9px grey text.
 
 **Key Characteristics:**
@@ -140,6 +158,7 @@ The system explicitly refuses the category default it was built against: a dark 
 - Figtree throughout with tabular numerals; Geist Mono only for ticket IDs and report text.
 - Motion: data reveals left to right, content settles in; under reduced motion these become short fades.
 - Light and dark themes are both first-class, defined token for token.
+- One frame for both consoles; one sheet for every "add" form; one dialog for every consequential action.
 
 ## Colors
 
@@ -152,7 +171,7 @@ A near-white, untinted neutral field with black ink as the only brand colour and
 - **Paper Ground** (paper-ground): page and sidebar ground; also the theme-color `#fafafa`.
 - **Card White** (card-white): cards and popovers, lifted off the ground by ring and shadow.
 - **Ink** (ink): body and heading text.
-- **Slate Muted Text** (slate-muted-text): descriptions, metadata lines, legends. Used at 12px or larger.
+- **Slate Muted Text** (muted-text): descriptions, metadata lines, legends. Used at 12px or larger.
 - **Grey Wash / Muted Wash / Accent Wash** (grey-wash, muted-wash, accent-wash): secondary buttons, empty meter track, hover and active nav fills.
 - **Hairline** (hairline): borders and dividers; dark mode switches to white at 9%.
 - **Night Ground / Night Card** (night-ground, night-card): dark theme ground (`#161616` theme-color) and card surface, untinted.
@@ -195,6 +214,13 @@ A near-white, untinted neutral field with black ink as the only brand colour and
 An inset-sidebar app shell: a 17.5rem light sidebar on the ground, and the content canvas as a rounded (1.375rem) inset panel with ring and soft shadow at md and up. Below md the sidebar becomes an off-canvas sheet and the canvas goes full-bleed. The sidebar collapses to an icon rail on desktop.
 
 Content is centred at max 80rem with 16px side padding (32px at md) and 24px top padding (32px at md). Page structure stacks on a 24px gap: page header (title, description, actions aligned to the bottom edge), a wide summary card, then two-up cards at lg. Inside cards, spacing is 24px (16px for the small card size); row clusters use 8px and 16px gaps.
+
+List pages are a page header (its primary action opens a sheet) above one list card. Detail pages are a page header with their actions, an optional note alert, then a details card and two-up cards for related lists.
+
+Account pages use the same rounded canvas without a sidebar: brand row on top, one centred column (24rem; 42rem for onboarding) with the heading and its content, and the confidentiality line at the foot. Every page is built to 390px wide with no page-level sideways scroll; wide tables scroll inside their card.
+
+### Named Rules
+**The Same Frame Rule.** The admin console and the company console share one shell: sidebar, header, account menu, list card. A Super Admin moving between them should notice only the navigation change.
 
 ## Elevation & Depth
 
@@ -239,10 +265,13 @@ Soft, pill-shaped and quiet; one primary per view.
 - **Error / Disabled:** destructive border and 20% destructive ring; disabled at 50% opacity.
 
 ### Navigation
-- **Sidebar:** brand mark and name, then nav items (14px, 0.875rem radius, accent-wash fill and medium weight when active) with an open-finding count; a product list with avatars and health dot plus label. The foot holds Settings, then the signed-in user (ink avatar, full name, role) whose menu carries Manage users, Export JSON, Reset local data and Sign out.
-- **Header:** sidebar toggle and breadcrumb; on the right a pill search field with a ⌘K hint (icon only on phones) opening the global search palette (pages, products, and once typing, findings and test areas; every typed word must match), a notification bell with an ink unread count and a six-item popover linking to `/dashboard/notifications`, and the theme toggle.
-- **Notifications:** derived from the records by the SOP rules (overdue fix deadlines, late or waiting retests, cycles overdue or due within 3 days, escalations/incidents/status switches/close-outs from the last 14 days). Read state is per user in this browser.
-- **Mobile:** sidebar becomes an off-canvas sheet.
+- **Sidebar (company console):** the brand mark with the company's name beneath it (a company switcher when the person belongs to more than one, or is a Super Admin), then nav items (14px, 0.875rem radius, accent-wash fill and medium weight when active): Overview, Products, Findings with its open count, Reports, Activity log, Testing and Team, each shown only to roles that can use it. Then up to eight products with avatars and a health dot plus label, and "All products" beyond that. The foot holds Settings, then the account menu.
+- **Sidebar (admin console):** the brand mark over "Admin console", Overview, Approvals and Testing requests (with waiting counts), then a Platform group: Companies, Sign-ups, Products, Users, Outbox, Audit log. Settings and the account menu at the foot.
+- **Account menu:** one component in both consoles: a card-coloured pill with an ink initials avatar, full name and role; its menu repeats name, email and role, then any console items (Team, Export data), then Sign out.
+- **Header:** sidebar toggle and breadcrumb. The company console adds a pill search field with a ⌘K hint (icon only on phones) opening the global search palette, and a notification bell with an ink unread count and a six-item popover. Both end with the theme toggle.
+- **Super Admin banner:** inside a company, a Super Admin sees a primary-tinted status strip naming the company, with a link back to the admin console.
+- **Notifications:** derived from the records by the SOP rules (overdue fix deadlines, late or waiting retests, cycles overdue or due within 3 days, escalations/incidents/status switches/close-outs from the last 14 days). Read state is per person in this browser.
+- **Mobile:** the sidebar becomes an off-canvas sheet.
 
 ### Close-out Meter (signature)
 A segmented pill (6/8/12px heights) on the muted track: Tested in ink, In testing in ink at 35%, Blocked in critical at 70%, To do as the empty track, segments split by 1px gaps. A 2px tick, ringed in card colour, stands at the 80% close-out line: muted ink below the line, Health Green once coverage passes. It is an accessible `meter` with a full text label and a tooltip of counts, and always ships with its legend where first introduced.
@@ -254,8 +283,38 @@ A segmented pill (6/8/12px heights) on the muted track: Tested in ink, In testin
 - **Appearance switch:** Settings → Appearance offers Default and Dark sidebar (dark navigation frame on `--sidebar-contrast`, light content inset; the sidebar subtree takes the full `.dark` token set). Persisted in the `pentest_scout_appearance` cookie and rendered on the server; switching cross-fades over 320ms.
 - **Theme switch:** the new theme is revealed by a circle growing from the toggle button (View Transitions, 560ms, same expo ease; `lib/theme-transition.ts`). The `D` hotkey uses the same reveal. Instant switch without View Transitions support or under reduced motion.
 - **Sign-in brand panel:** the keyring mark, drawn large in white on ink as a dial with tick ring and faint scope circles. The open ring draws in once (1400ms), then scans slowly (one turn per ~2.5 min); while the pointer is over the panel it turns its opening toward the pointer and the keyhole leans a little the same way, both eased per frame. A 260px lens brightens the dot field under the pointer. No product data on this screen: the platform is generic. Static under reduced motion.
-- **Route loading:** no top progress bar. A centred brand loader (`components/brand-loader.tsx`): the keyhole holds still while the ring sweeps round it (1.6s, arc grows 8%→74% and back as it orbits) and a scope pulse spreads outward. It appears only after 180ms so fast navigations never flash. `app/dashboard/loading.tsx` shows it inside the content canvas (sidebar and header stay); `app/loading.tsx` shows it full screen with the wordmark (e.g. signing in). Reduced motion swaps in the still mark, breathing slowly in opacity so it still reads as working.
+- **Route loading:** no top progress bar. A centred brand loader (`components/brand-loader.tsx`): the keyhole holds still while the ring sweeps round it (1.6s, arc grows 8%→74% and back as it orbits) and a scope pulse spreads outward. It appears only after 180ms so fast navigations never flash. `app/o/[org]/loading.tsx` shows it inside the content canvas (sidebar and header stay); `app/loading.tsx` shows it full screen with the wordmark (e.g. signing in). Reduced motion swaps in the still mark, breathing slowly in opacity so it still reads as working.
 - **Reduced motion:** fewer and gentler, not none. Wipes, ring draws and the page settle become a 160ms fade; dialogs, sheets and menus fade without sliding or zooming; the sidebar collapse snaps. Colour, opacity and focus transitions keep their normal timing, because they confirm actions.
+
+### Form fields
+Every form renders its fields through one component, so a form never invents its own controls.
+- **Controls:** the pill `Input` and `Textarea`, the design-system `Select` (never a native select) and the `DatePicker` (never a native date input), all on the input colour at 50%.
+- **Labels:** always visible above the control, 14px medium; optional fields add "Optional" in muted text inside the label.
+- **Help and errors:** help text in muted 12-14px under the control; errors replace it in destructive red. Both are linked to the control with `aria-describedby`, and the control carries `aria-invalid`.
+- **Required selects** show their placeholder only as a placeholder, never as a choice.
+- **Account pages** use 44px-tall controls (the sign-in size); everything inside the consoles uses 36px.
+
+### Sheets
+The one place things get added or requested: products, testing requests, invites, company details, product access.
+- **Frame:** inset from the right edge by 8px, card colour, 1.625rem radius, max 32rem wide (full width on phones).
+- **Structure:** a header with a 18px title and muted description, divided by a hairline from the scrolling fields, then a hairline and a footer with Cancel (outline) and the primary action (ink) aligned right.
+- **Behaviour:** opened from the page header or a card action, never a form parked under a table. A refusal keeps the sheet open with the person's answers and the errors; success closes it and confirms with a toast.
+
+**The One Sheet Rule.** If an action adds or requests something, it opens in the right-hand sheet. A page's own form (sign-up, the first onboarding step) is the only inline form.
+
+### Dialogs
+- **Confirmation:** consequential actions (approve, reject, suspend, archive, cancel, submit) confirm in a centred alert dialog: title as a question, one sentence on the consequence, Cancel and the action. Destructive actions use the red-tint button.
+- **Asking for input:** a dialog can ask for a reason (the action stays disabled until it's given) or a date range (two date pickers).
+- **One-time links:** when an action returns a link (invite, reset, verification), it opens in a dialog with a read-only field and Copy.
+
+### Lists and tables
+- **List card:** a card with a sticky toolbar (status tabs with tabular counts on the left; a pill search field and one filter select on the right), then the table edge to edge. The toolbar's state lives in the URL.
+- **Rows:** people are an initials avatar (primary at 10%) beside name and email; products are their tinted monogram avatar beside name and domain; companies and requests are a linked name with a muted second line. Row actions are small ghost or outline buttons aligned right.
+- **Sticky header:** column headers stick under the toolbar while the page scrolls; a table wide enough to scroll sideways keeps its header in place instead.
+- **Paging:** client-side pages for short lists (as on Team); "Show older" at the foot for long, server-paged lists.
+
+### Empty states
+A short title in ink and one muted sentence saying what fills the space and how, centred in the card and pinned to the visible width inside sideways-scrolling tables. When the empty state is good news (nothing waiting, no open risk), it is a success-tinted row with a check icon instead.
 
 ## Do's and Don'ts
 
@@ -264,7 +323,8 @@ A segmented pill (6/8/12px heights) on the muted track: Tested in ink, In testin
 - **Do** pair every severity and health colour with a word or letter.
 - **Do** use tabular numerals for every metric and count.
 - **Do** keep one ink primary button per view, pill-shaped.
-- **Do** label sample data wherever data appears.
+- **Do** open every "add" or "request" form in the right-hand sheet, and confirm every consequential action in a dialog.
+- **Do** build both consoles from the same frame, account menu and list card.
 - **Do** reveal data marks left to right and settle content in with the 6px/320ms rise; nothing else moves.
 
 ### Don't:
@@ -274,3 +334,5 @@ A segmented pill (6/8/12px heights) on the muted track: Tested in ink, In testin
 - **Don't** introduce a brand hue or use semantic colours decoratively.
 - **Don't** use hard or offset shadows; depth is ring plus soft ambient shadow.
 - **Don't** use Geist Mono beyond ticket IDs, method fields and report text.
+- **Don't** use native selects or date inputs; use the design-system Select and DatePicker.
+- **Don't** put a form below a table or inline in a list; it belongs in a sheet.
