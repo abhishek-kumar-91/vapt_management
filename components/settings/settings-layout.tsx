@@ -34,7 +34,7 @@ function useActiveSection(ids: string[]) {
 }
 
 /**
- * Settings frame: a sticky section rail beside the sections at lg, a scrollable
+ * Settings frame: a sticky section rail beside the sections at xl, a scrollable
  * pill row above them on smaller screens. Sections are deep-linkable by hash.
  */
 export function SettingsLayout({
@@ -48,9 +48,9 @@ export function SettingsLayout({
   const active = useActiveSection(ids)
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[12rem_minmax(0,56rem)] lg:gap-10">
+    <div className="grid gap-6 xl:grid-cols-[12rem_minmax(0,56rem)] xl:gap-10">
       <nav aria-label="Settings sections" className="min-w-0">
-        <ul className="-mx-4 flex [scrollbar-width:none] gap-1.5 overflow-x-auto px-4 pb-1 lg:sticky lg:top-20 lg:mx-0 lg:grid lg:gap-0.5 lg:overflow-visible lg:px-0">
+        <ul className="-mx-4 flex [scrollbar-width:none] gap-1.5 overflow-x-auto px-4 pb-1 xl:sticky xl:top-20 xl:mx-0 xl:grid xl:gap-0.5 xl:overflow-visible xl:px-0">
           {items.map(({ id, label, icon: Icon }) => {
             const current = active === id
             return (
@@ -62,7 +62,7 @@ export function SettingsLayout({
                     "flex h-9 items-center gap-2.5 rounded-full px-3.5 text-sm whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30",
                     current
                       ? "bg-accent font-medium text-foreground"
-                      : "text-muted-foreground ring-1 ring-border hover:bg-muted/50 hover:text-foreground lg:ring-0"
+                      : "text-muted-foreground ring-1 ring-border hover:bg-muted/50 hover:text-foreground xl:ring-0"
                   )}
                 >
                   <Icon className="size-4 shrink-0" aria-hidden />
@@ -111,12 +111,14 @@ export function SettingsSection({
           </p>
         </div>
         {scope && (
-          <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+          <span className="mt-0.5 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
             {scope}
           </span>
         )}
       </header>
-      <div className="divide-y divide-border px-6">{children}</div>
+      <div className="@container/rows divide-y divide-border px-6">
+        {children}
+      </div>
       {footer && (
         <footer className="flex flex-wrap items-center justify-end gap-2 rounded-b-4xl border-t bg-muted/40 px-6 py-3">
           {footer}
@@ -126,7 +128,11 @@ export function SettingsSection({
   )
 }
 
-/** Label and help on the left, control on the right; stacks below md. */
+/**
+ * Label and help on the left, control on the right. Splits on the section's
+ * width, not the viewport: beside the app sidebar and the section rail a
+ * 1024px screen leaves a section too narrow for two columns.
+ */
 export function SettingsRow({
   label,
   description,
@@ -140,8 +146,10 @@ export function SettingsRow({
 }) {
   const Label = htmlFor ? "label" : "div"
   return (
-    <div className="grid gap-3 py-5 md:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] md:gap-8">
-      <div className="grid content-start gap-1">
+    <div className="grid gap-3 py-5 @min-[36rem]/rows:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] @min-[36rem]/rows:gap-8">
+      {/* Every row shares a 36px control line (the height of a button or
+          input): the label is centred on it and short controls sit centred in it. */}
+      <div className="grid content-start gap-1 @min-[36rem]/rows:pt-2">
         <Label htmlFor={htmlFor} className="text-sm font-medium">
           {label}
         </Label>
@@ -151,7 +159,9 @@ export function SettingsRow({
           </p>
         )}
       </div>
-      <div className="@container min-w-0">{children}</div>
+      <div className="@container grid min-w-0 self-start @min-[36rem]/rows:min-h-9 @min-[36rem]/rows:content-center">
+        <div className="min-w-0">{children}</div>
+      </div>
     </div>
   )
 }

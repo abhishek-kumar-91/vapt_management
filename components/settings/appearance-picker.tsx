@@ -66,7 +66,7 @@ export function AppearancePicker() {
   const { appearance, setAppearance } = useAppearance()
 
   return (
-    <fieldset className="grid max-w-xl gap-3 @md:grid-cols-2">
+    <fieldset className="grid max-w-xl gap-3 @min-[20rem]:grid-cols-2">
       <legend className="sr-only">Shell appearance</legend>
       {OPTIONS.map((option) => {
         const selected = appearance === option.value

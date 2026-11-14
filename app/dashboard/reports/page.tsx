@@ -99,7 +99,7 @@ export default function ReportsPage() {
         actions={<ToneBadge tone="neutral">{saved.length} saved</ToneBadge>}
       />
 
-      <Tabs value={type} onValueChange={changeType}>
+      <Tabs value={type} onValueChange={changeType} controls="report-workspace">
         <TabsList className="max-w-full justify-start overflow-x-auto">
           {REPORT_TYPES.map((r) => (
             <TabsTrigger key={r.value} value={r.value}>
@@ -109,7 +109,10 @@ export default function ReportsPage() {
         </TabsList>
       </Tabs>
 
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+      <div
+        id="report-workspace"
+        className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]"
+      >
         <Card>
           <CardHeader>
             <CardTitle>Inputs</CardTitle>

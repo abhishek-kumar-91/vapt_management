@@ -211,7 +211,11 @@ export default function ProductPage() {
                   need a reason.
                 </CardDescription>
               </div>
-              <Tabs value={findingView} onValueChange={setFindingView}>
+              <Tabs
+                value={findingView}
+                onValueChange={setFindingView}
+                controls="product-findings"
+              >
                 <TabsList>
                   <TabsTrigger value="open">Open</TabsTrigger>
                   <TabsTrigger value="closed">Closed</TabsTrigger>
@@ -219,8 +223,12 @@ export default function ProductPage() {
                 </TabsList>
               </Tabs>
             </CardHeader>
-            <CardContent className="px-0">
-              <FindingsTable findings={productFindings} showProduct={false} />
+            <CardContent id="product-findings" className="px-0">
+              <FindingsTable
+                findings={productFindings}
+                showProduct={false}
+                resetKey={findingView}
+              />
             </CardContent>
           </Card>
         </TabsContent>

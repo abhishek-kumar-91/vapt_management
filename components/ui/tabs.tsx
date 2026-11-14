@@ -5,21 +5,33 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 import { Tabs as TabsPrimitive } from "radix-ui"
 
+/** Id of the one region every trigger updates, when tabs filter a view rather than switch panels. */
+const TabsControls = React.createContext<string | undefined>(undefined)
+
 function Tabs({
   className,
   orientation = "horizontal",
+  controls,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root>) {
+}: React.ComponentProps<typeof TabsPrimitive.Root> & {
+  /**
+   * Tabs used as filters have no TabsContent, so Radix's aria-controls would
+   * point at panels that never render. Pass the id of the region they filter.
+   */
+  controls?: string
+}) {
   return (
-    <TabsPrimitive.Root
-      data-slot="tabs"
-      data-orientation={orientation}
-      className={cn(
-        "group/tabs flex gap-2 data-horizontal:flex-col",
-        className
-      )}
-      {...props}
-    />
+    <TabsControls.Provider value={controls}>
+      <TabsPrimitive.Root
+        data-slot="tabs"
+        data-orientation={orientation}
+        className={cn(
+          "group/tabs flex min-w-0 gap-2 data-horizontal:flex-col",
+          className
+        )}
+        {...props}
+      />
+    </TabsControls.Provider>
   )
 }
 
@@ -58,9 +70,12 @@ function TabsTrigger({
   className,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+  const controls = React.useContext(TabsControls)
   return (
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
+      // Only when set: an explicit undefined would erase Radix's id on real tab panels.
+      {...(controls && { "aria-controls": controls })}
       className={cn(
         "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-2 rounded-full border border-transparent! px-3 py-1 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start group-data-vertical/tabs:rounded-2xl group-data-vertical/tabs:px-3 group-data-vertical/tabs:py-1.5 hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 dark:text-muted-foreground dark:hover:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",

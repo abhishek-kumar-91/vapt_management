@@ -13,8 +13,8 @@ colors:
   accent-wash: "oklch(0.95 0 0)"
   hairline: "oklch(0.915 0 0)"
   focus-grey: "oklch(0.55 0 0)"
-  destructive-red: "oklch(0.57 0.22 25)"
-  severity-critical: "oklch(0.57 0.21 25)"
+  destructive-red: "oklch(0.52 0.21 25)"
+  severity-critical: "oklch(0.52 0.2 25)"
   severity-high: "oklch(0.66 0.17 50)"
   severity-medium: "oklch(0.76 0.15 80)"
   severity-low: "oklch(0.6 0.13 250)"
@@ -239,8 +239,9 @@ Soft, pill-shaped and quiet; one primary per view.
 - **Error / Disabled:** destructive border and 20% destructive ring; disabled at 50% opacity.
 
 ### Navigation
-- **Sidebar:** brand mark and name, then nav items (14px, 0.875rem radius, accent-wash fill and medium weight when active) with an open-finding count; a product list with avatars and health dot plus label; a sample-data note card at the foot.
-- **Header:** sidebar toggle, breadcrumb, theme toggle and account menu.
+- **Sidebar:** brand mark and name, then nav items (14px, 0.875rem radius, accent-wash fill and medium weight when active) with an open-finding count; a product list with avatars and health dot plus label. The foot holds Settings, then the signed-in user (ink avatar, full name, role) whose menu carries Manage users, Export JSON, Reset local data and Sign out.
+- **Header:** sidebar toggle and breadcrumb; on the right a pill search field with a ⌘K hint (icon only on phones) opening the global search palette (pages, products, and once typing, findings and test areas; every typed word must match), a notification bell with an ink unread count and a six-item popover linking to `/dashboard/notifications`, and the theme toggle.
+- **Notifications:** derived from the records by the SOP rules (overdue fix deadlines, late or waiting retests, cycles overdue or due within 3 days, escalations/incidents/status switches/close-outs from the last 14 days). Read state is per user in this browser.
 - **Mobile:** sidebar becomes an off-canvas sheet.
 
 ### Close-out Meter (signature)

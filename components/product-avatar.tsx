@@ -5,8 +5,8 @@ const TINTS = [
   "bg-chart-1/12 text-chart-1",
   "bg-chart-4/20 text-[color-mix(in_oklch,var(--chart-4),black_40%)] dark:text-chart-4",
   "bg-chart-3/15 text-[color-mix(in_oklch,var(--chart-3),black_25%)] dark:text-chart-3",
-  "bg-chart-5/12 text-chart-5",
-  "bg-chart-2/15 text-[color-mix(in_oklch,var(--chart-2),black_30%)] dark:text-chart-2",
+  "bg-chart-5/12 text-[color-mix(in_oklch,var(--chart-5),black_25%)] dark:text-chart-5",
+  "bg-chart-2/15 text-[color-mix(in_oklch,var(--chart-2),black_30%)] dark:text-[color-mix(in_oklch,var(--chart-2),white_40%)]",
 ]
 
 function tintFor(id: string) {

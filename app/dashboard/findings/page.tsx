@@ -9,6 +9,8 @@ import { FindingsTable } from "@/components/findings/findings-table"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { STICKY_TOOLBAR, useStickyToolbar } from "@/components/ui/table"
+import { cn } from "@/lib/utils"
 import {
   InputGroup,
   InputGroupAddon,
@@ -40,6 +42,7 @@ function FindingsView() {
   const [view, setView] = React.useState<string>("open")
   const [severity, setSeverity] = React.useState("all")
   const [product, setProduct] = React.useState("all")
+  const toolbarRef = useStickyToolbar()
   const [query, setQuery] = React.useState("")
   const formOpen = params.get("new") === "1"
   const setFormOpen = (open: boolean) =>
@@ -79,9 +82,19 @@ function FindingsView() {
         }
       />
 
-      <Card className="gap-4">
-        <CardHeader className="flex flex-wrap items-center justify-between gap-3">
-          <Tabs value={view} onValueChange={setView}>
+      <Card className="gap-1 pt-3">
+        <CardHeader
+          ref={toolbarRef}
+          className={cn(
+            "flex flex-wrap items-center justify-between gap-3",
+            STICKY_TOOLBAR
+          )}
+        >
+          <Tabs
+            value={view}
+            onValueChange={setView}
+            controls="findings-results"
+          >
             <TabsList>
               {VIEWS.map((v) => (
                 <TabsTrigger key={v.value} value={v.value} className="gap-1.5">
@@ -133,9 +146,10 @@ function FindingsView() {
             </Select>
           </div>
         </CardHeader>
-        <CardContent className="px-0">
+        <CardContent id="findings-results" className="px-0">
           <FindingsTable
             findings={visible}
+            resetKey={`${view}|${severity}|${product}|${q}`}
             emptyText={
               filtered ? (
                 <span className="grid justify-items-center gap-3">

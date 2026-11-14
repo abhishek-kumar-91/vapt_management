@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   ActivityIcon,
+  BellIcon,
   FileTextIcon,
   LayoutDashboardIcon,
   type LucideIcon,
@@ -14,10 +15,12 @@ import {
 
 import { BrandMark } from "@/components/brand-mark"
 import { useCan } from "@/components/current-user"
+import { NavUser } from "@/components/nav-user"
 import { ProductAvatar } from "@/components/product-avatar"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -37,7 +40,24 @@ export const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/dashboard/reports", label: "Reports", icon: FileTextIcon },
   { href: "/dashboard/activity", label: "Activity log", icon: ActivityIcon },
   { href: "/dashboard/users", label: "Users", icon: UsersIcon },
-  { href: "/dashboard/settings", label: "Settings", icon: SettingsIcon },
+]
+
+/** Pinned to the sidebar foot, just above the signed-in user. */
+export const SETTINGS_ITEM = {
+  href: "/dashboard/settings",
+  label: "Settings",
+  icon: SettingsIcon,
+}
+
+/** Every top-level page: breadcrumbs and global search read from this. */
+export const PAGES = [
+  ...NAV_ITEMS,
+  {
+    href: "/dashboard/notifications",
+    label: "Notifications",
+    icon: BellIcon,
+  },
+  SETTINGS_ITEM,
 ]
 
 const HEALTH_DOT = {
@@ -65,99 +85,120 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild className="rounded-full">
-              <Link href="/dashboard" onClick={close}>
-                <BrandMark className="size-8!" />
-                <span className="grid leading-tight group-data-[collapsible=icon]:hidden">
-                  <span className="font-semibold tracking-tight">
-                    Pentest Scout
+      <nav aria-label="Main" className="contents">
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild className="rounded-full">
+                <Link href="/dashboard" onClick={close}>
+                  <BrandMark className="size-8!" />
+                  <span className="grid leading-tight group-data-[collapsible=icon]:hidden">
+                    <span className="font-semibold tracking-tight">
+                      Pentest Scout
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      Security console
+                    </span>
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    Security console
-                  </span>
-                </span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={item.label}
-                    className="rounded-full"
-                  >
-                    <Link href={item.href} onClick={close}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                      {item.href === "/dashboard/findings" &&
-                        hydrated &&
-                        openCount > 0 && (
-                          <span className="ml-auto text-xs font-medium text-muted-foreground tabular group-data-[collapsible=icon]:hidden">
-                            <span className="sr-only">Open findings: </span>
-                            {openCount}
-                          </span>
-                        )}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Products</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {products.map((product) => {
-                const health = metricsFor(product, findings).health
-                const href = `/dashboard/products/${product.id}`
-                return (
-                  <SidebarMenuItem key={product.id}>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {navItems.map((item) => (
+                  <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === href}
-                      tooltip={product.name}
-                      className="rounded-full group-data-[collapsible=icon]:p-1!"
+                      isActive={isActive(item.href)}
+                      tooltip={item.label}
+                      className="rounded-full"
                     >
-                      <Link href={href} onClick={close}>
-                        <ProductAvatar
-                          id={product.id}
-                          name={product.name}
-                          className="-ml-1 size-6 text-xs group-data-[collapsible=icon]:ml-0"
-                        />
-                        <span className="truncate">{product.name}</span>
-                        <span className="ml-auto inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-                          <span
-                            aria-hidden
-                            className={cn(
-                              "size-2 rounded-full",
-                              HEALTH_DOT[health]
-                            )}
-                          />
-                          <span className="sr-only">Health </span>
-                          {health === "Not started" ? "New" : health}
-                        </span>
+                      <Link href={item.href} onClick={close}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                        {item.href === "/dashboard/findings" &&
+                          hydrated &&
+                          openCount > 0 && (
+                            <span className="ml-auto text-xs font-medium text-muted-foreground tabular group-data-[collapsible=icon]:hidden">
+                              <span className="sr-only">Open findings: </span>
+                              {openCount}
+                            </span>
+                          )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarGroup>
+            <SidebarGroupLabel>Products</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {products.map((product) => {
+                  const health = metricsFor(product, findings).health
+                  const href = `/dashboard/products/${product.id}`
+                  return (
+                    <SidebarMenuItem key={product.id}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === href}
+                        tooltip={product.name}
+                        className="rounded-full group-data-[collapsible=icon]:p-1!"
+                      >
+                        <Link href={href} onClick={close}>
+                          <ProductAvatar
+                            id={product.id}
+                            name={product.name}
+                            className="-ml-1 size-6 text-xs group-data-[collapsible=icon]:ml-0"
+                          />
+                          <span className="truncate">{product.name}</span>
+                          <span className="ml-auto inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
+                            <span
+                              aria-hidden
+                              className={cn(
+                                "size-2 rounded-full",
+                                HEALTH_DOT[health]
+                              )}
+                            />
+                            <span className="sr-only">Health </span>
+                            {health === "Not started" ? "New" : health}
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+
+        <SidebarFooter className="gap-3 group-data-[collapsible=icon]:gap-1">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={isActive(SETTINGS_ITEM.href)}
+                tooltip={SETTINGS_ITEM.label}
+                className="rounded-full"
+              >
+                <Link href={SETTINGS_ITEM.href} onClick={close}>
+                  <SETTINGS_ITEM.icon />
+                  <span>{SETTINGS_ITEM.label}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+          <NavUser />
+        </SidebarFooter>
+      </nav>
     </Sidebar>
   )
 }

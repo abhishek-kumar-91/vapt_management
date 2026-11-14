@@ -115,7 +115,7 @@ export default function SettingsPage() {
           description="Application Security Testing SOP v1.0, as this console enforces it."
           scope="Read only"
         >
-          <ul className="grid gap-3 py-5">
+          <ul className="grid max-w-[62ch] gap-3 py-5 text-sm">
             {SOP_RULES.map((rule) => (
               <li key={rule} className="flex gap-3 text-sm text-pretty">
                 <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">

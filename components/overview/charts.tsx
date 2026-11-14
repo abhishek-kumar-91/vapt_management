@@ -70,6 +70,7 @@ export function FindingsChart({
                 </span>
                 <span
                   className="flex h-3 overflow-hidden rounded-full bg-muted"
+                  role="img"
                   aria-label={`${row.name}: ${SEVERITIES.map((s) => `${row.count[s]} ${s}`).join(", ")}`}
                 >
                   <span

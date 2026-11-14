@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   CheckIcon,
   KeyRoundIcon,
@@ -78,7 +79,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  STICKY_TOOLBAR,
+  useStickyToolbar,
 } from "@/components/ui/table"
+import { Paginated } from "@/components/ui/table-pagination"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   canManageUser,
@@ -113,6 +117,22 @@ type Confirm =
   | { kind: "remove"; user: TeamUser }
 
 export default function UsersPage() {
+  return (
+    <React.Suspense>
+      <UsersView />
+    </React.Suspense>
+  )
+}
+
+function UsersView() {
+  const router = useRouter()
+  const params = useSearchParams()
+  const tab = params.get("tab") === "roles" ? "roles" : "members"
+  const setTab = (next: string) =>
+    router.replace(
+      next === "roles" ? "/dashboard/users?tab=roles" : "/dashboard/users",
+      { scroll: false }
+    )
   const me = useCurrentUser()
   const canView = roleHas(me.role, "user.read")
   const canInvite = MANAGEABLE_ROLES[me.role].length > 0
@@ -125,6 +145,7 @@ export default function UsersPage() {
   const [sheet, setSheet] = React.useState<{ user?: TeamUser } | null>(null)
   const [confirm, setConfirm] = React.useState<Confirm | null>(null)
   const [link, setLink] = React.useState<AccessLink | null>(null)
+  const toolbarRef = useStickyToolbar()
 
   if (!canView) {
     return (
@@ -230,136 +251,180 @@ export default function UsersPage() {
         }
       />
 
-      <Card className="gap-4">
-        <CardHeader className="flex flex-wrap items-center justify-between gap-3">
-          <Tabs
-            className="max-w-full overflow-x-auto"
-            value={view}
-            onValueChange={(v) => setView(v as typeof view)}
-          >
-            <TabsList>
-              <TabsTrigger value="all" className="gap-1.5">
-                All
-                <span className="text-xs text-muted-foreground tabular">
-                  {users.length}
-                </span>
-              </TabsTrigger>
-              {USER_STATUSES.map((s) => (
-                <TabsTrigger key={s} value={s} className="gap-1.5">
-                  {s === "invited" ? "Invited" : STATUS_LABELS[s]}
-                  <span className="text-xs text-muted-foreground tabular">
-                    {counts[s]}
-                  </span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-          <div className="flex w-full flex-wrap gap-2 sm:w-auto">
-            <InputGroup className="w-full sm:w-56">
-              <InputGroupAddon>
-                <SearchIcon />
-              </InputGroupAddon>
-              <InputGroupInput
-                aria-label="Search users"
-                placeholder="Search name or email"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </InputGroup>
-            <Select
-              value={role}
-              onValueChange={(v) => setRole(v as typeof role)}
-            >
-              <SelectTrigger
-                aria-label="Filter by role"
-                className="w-full sm:w-44"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All roles</SelectItem>
-                {roleOptions.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {ROLE_LABELS[r]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent className="px-0">
-          {query.isError ? (
-            <div className="grid justify-items-center gap-3 px-6 py-12 text-center">
-              <p className="text-muted-foreground">{query.error.message}</p>
-              <Button variant="outline" onClick={() => query.refetch()}>
-                <RotateCwIcon data-icon="inline-start" />
-                Try again
-              </Button>
-            </div>
-          ) : (
-            <Table className="min-w-[760px]">
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="pl-6">User</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last sign-in</TableHead>
-                  <TableHead className="pr-6 text-right">
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {query.isPending
-                  ? [0, 1, 2].map((i) => (
-                      <TableRow key={i} className="hover:bg-transparent">
-                        <TableCell className="py-3 pl-6" colSpan={5}>
-                          <div className="flex items-center gap-3">
-                            <Skeleton className="size-9 rounded-full" />
-                            <div className="grid gap-1.5">
-                              <Skeleton className="h-3.5 w-36 rounded-full" />
-                              <Skeleton className="h-3 w-52 rounded-full" />
-                            </div>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  : visible.map((user) => (
-                      <UserRow
-                        key={user.id}
-                        user={user}
-                        isSelf={user.id === me.id}
-                        editable={canManageUser(me, user)}
-                        roles={MANAGEABLE_ROLES[me.role]}
-                        onRole={(next) => changeRole(user, next)}
-                        onEdit={() => setSheet({ user })}
-                        onStatus={(status) => setStatus(user, status)}
-                        onLink={() => accessLink(user)}
-                        onRemove={() => setConfirm({ kind: "remove", user })}
-                      />
-                    ))}
-                {!query.isPending && !visible.length && (
-                  <TableRow className="hover:bg-transparent">
-                    <TableCell
-                      colSpan={5}
-                      className="py-12 text-center text-muted-foreground"
-                    >
-                      {users.length
-                        ? "No users match these filters."
-                        : "No users yet. Invite your team to get started."}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+      <Tabs value={tab} onValueChange={setTab} controls="users-panel">
+        <TabsList variant="line" className="gap-4">
+          <TabsTrigger value="members" className="gap-1.5 px-0">
+            Members
+            <span className="text-xs text-muted-foreground tabular">
+              {users.length}
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="roles" className="px-0">
+            Roles &amp; permissions
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
-      <PermissionsCard
-        users={users}
-        roles={roleOptions.filter((r) => r !== "SUPER_ADMIN")}
-      />
+      <div id="users-panel" className="contents">
+        {tab === "roles" ? (
+          <PermissionsCard
+            users={users}
+            roles={roleOptions.filter((r) => r !== "SUPER_ADMIN")}
+            onPick={(r) => {
+              setRole(r)
+              setView("all")
+              setSearch("")
+              setTab("members")
+            }}
+          />
+        ) : (
+          <Card className="animate-settle gap-1 pt-3">
+            <CardHeader
+              ref={toolbarRef}
+              className={cn(
+                "flex flex-wrap items-center justify-between gap-3",
+                STICKY_TOOLBAR
+              )}
+            >
+              <Tabs
+                controls="users-results"
+                className="max-w-full overflow-x-auto"
+                value={view}
+                onValueChange={(v) => setView(v as typeof view)}
+              >
+                <TabsList>
+                  <TabsTrigger value="all" className="gap-1.5">
+                    All
+                    <span className="text-xs text-muted-foreground tabular">
+                      {users.length}
+                    </span>
+                  </TabsTrigger>
+                  {USER_STATUSES.map((s) => (
+                    <TabsTrigger key={s} value={s} className="gap-1.5">
+                      {s === "invited" ? "Invited" : STATUS_LABELS[s]}
+                      <span className="text-xs text-muted-foreground tabular">
+                        {counts[s]}
+                      </span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+              <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+                <InputGroup className="w-full sm:w-56">
+                  <InputGroupAddon>
+                    <SearchIcon />
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    aria-label="Search users"
+                    placeholder="Search name or email"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </InputGroup>
+                <Select
+                  value={role}
+                  onValueChange={(v) => setRole(v as typeof role)}
+                >
+                  <SelectTrigger
+                    aria-label="Filter by role"
+                    className="w-full sm:w-44"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All roles</SelectItem>
+                    {roleOptions.map((r) => (
+                      <SelectItem key={r} value={r}>
+                        {ROLE_LABELS[r]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardHeader>
+            <CardContent id="users-results" className="px-0">
+              {query.isError ? (
+                <div className="grid justify-items-center gap-3 px-6 py-12 text-center">
+                  <p className="text-muted-foreground">{query.error.message}</p>
+                  <Button variant="outline" onClick={() => query.refetch()}>
+                    <RotateCwIcon data-icon="inline-start" />
+                    Try again
+                  </Button>
+                </div>
+              ) : (
+                <Paginated
+                  items={visible}
+                  resetKey={`${view}|${role}|${q}`}
+                  noun="users"
+                >
+                  {(rows) => (
+                    <Table className="min-w-[760px]">
+                      <TableHeader>
+                        <TableRow className="hover:bg-transparent">
+                          <TableHead className="pl-6">User</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Last sign-in</TableHead>
+                          <TableHead className="pr-6 text-right">
+                            <span className="sr-only">Actions</span>
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {query.isPending
+                          ? [0, 1, 2].map((i) => (
+                              <TableRow
+                                key={i}
+                                className="hover:bg-transparent"
+                              >
+                                <TableCell className="py-3 pl-6" colSpan={5}>
+                                  <div className="flex items-center gap-3">
+                                    <Skeleton className="size-9 rounded-full" />
+                                    <div className="grid gap-1.5">
+                                      <Skeleton className="h-3.5 w-36 rounded-full" />
+                                      <Skeleton className="h-3 w-52 rounded-full" />
+                                    </div>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          : rows.map((user) => (
+                              <UserRow
+                                key={user.id}
+                                user={user}
+                                isSelf={user.id === me.id}
+                                editable={canManageUser(me, user)}
+                                roles={MANAGEABLE_ROLES[me.role]}
+                                onRole={(next) => changeRole(user, next)}
+                                onEdit={() => setSheet({ user })}
+                                onStatus={(status) => setStatus(user, status)}
+                                onLink={() => accessLink(user)}
+                                onRemove={() =>
+                                  setConfirm({ kind: "remove", user })
+                                }
+                              />
+                            ))}
+                        {!query.isPending && !visible.length && (
+                          <TableRow className="hover:bg-transparent">
+                            <TableCell
+                              colSpan={5}
+                              className="py-12 text-center text-muted-foreground"
+                            >
+                              {users.length
+                                ? "No users match these filters."
+                                : "No users yet. Invite your team to get started."}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  )}
+                </Paginated>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       <UserFormSheet
         open={!!sheet}
@@ -583,14 +648,17 @@ function ConfirmDialog({
 function PermissionsCard({
   users,
   roles,
+  onPick,
 }: {
   users: TeamUser[]
   roles: Role[]
+  /** Show the members who hold this role. */
+  onPick: (role: Role) => void
 }) {
   const members = (role: Role) =>
     users.filter((u) => u.role === role && u.status !== "suspended").length
   return (
-    <Card className="gap-4">
+    <Card className="animate-settle gap-4">
       <CardHeader>
         <CardTitle>What each role can do</CardTitle>
         <CardDescription>
@@ -607,9 +675,14 @@ function PermissionsCard({
                 <TableHead key={r} className="w-32 text-center last:pr-6">
                   <span className="grid leading-tight">
                     <span className="text-foreground">{ROLE_LABELS[r]}</span>
-                    <span className="text-xs font-normal text-muted-foreground tabular">
+                    <button
+                      type="button"
+                      onClick={() => onPick(r)}
+                      aria-label={`Show ${ROLE_LABELS[r]} members`}
+                      className="mx-auto rounded-full px-1.5 text-xs font-normal text-muted-foreground tabular underline-offset-4 outline-none hover:text-foreground hover:underline focus-visible:ring-3 focus-visible:ring-ring/30"
+                    >
                       {members(r)} {members(r) === 1 ? "person" : "people"}
-                    </span>
+                    </button>
                   </span>
                 </TableHead>
               ))}

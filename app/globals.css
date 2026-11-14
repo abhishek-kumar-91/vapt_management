@@ -71,7 +71,7 @@
   --muted-foreground: oklch(0.5 0 0);
   --accent: oklch(0.95 0 0);
   --accent-foreground: oklch(0.3 0 0);
-  --destructive: oklch(0.57 0.22 25);
+  --destructive: oklch(0.52 0.21 25);
   --border: oklch(0.915 0 0);
   --input: oklch(0.915 0 0);
   --ring: oklch(0.55 0 0);
@@ -80,7 +80,7 @@
   --chart-3: oklch(0.62 0.13 175);
   --chart-4: oklch(0.75 0.14 75);
   --chart-5: oklch(0.6 0.16 340);
-  --critical: oklch(0.57 0.21 25);
+  --critical: oklch(0.52 0.2 25);
   --high: oklch(0.66 0.17 50);
   --medium: oklch(0.76 0.15 80);
   --low: oklch(0.6 0.13 250);
@@ -138,7 +138,7 @@
   --sidebar-accent-foreground: oklch(0.96 0 0);
   --sidebar-border: oklch(1 0 0 / 9%);
   --sidebar-ring: oklch(0.62 0 0);
-  --sidebar-contrast: oklch(0.145 0 0);
+  --sidebar-contrast: oklch(0.165 0 0);
 }
 
 @layer base {
@@ -156,6 +156,14 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Console: what shows behind overscroll matches the frame, and the page doesn't rubber-band past it. */
+  html:has([data-slot="sidebar-wrapper"]) {
+    background: var(--sidebar);
+    overscroll-behavior-y: none;
+  }
+  html:has([data-appearance="dark-sidebar"]) {
+    background: var(--sidebar-contrast);
   }
   ::selection {
     background: color-mix(in oklch, var(--primary) 22%, transparent);
@@ -310,4 +318,9 @@
 [data-appearance="dark-sidebar"] [data-slot="sidebar-container"] {
   color: var(--sidebar-foreground);
   color-scheme: dark;
+}
+
+/* Dev only: the TanStack Query devtools button sits beside the Next.js dev indicator, clear of the sidebar account. */
+.tsqd-open-btn-container {
+  right: 4.25rem !important;
 }

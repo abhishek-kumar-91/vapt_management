@@ -4,7 +4,8 @@ import type { FindingStatus, Health, Severity } from "@/lib/types"
 
 /** Text + tinted background per semantic tone; colour is always paired with a word. */
 const TONE = {
-  critical: "bg-critical/12 text-critical dark:bg-critical/20",
+  critical:
+    "bg-critical/12 text-critical dark:bg-critical/20 dark:text-[color-mix(in_oklch,var(--critical),white_22%)]",
   high: "bg-high/14 text-[color-mix(in_oklch,var(--high),black_22%)] dark:bg-high/20 dark:text-high",
   medium:
     "bg-medium/20 text-[color-mix(in_oklch,var(--medium),black_42%)] dark:bg-medium/20 dark:text-medium",
@@ -144,7 +145,7 @@ export function SeverityCounts({
           title={`${s}: ${count[s]}`}
           className={cn(
             "inline-flex items-center gap-1 tabular",
-            !count[s] && "text-muted-foreground/60"
+            !count[s] && "text-muted-foreground"
           )}
         >
           <SeverityDot severity={s} className={cn(!count[s] && "opacity-30")} />
