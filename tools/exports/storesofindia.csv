@@ -1,0 +1,8 @@
+Summary,Issue key,Status,Priority,Created,Updated,Resolved,Due Date,Labels,Custom field (Severity)
+Store owner can edit another store's price list,SEC-101,In Fix,High,12/Oct/26 10:30 AM,04/Nov/26 10:30 AM,,,,High
+Weak password policy on store accounts,SEC-102,Closed,Medium,14/Oct/26 10:30 AM,27/Oct/26 10:30 AM,27/Oct/26 10:30 AM,,,Medium
+Invoice download link is guessable,SEC-103,Open,Medium,15/Oct/26 10:30 AM,15/Oct/26 10:30 AM,,,,Medium
+Directory listing enabled on /uploads,SEC-104,Closed,Low,16/Oct/26 10:30 AM,22/Oct/26 10:30 AM,22/Oct/26 10:30 AM,,,Low
+Open redirect in login return URL,SEC-105,Triaged,Medium,02/Nov/26 10:30 AM,03/Nov/26 10:30 AM,,,late-finding,Medium
+Cookie missing SameSite attribute,SEC-106,Open,Low,19/Oct/26 10:30 AM,19/Oct/26 10:30 AM,,,,Low
+Admin API reachable without authentication,SEC-107,Closed,Highest,13/Oct/26 10:30 AM,20/Oct/26 10:30 AM,20/Oct/26 10:30 AM,,,Critical

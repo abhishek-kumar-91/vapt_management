@@ -1,0 +1,56 @@
+[
+  {
+    "date": "2026-11-12",
+    "type": "Progress",
+    "product": "indiandeliverypartners",
+    "text": "Authentication and API areas in testing. 10 of 22 areas tested."
+  },
+  {
+    "date": "2026-11-11",
+    "type": "Finding",
+    "product": "indiandeliverypartners",
+    "text": "High finding SEC-141 raised: partner payout details visible to other partners."
+  },
+  {
+    "date": "2026-11-09",
+    "type": "Escalation",
+    "product": "remplatforms-wallet",
+    "text": "Critical SEC-121 validated and sent to the development lead and Manager the same day."
+  },
+  {
+    "date": "2026-11-09",
+    "type": "Retest",
+    "product": "remplatforms-wallet",
+    "text": "SEC-123 fix deployed to staging, waiting for retest."
+  },
+  {
+    "date": "2026-11-06",
+    "type": "Report",
+    "product": "",
+    "text": "Weekly report sent to the Manager."
+  },
+  {
+    "date": "2026-11-03",
+    "type": "Switch",
+    "product": "reminterns",
+    "text": "Paused at 30% for wallet priority. Handover note written. Resume planned 16 Nov."
+  },
+  {
+    "date": "2026-11-02",
+    "type": "Finding",
+    "product": "storesofindia",
+    "text": "Late finding SEC-105 in a login area tested earlier. Cause recorded, checklist updated."
+  },
+  {
+    "date": "2026-10-23",
+    "type": "Close-out",
+    "product": "storesofindia",
+    "text": "Baseline close-out report issued at 90% coverage."
+  },
+  {
+    "date": "2026-10-20",
+    "type": "Retest",
+    "product": "storesofindia",
+    "text": "Critical SEC-107 fix verified and closed within 7 days."
+  }
+]

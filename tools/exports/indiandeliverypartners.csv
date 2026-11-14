@@ -1,0 +1,5 @@
+Summary,Issue key,Status,Priority,Created,Updated,Resolved,Due Date,Labels,Custom field (Severity)
+Delivery partner can see other partners' payout details,SEC-141,Open,High,11/Nov/26 10:30 AM,11/Nov/26 10:30 AM,,,,High
+OTP is not invalidated after use,SEC-142,Triaged,Medium,11/Nov/26 10:30 AM,12/Nov/26 10:30 AM,,,,Medium
+No rate limit on partner login,SEC-143,Open,Medium,12/Nov/26 10:30 AM,12/Nov/26 10:30 AM,,,,Medium
+X-Content-Type-Options header missing,SEC-144,Open,Low,10/Nov/26 10:30 AM,10/Nov/26 10:30 AM,,,,Low

@@ -1,0 +1,4 @@
+Summary,Issue key,Status,Priority,Created,Updated,Resolved,Due Date,Labels,Custom field (Severity)
+Intern can open another intern's task list,SEC-151,Open,Medium,28/Oct/26 10:30 AM,28/Oct/26 10:30 AM,,,,Medium
+Autocomplete enabled on password field,SEC-152,Open,Low,29/Oct/26 10:30 AM,29/Oct/26 10:30 AM,,,,Low
+Outdated jQuery version in use,SEC-153,Closed,Low,30/Oct/26 10:30 AM,02/Nov/26 10:30 AM,02/Nov/26 10:30 AM,,,Low

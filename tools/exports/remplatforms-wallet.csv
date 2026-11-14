@@ -1,0 +1,9 @@
+Summary,Issue key,Status,Priority,Created,Updated,Resolved,Due Date,Labels,Custom field (Severity)
+Payout amount can be changed after approval,SEC-121,In Fix,Highest,09/Nov/26 10:30 AM,11/Nov/26 10:30 AM,,,,Critical
+User can view another user's transaction history (IDOR),SEC-122,In Fix,High,05/Nov/26 10:30 AM,10/Nov/26 10:30 AM,,,,High
+"OTP can be brute forced, no attempt limit",SEC-123,Ready for Retest,High,04/Nov/26 10:30 AM,09/Nov/26 10:30 AM,,,,High
+No rate limit on login,SEC-124,Open,Medium,03/Nov/26 10:30 AM,03/Nov/26 10:30 AM,,,,Medium
+Error page shows a stack trace,SEC-125,Closed,Medium,03/Nov/26 10:30 AM,06/Nov/26 10:30 AM,06/Nov/26 10:30 AM,,,Medium
+Session stays valid after password change,SEC-126,Open,Medium,06/Nov/26 10:30 AM,06/Nov/26 10:30 AM,,,,Medium
+Content-Security-Policy header missing,SEC-127,Open,Low,04/Nov/26 10:30 AM,04/Nov/26 10:30 AM,,,,Low
+Server version shown in response header,SEC-128,Closed,Low,02/Nov/26 10:30 AM,05/Nov/26 10:30 AM,05/Nov/26 10:30 AM,,,Low

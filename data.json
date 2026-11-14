@@ -1,0 +1,1041 @@
+{
+  "generated": "2026-11-12",
+  "config": {
+    "base": "",
+    "project": "SEC"
+  },
+  "products": {
+    "remplatforms-wallet": {
+      "name": "remplatforms/wallet",
+      "tier": 1,
+      "status": "In progress",
+      "domain": "wallet.example.com",
+      "owner": "Wallet dev lead",
+      "jiraEpic": "SEC-2",
+      "baselineStart": "2026-11-02",
+      "estDays": 10,
+      "lastTested": "2026-11-12",
+      "example": true,
+      "areas": [
+        {
+          "n": "Authentication and login",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-201"
+        },
+        {
+          "n": "Password reset",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-202"
+        },
+        {
+          "n": "OTP and two-factor",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-203"
+        },
+        {
+          "n": "Session management",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-204"
+        },
+        {
+          "n": "Access control (IDOR)",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-205"
+        },
+        {
+          "n": "Privilege escalation",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-206"
+        },
+        {
+          "n": "Input validation and injection",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-207"
+        },
+        {
+          "n": "API authorisation",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-208"
+        },
+        {
+          "n": "Rate limiting and brute force",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-209"
+        },
+        {
+          "n": "Payments and transactions",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-210"
+        },
+        {
+          "n": "Business logic",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-211"
+        },
+        {
+          "n": "File upload",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-212"
+        },
+        {
+          "n": "Error handling",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-213"
+        },
+        {
+          "n": "Security headers",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-214"
+        },
+        {
+          "n": "TLS and cipher settings",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-215"
+        },
+        {
+          "n": "CORS configuration",
+          "hr": false,
+          "s": "In Testing",
+          "j": "SEC-216"
+        },
+        {
+          "n": "Sensitive data exposure",
+          "hr": true,
+          "s": "In Testing",
+          "j": "SEC-217"
+        },
+        {
+          "n": "Admin panel",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-218"
+        },
+        {
+          "n": "Third-party integrations",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-219"
+        },
+        {
+          "n": "Webhooks",
+          "hr": false,
+          "s": "Blocked",
+          "j": "SEC-220"
+        },
+        {
+          "n": "Logging and monitoring",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-221"
+        },
+        {
+          "n": "Dependency review",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-222"
+        },
+        {
+          "n": "Cloud configuration",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-223"
+        },
+        {
+          "n": "KYC and document handling",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-224"
+        }
+      ],
+      "done": {}
+    },
+    "storesofindia": {
+      "name": "storesofindia",
+      "tier": 2,
+      "status": "Baseline complete",
+      "domain": "stores.example.com",
+      "owner": "Stores dev lead",
+      "jiraEpic": "SEC-1",
+      "baselineStart": "2026-10-12",
+      "estDays": 8,
+      "closeout": "2026-10-23",
+      "lastTested": "2026-11-05",
+      "example": true,
+      "areas": [
+        {
+          "n": "Authentication and login",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-301"
+        },
+        {
+          "n": "Password reset",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-302"
+        },
+        {
+          "n": "OTP and two-factor",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-303"
+        },
+        {
+          "n": "Session management",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-304"
+        },
+        {
+          "n": "Access control (IDOR)",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-305"
+        },
+        {
+          "n": "Privilege escalation",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-306"
+        },
+        {
+          "n": "Input validation and injection",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-307"
+        },
+        {
+          "n": "API authorisation",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-308"
+        },
+        {
+          "n": "Rate limiting and brute force",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-309"
+        },
+        {
+          "n": "Payments and transactions",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-310"
+        },
+        {
+          "n": "Business logic",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-311"
+        },
+        {
+          "n": "File upload",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-312"
+        },
+        {
+          "n": "Error handling",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-313"
+        },
+        {
+          "n": "Security headers",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-314"
+        },
+        {
+          "n": "TLS and cipher settings",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-315"
+        },
+        {
+          "n": "CORS configuration",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-316"
+        },
+        {
+          "n": "Sensitive data exposure",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-317"
+        },
+        {
+          "n": "Admin panel",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-318"
+        },
+        {
+          "n": "Third-party integrations",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-319"
+        },
+        {
+          "n": "Webhooks",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-320"
+        }
+      ],
+      "done": {
+        "baseline": "2026-10-23",
+        "dep": "2026-11-05"
+      }
+    },
+    "indiandeliverypartners": {
+      "name": "indiandeliverypartners",
+      "tier": 2,
+      "status": "In progress",
+      "domain": "indiandeliverypartner.com",
+      "owner": "Partner app dev lead",
+      "jiraEpic": "SEC-4",
+      "baselineStart": "2026-11-10",
+      "estDays": 7,
+      "lastTested": "2026-11-12",
+      "example": true,
+      "areas": [
+        {
+          "n": "Authentication and login",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-401"
+        },
+        {
+          "n": "Password reset",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-402"
+        },
+        {
+          "n": "OTP and two-factor",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-403"
+        },
+        {
+          "n": "Session management",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-404"
+        },
+        {
+          "n": "Access control (IDOR)",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-405"
+        },
+        {
+          "n": "Privilege escalation",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-406"
+        },
+        {
+          "n": "Input validation and injection",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-407"
+        },
+        {
+          "n": "API authorisation",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-408"
+        },
+        {
+          "n": "Rate limiting and brute force",
+          "hr": false,
+          "s": "Tested",
+          "j": "SEC-409"
+        },
+        {
+          "n": "Payments and transactions",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-410"
+        },
+        {
+          "n": "Business logic",
+          "hr": false,
+          "s": "In Testing",
+          "j": "SEC-411"
+        },
+        {
+          "n": "File upload",
+          "hr": false,
+          "s": "In Testing",
+          "j": "SEC-412"
+        },
+        {
+          "n": "Error handling",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-413"
+        },
+        {
+          "n": "Security headers",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-414"
+        },
+        {
+          "n": "TLS and cipher settings",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-415"
+        },
+        {
+          "n": "CORS configuration",
+          "hr": false,
+          "s": "Blocked",
+          "j": "SEC-416"
+        },
+        {
+          "n": "Sensitive data exposure",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-417"
+        },
+        {
+          "n": "Admin panel",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-418"
+        },
+        {
+          "n": "Third-party integrations",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-419"
+        },
+        {
+          "n": "Webhooks",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-420"
+        },
+        {
+          "n": "Logging and monitoring",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-421"
+        },
+        {
+          "n": "Dependency review",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-422"
+        }
+      ],
+      "done": {}
+    },
+    "reminterns": {
+      "name": "reminterns",
+      "tier": 2,
+      "status": "Paused",
+      "domain": "interns.example.com",
+      "owner": "Interns dev lead",
+      "jiraEpic": "SEC-3",
+      "baselineStart": "2026-10-26",
+      "estDays": 8,
+      "resumeOn": "2026-11-16",
+      "lastTested": "2026-11-03",
+      "example": true,
+      "areas": [
+        {
+          "n": "Authentication and login",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-501"
+        },
+        {
+          "n": "Password reset",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-502"
+        },
+        {
+          "n": "OTP and two-factor",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-503"
+        },
+        {
+          "n": "Session management",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-504"
+        },
+        {
+          "n": "Access control (IDOR)",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-505"
+        },
+        {
+          "n": "Privilege escalation",
+          "hr": true,
+          "s": "Tested",
+          "j": "SEC-506"
+        },
+        {
+          "n": "Input validation and injection",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-507"
+        },
+        {
+          "n": "API authorisation",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-508"
+        },
+        {
+          "n": "Rate limiting and brute force",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-509"
+        },
+        {
+          "n": "Payments and transactions",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-510"
+        },
+        {
+          "n": "Business logic",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-511"
+        },
+        {
+          "n": "File upload",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-512"
+        },
+        {
+          "n": "Error handling",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-513"
+        },
+        {
+          "n": "Security headers",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-514"
+        },
+        {
+          "n": "TLS and cipher settings",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-515"
+        },
+        {
+          "n": "CORS configuration",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-516"
+        },
+        {
+          "n": "Sensitive data exposure",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-517"
+        },
+        {
+          "n": "Admin panel",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-518"
+        },
+        {
+          "n": "Third-party integrations",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-519"
+        },
+        {
+          "n": "Webhooks",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-520"
+        }
+      ],
+      "done": {}
+    },
+    "remlearners": {
+      "name": "remlearners",
+      "tier": 3,
+      "status": "Not started",
+      "domain": "learners.example.com",
+      "owner": "Learners dev lead",
+      "jiraEpic": "SEC-5",
+      "baselineStart": "2026-11-23",
+      "estDays": 6,
+      "example": true,
+      "areas": [
+        {
+          "n": "Authentication and login",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-601"
+        },
+        {
+          "n": "Password reset",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-602"
+        },
+        {
+          "n": "OTP and two-factor",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-603"
+        },
+        {
+          "n": "Session management",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-604"
+        },
+        {
+          "n": "Access control (IDOR)",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-605"
+        },
+        {
+          "n": "Privilege escalation",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-606"
+        },
+        {
+          "n": "Input validation and injection",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-607"
+        },
+        {
+          "n": "API authorisation",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-608"
+        },
+        {
+          "n": "Rate limiting and brute force",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-609"
+        },
+        {
+          "n": "Payments and transactions",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-610"
+        },
+        {
+          "n": "Business logic",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-611"
+        },
+        {
+          "n": "File upload",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-612"
+        },
+        {
+          "n": "Error handling",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-613"
+        },
+        {
+          "n": "Security headers",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-614"
+        },
+        {
+          "n": "TLS and cipher settings",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-615"
+        },
+        {
+          "n": "CORS configuration",
+          "hr": false,
+          "s": "To Do",
+          "j": "SEC-616"
+        },
+        {
+          "n": "Sensitive data exposure",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-617"
+        },
+        {
+          "n": "Admin panel",
+          "hr": true,
+          "s": "To Do",
+          "j": "SEC-618"
+        }
+      ],
+      "done": {}
+    }
+  },
+  "findings": {
+    "SEC-121": {
+      "product": "remplatforms-wallet",
+      "title": "Payout amount can be changed after approval",
+      "severity": "Critical",
+      "status": "In Fix",
+      "found": "2026-11-09",
+      "due": "2026-11-16",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-122": {
+      "product": "remplatforms-wallet",
+      "title": "User can view another user's transaction history (IDOR)",
+      "severity": "High",
+      "status": "In Fix",
+      "found": "2026-11-05",
+      "due": "2026-12-05",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-123": {
+      "product": "remplatforms-wallet",
+      "title": "OTP can be brute forced, no attempt limit",
+      "severity": "High",
+      "status": "Ready for Retest",
+      "found": "2026-11-04",
+      "due": "2026-12-04",
+      "readyDate": "2026-11-09",
+      "closed": "",
+      "late": false
+    },
+    "SEC-124": {
+      "product": "remplatforms-wallet",
+      "title": "No rate limit on login",
+      "severity": "Medium",
+      "status": "Open",
+      "found": "2026-11-03",
+      "due": "2027-02-01",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-125": {
+      "product": "remplatforms-wallet",
+      "title": "Error page shows a stack trace",
+      "severity": "Medium",
+      "status": "Closed",
+      "found": "2026-11-03",
+      "due": "2027-02-01",
+      "readyDate": "",
+      "closed": "2026-11-06",
+      "late": false
+    },
+    "SEC-126": {
+      "product": "remplatforms-wallet",
+      "title": "Session stays valid after password change",
+      "severity": "Medium",
+      "status": "Open",
+      "found": "2026-11-06",
+      "due": "2027-02-04",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-127": {
+      "product": "remplatforms-wallet",
+      "title": "Content-Security-Policy header missing",
+      "severity": "Low",
+      "status": "Open",
+      "found": "2026-11-04",
+      "due": "",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-128": {
+      "product": "remplatforms-wallet",
+      "title": "Server version shown in response header",
+      "severity": "Low",
+      "status": "Closed",
+      "found": "2026-11-02",
+      "due": "",
+      "readyDate": "",
+      "closed": "2026-11-05",
+      "late": false
+    },
+    "SEC-101": {
+      "product": "storesofindia",
+      "title": "Store owner can edit another store's price list",
+      "severity": "High",
+      "status": "In Fix",
+      "found": "2026-10-12",
+      "due": "2026-11-11",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-102": {
+      "product": "storesofindia",
+      "title": "Weak password policy on store accounts",
+      "severity": "Medium",
+      "status": "Closed",
+      "found": "2026-10-14",
+      "due": "2027-01-12",
+      "readyDate": "",
+      "closed": "2026-10-27",
+      "late": false
+    },
+    "SEC-103": {
+      "product": "storesofindia",
+      "title": "Invoice download link is guessable",
+      "severity": "Medium",
+      "status": "Open",
+      "found": "2026-10-15",
+      "due": "2027-01-13",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-104": {
+      "product": "storesofindia",
+      "title": "Directory listing enabled on /uploads",
+      "severity": "Low",
+      "status": "Closed",
+      "found": "2026-10-16",
+      "due": "",
+      "readyDate": "",
+      "closed": "2026-10-22",
+      "late": false
+    },
+    "SEC-105": {
+      "product": "storesofindia",
+      "title": "Open redirect in login return URL",
+      "severity": "Medium",
+      "status": "Triaged",
+      "found": "2026-11-02",
+      "due": "2027-01-31",
+      "readyDate": "",
+      "closed": "",
+      "late": true
+    },
+    "SEC-106": {
+      "product": "storesofindia",
+      "title": "Cookie missing SameSite attribute",
+      "severity": "Low",
+      "status": "Open",
+      "found": "2026-10-19",
+      "due": "",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-107": {
+      "product": "storesofindia",
+      "title": "Admin API reachable without authentication",
+      "severity": "Critical",
+      "status": "Closed",
+      "found": "2026-10-13",
+      "due": "2026-10-20",
+      "readyDate": "",
+      "closed": "2026-10-20",
+      "late": false
+    },
+    "SEC-141": {
+      "product": "indiandeliverypartners",
+      "title": "Delivery partner can see other partners' payout details",
+      "severity": "High",
+      "status": "Open",
+      "found": "2026-11-11",
+      "due": "2026-12-11",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-142": {
+      "product": "indiandeliverypartners",
+      "title": "OTP is not invalidated after use",
+      "severity": "Medium",
+      "status": "Triaged",
+      "found": "2026-11-11",
+      "due": "2027-02-09",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-143": {
+      "product": "indiandeliverypartners",
+      "title": "No rate limit on partner login",
+      "severity": "Medium",
+      "status": "Open",
+      "found": "2026-11-12",
+      "due": "2027-02-10",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-144": {
+      "product": "indiandeliverypartners",
+      "title": "X-Content-Type-Options header missing",
+      "severity": "Low",
+      "status": "Open",
+      "found": "2026-11-10",
+      "due": "",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-151": {
+      "product": "reminterns",
+      "title": "Intern can open another intern's task list",
+      "severity": "Medium",
+      "status": "Open",
+      "found": "2026-10-28",
+      "due": "2027-01-26",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-152": {
+      "product": "reminterns",
+      "title": "Autocomplete enabled on password field",
+      "severity": "Low",
+      "status": "Open",
+      "found": "2026-10-29",
+      "due": "",
+      "readyDate": "",
+      "closed": "",
+      "late": false
+    },
+    "SEC-153": {
+      "product": "reminterns",
+      "title": "Outdated jQuery version in use",
+      "severity": "Low",
+      "status": "Closed",
+      "found": "2026-10-30",
+      "due": "",
+      "readyDate": "",
+      "closed": "2026-11-02",
+      "late": false
+    }
+  },
+  "events": [
+    {
+      "date": "2026-11-12",
+      "type": "Progress",
+      "product": "indiandeliverypartners",
+      "text": "Authentication and API areas in testing. 10 of 22 areas tested."
+    },
+    {
+      "date": "2026-11-11",
+      "type": "Finding",
+      "product": "indiandeliverypartners",
+      "text": "High finding SEC-141 raised: partner payout details visible to other partners."
+    },
+    {
+      "date": "2026-11-09",
+      "type": "Escalation",
+      "product": "remplatforms-wallet",
+      "text": "Critical SEC-121 validated and sent to the development lead and Manager the same day."
+    },
+    {
+      "date": "2026-11-09",
+      "type": "Retest",
+      "product": "remplatforms-wallet",
+      "text": "SEC-123 fix deployed to staging, waiting for retest."
+    },
+    {
+      "date": "2026-11-06",
+      "type": "Report",
+      "product": "",
+      "text": "Weekly report sent to the Manager."
+    },
+    {
+      "date": "2026-11-03",
+      "type": "Switch",
+      "product": "reminterns",
+      "text": "Paused at 30% for wallet priority. Handover note written. Resume planned 16 Nov."
+    },
+    {
+      "date": "2026-11-02",
+      "type": "Finding",
+      "product": "storesofindia",
+      "text": "Late finding SEC-105 in a login area tested earlier. Cause recorded, checklist updated."
+    },
+    {
+      "date": "2026-10-23",
+      "type": "Close-out",
+      "product": "storesofindia",
+      "text": "Baseline close-out report issued at 90% coverage."
+    },
+    {
+      "date": "2026-10-20",
+      "type": "Retest",
+      "product": "storesofindia",
+      "text": "Critical SEC-107 fix verified and closed within 7 days."
+    }
+  ],
+  "history": [
+    {
+      "date": "2026-10-16",
+      "cov": {
+        "storesofindia": 35
+      }
+    },
+    {
+      "date": "2026-10-23",
+      "cov": {
+        "storesofindia": 85
+      }
+    },
+    {
+      "date": "2026-10-30",
+      "cov": {
+        "storesofindia": 90,
+        "reminterns": 12
+      }
+    },
+    {
+      "date": "2026-11-06",
+      "cov": {
+        "remplatforms-wallet": 33,
+        "storesofindia": 90,
+        "reminterns": 30
+      }
+    }
+  ]
+}
