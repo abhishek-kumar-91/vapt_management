@@ -1,0 +1,90 @@
+---
+title: Your first change
+description: A guided change to an SOP rule, traced from the constant to every screen that uses it.
+---
+
+# Your first change
+
+This walkthrough shows how a rule travels through the code. As an example, it shortens the **High** fix deadline from 30 days to 21 days. You won't usually ship this exact change, but the path is the same for any SOP rule.
+
+## 1. Find the rule
+
+Every SOP number is in `lib/sop.ts`:
+
+```ts title="lib/sop.ts"
+/** Fix deadline in calendar days after validation; Low is due next release. */
+export const SEVERITY_DAYS: Partial<Record<Severity, number>> = {
+  Critical: 7,
+  // highlight-next-line
+  High: 30,
+  Medium: 90,
+}
+```
+
+Low has no entry because its deadline is a release, not a day count. The new-finding form asks for a target release instead.
+
+## 2. Find who reads it
+
+Search for the constant before you change it:
+
+```bash
+grep -rn SEVERITY_DAYS app components lib
+```
+
+There is one reader: `addFinding` in `lib/store.tsx`, which stamps the `due` date when a finding is created.
+
+```ts title="lib/store.tsx"
+const due =
+  values.severity === "Low"
+    ? values.targetRelease || ""
+    : addDays(found, SEVERITY_DAYS[values.severity]!)
+```
+
+From then on, `due` is stored data. `lib/metrics.ts` compares it with today to flag `overdueHigh` (Amber health) and `overdueCritical` (Red health).
+
+## 3. Make the change
+
+```diff title="lib/sop.ts"
+   Critical: 7,
+-  High: 30,
++  High: 21,
+   Medium: 90,
+```
+
+Then update the rule text the Settings page shows to managers. It is a separate string array, so it won't change on its own:
+
+```diff title="lib/sop.ts"
+-  "Fix targets: Critical 7 days; High 30 days; Medium 90 days; Low by the next release.",
++  "Fix targets: Critical 7 days; High 21 days; Medium 90 days; Low by the next release.",
+```
+
+## 4. Keep the offline build in step
+
+`tools/build_data.py` fills in a missing Jira due date with its own table. Change it too, or findings imported from CSV will get the old deadline:
+
+```diff title="tools/build_data.py"
+-SEV_DAYS = {"Critical": 7, "High": 30, "Medium": 90, "Low": 0}
++SEV_DAYS = {"Critical": 7, "High": 21, "Medium": 90, "Low": 0}
+```
+
+## 5. Check it
+
+```bash
+pnpm typecheck && pnpm dev
+```
+
+1. Open a product and choose **Report finding**. Raise a High finding.
+2. Its due date should be 21 days from today.
+3. Open **Settings**. The SOP rules list should show the new text.
+
+:::warning[Existing records keep their dates]
+The `due` dates of findings that already exist, in `data.json` and in each user's `localStorage`, are **not** recalculated. To apply the new rule to existing sample data, rebuild it (`python tools/build_data.py`). Users then need **Reset sample data** from the account menu to see the rebuilt data.
+:::
+
+## What you learned
+
+- SOP numbers live in `lib/sop.ts`. Human-readable rule text lives beside them in `SOP_RULES`.
+- Derived values such as health are computed on every render. Stamped values such as `due` and `retestDue` are written once by store actions.
+- The Python build mirrors some rules, so keep the two in step.
+
+Next, read the [domain model](/concepts/domain-model) to see the data these rules work on.

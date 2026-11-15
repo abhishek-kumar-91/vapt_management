@@ -1,0 +1,107 @@
+---
+title: SOP rules
+description: Every Application Security Testing SOP v1.0 rule the console enforces, and the constant that encodes it.
+---
+
+# SOP rules
+
+Pentest Scout puts the **Application Security Testing SOP v1.0** into code. Each rule on this page has one constant in `lib/sop.ts` and one or more places that enforce it. When the SOP changes, change the constant. Never change the places that use it.
+
+<Source path="lib/sop.ts" />
+
+## Coverage
+
+Coverage is the share of test areas that are **Tested**. Priority coverage applies the same formula to high-risk areas (`hr: true`) only.
+
+```text
+coverage          = round(Tested areas ÷ all areas × 100)
+priorityCoverage  = round(Tested high-risk areas ÷ high-risk areas × 100)
+```
+
+In Testing, Blocked and To Do all count as *not yet tested*. The [close-out meter](/design-system/components#close-out-meter) still shows them as separate segments so a tester can see where the work is:
+
+<CloseoutMeter tested={14} inTesting={2} blocked={2} todo={2} label="Example" />
+
+## Baseline close-out
+
+A product can move to **Baseline complete** or **Continuous** only when `meetsCloseoutCriteria()` passes:
+
+| Criterion | Rule | Constant |
+| --- | --- | --- |
+| Priority coverage | exactly **100%** | none (literal in `metrics.ts`) |
+| Overall coverage | **≥ 80%** | `CLOSEOUT_COVERAGE = 80` |
+| Close-out date | `product.closeout` is set | none |
+| Untested areas | every area that is not Tested has a `reason` or `notes` | none |
+| Finding tickets | every finding for the product passes `isFindingComplete()` | none |
+
+If any criterion fails, `updateProduct` refuses the status change and shows a toast that lists all five. Saving a **close-out report** for a product that passes also stamps `closeout` and `done.baseline` with the report date.
+
+## Fix deadlines
+
+| Severity | Due | Constant |
+| --- | --- | --- |
+| <Badge>Critical</Badge> | 7 calendar days after validation | `SEVERITY_DAYS.Critical` |
+| <Badge>High</Badge> | 30 calendar days | `SEVERITY_DAYS.High` |
+| <Badge>Medium</Badge> | 90 calendar days | `SEVERITY_DAYS.Medium` |
+| <Badge>Low</Badge> | the next release (`targetRelease`) | none |
+
+`due` is stamped once by `addFinding`. Critical and High findings also log an **Escalation** event on the validation date ("escalate the same day").
+
+## Retest turnaround
+
+When a finding moves to **Ready for Retest**, the store stamps `readyDate` and `retestDue = addWorkdays(readyDate, RETEST_WORKDAYS)`. `RETEST_WORKDAYS` is **2**. Working days skip Saturday and Sunday only. There is no holiday calendar.
+
+## Test cycles by tier
+
+`CYCLE_RULES` sets how often each recurring test runs for each tier. `cycleRows(product)` turns these into rows with a *last done* date and a *next due* date.
+
+| Cycle | Key | Tier 1 | Tier 2 | Tier 3 |
+| --- | --- | --- | --- | --- |
+| Baseline test | `baseline` | Yearly | Yearly | Yearly |
+| New-feature security review | `release` | Every release | Every release | Every release |
+| Regression test | `regression` | Monthly | Quarterly | Every 6 months |
+| Authentication retest | `auth` | Quarterly | Every 6 months | Yearly |
+| Dependency scan | `dep` | Weekly | Weekly | Monthly (30 days) |
+| Configuration review | `config` | Quarterly | Every 6 months | Yearly |
+| Product register review | `register` | Monthly | Monthly | Monthly |
+
+The *last done* date is `product.done[key]`. If that is empty, the baseline cycle falls back to `closeout` and then `baselineStart`, and the register cycle falls back to `lastTested`. Event-based cycles (`release`) never have a *next due* date. A non-event cycle whose next date has passed makes the product **Red**.
+
+:::tip[Cycle targets are starting values]
+The SOP asks the Manager to review the cycle targets. Treat `CYCLE_RULES` as configuration that will be tuned.
+:::
+
+## Time-boxing areas
+
+The SOP time-boxes exploratory work. After one day in testing, the tester should change approach. After two days, they should move to another area and record a reason. The console records `startedAt` when an area enters In Testing, and the product's area list shows how many working days each area has spent in testing (`components/products/area-list.tsx`). The reason itself is free text in `reason` or `notes`.
+
+## Guards in the store
+
+These rules are enforced at the moment of change, in `lib/store.tsx`. Each refusal shows a toast that tells the user how to fix it.
+
+| Action | Refused when | Message |
+| --- | --- | --- |
+| Area → **Tested** | `method` is empty or `result` is not `No finding` / `Finding raised` | "Record a method and result first" |
+| Area → **Blocked** | there is no `reason` or `notes` | "Record a blocker reason first" |
+| Area out of **Blocked** | there is no `reason` or `notes` explaining the clearance | "Record why the blocker was cleared…" |
+| Product status change | `switchReason` is empty | "Add the Manager-approved reason first" |
+| Product → Baseline complete / Continuous | close-out criteria fail | "… isn't allowed yet" |
+| Finding → Rejected / Risk Accepted / Won't Fix | no reason given | "… needs a recorded reason" |
+| Request retest | the finding is not **In Fix** | silently ignored (the button is hidden) |
+
+## Risk score
+
+Each product has a risk score, shown in the overview's product table:
+
+```text
+risk = Σ (open findings of severity s × SEVERITY_WEIGHT[s]) × TIER_WEIGHT[tier]
+
+SEVERITY_WEIGHT = { Critical: 10, High: 5, Medium: 2, Low: 0.5 }
+TIER_WEIGHT     = { 1: 3, 2: 2, 3: 1 }
+```
+
+So a Tier 1 product with one open Critical finding and two open Medium findings scores (10 + 2 × 2) × 3 = **42**.
+
+## Reports
+
+The SOP requires daily, weekly, monthly and close-out reports. All four are generated from live records by `lib/reports.ts`. See [Reports](/architecture/reports).

@@ -1,0 +1,69 @@
+---
+title: Project structure
+description: What lives where, and which file owns which responsibility.
+---
+
+# Project structure
+
+Each concern has one home. When you add code, find the file that already owns that concern before you create a new one.
+
+```text
+vapt_management/
+├── app/                      Next.js App Router
+│   ├── layout.tsx            Root: fonts, theme, query client, tooltips, toasts, CSP nonce
+│   ├── page.tsx              Redirects to /login (or an old #p-<id> link to its product)
+│   ├── login/                Sign-in page (no identity provider yet)
+│   ├── api/health/route.ts   Liveness + database reachability
+│   └── dashboard/
+│       ├── layout.tsx        Reads the appearance cookie, renders <ConsoleShell>
+│       ├── page.tsx          Overview: portfolio summary, action queue, product table, charts
+│       ├── findings/         Finding register
+│       ├── products/[id]/    Product detail: areas, findings, cycles, register, history
+│       ├── reports/          Report builder + saved-report archive
+│       ├── activity/         Audit trail
+│       └── settings/         Sectioned settings: appearance, retest routing, data, SOP rules
+├── components/
+│   ├── ui/                   shadcn/ui primitives (radix-luma). Add new ones with the shadcn CLI
+│   ├── overview/             Overview cards and charts
+│   ├── findings/             Finding table, status control, new-finding sheet
+│   ├── products/             Area list, cycle plan, product register
+│   ├── auth/  settings/      Login form and brand panel; appearance picker
+│   └── *.tsx                 Shell pieces: sidebar, header, close-out meter, status badges
+├── lib/
+│   ├── types.ts              Domain types: Product, TestArea, Finding, events, reports
+│   ├── sop.ts                SOP v1.0 constants: statuses, deadlines, cycles, weights
+│   ├── metrics.ts            Pure derivations: coverage, risk, health, close-out checks
+│   ├── dates.ts              ISO date and working-day helpers
+│   ├── reports.ts            Markdown report builders, mailto, downloads
+│   ├── store.tsx             DashboardProvider + every state-changing action
+│   ├── appearance.ts         Shell appearance type and cookie name
+│   └── theme-transition.ts   Circular theme reveal and cross-fade helpers
+├── db/                       Drizzle + Neon (server-only). Schema not designed yet
+├── tools/                    Python data build: Jira CSV → data.json
+├── proxy.ts                  Per-request CSP nonce + security headers (Next 16 "proxy")
+├── data.json                 Bundled sample data the store starts from
+├── PRODUCT.md  DESIGN.md     Product context and the design system of record
+└── docs/                     This Docusaurus site
+```
+
+## Ownership rules
+
+These are the boundaries the codebase already follows. Keep to them.
+
+1. **SOP numbers live in `lib/sop.ts` only.** Deadlines, cycle intervals, the 80% line and the risk weights are all defined there. Nothing else hard-codes a rule. (There is one exception: the offline build script, `tools/build_data.py`, has its own `SEV_DAYS`, so keep the two in step.)
+2. **`lib/metrics.ts` is pure.** It takes products and findings and returns numbers. It has no React, no storage and no side effects, so you can test it in isolation and call it from server code.
+3. **Every mutation goes through `lib/store.tsx`.** Components call `useDashboard().actions.*`. They never write to `localStorage` or reshape `DashboardData` themselves. The store is also where refusals happen ("record a method and result first").
+4. **Server-only code stays server-only.** `db/index.ts` imports `server-only`, so importing it from a client component fails the build. That is intentional.
+5. **UI primitives come from `components/ui/`.** Compose them, and don't fork them. Product-specific status visuals belong in `components/status.tsx`.
+
+## Path aliases
+
+`@/*` maps to the repo root (see `tsconfig.json`), so imports look like:
+
+```ts
+import { metricsFor } from "@/lib/metrics"
+import { CloseoutMeter } from "@/components/closeout-meter"
+import { db } from "@/db"
+```
+
+The docs site in `docs/` is excluded from the app's TypeScript and ESLint configs. It has its own toolchain.

@@ -1,0 +1,56 @@
+---
+title: Contributing
+description: Conventions, checks and the review bar for changes to Pentest Scout.
+---
+
+# Contributing
+
+## Before you write code
+
+- **Read the Next.js 16 guide** in `node_modules/next/dist/docs/` before you write any framework code. APIs and file conventions differ from earlier versions (`proxy.ts`, async `cookies()` and `headers()`, and so on).
+- **Find the owner of the concern.** Look in the [project structure](/getting-started/project-structure) first. Most changes go in an existing file.
+- **Read `PRODUCT.md` and `DESIGN.md`** before you change UI. They record the product's principles and the design system.
+
+## Conventions
+
+| Area | Convention |
+| --- | --- |
+| Formatting | Prettier: no semicolons, double quotes, `trailingComma: es5`, width 80, Tailwind classes sorted (`cn`, `cva` included) |
+| Imports | `@/` alias from the repo root |
+| Components | Client components declare `"use client"`. Server-only modules import `server-only` |
+| Styling | Tailwind with tokens only. No raw hex, no inline colours, no new fonts |
+| Icons | `lucide-react`, one stroke weight |
+| Rules | SOP constants in `lib/sop.ts`, derivations in `lib/metrics.ts`, mutations in `lib/store.tsx` |
+| Copy | The product's language. Controls name their action, and refusals name the fix |
+| Data | Sample data only, labelled as sample. No real findings, credentials or customer data, ever |
+| Comments | Explain *why*. Mark deliberate shortcuts with a `ponytail:` comment that states their limit |
+
+## Checks
+
+```bash
+pnpm typecheck && pnpm lint && pnpm build
+pnpm docs:build      # if you changed docs, or behaviour the docs describe
+```
+
+## Review checklist
+
+- [ ] SOP numbers changed only in `lib/sop.ts` (and in `tools/build_data.py` where it mirrors them)
+- [ ] New state changes go through a store action that validates, refuses with a reason and logs an event
+- [ ] Every severity and health colour is paired with a word or a letter
+- [ ] Tested in light mode, dark mode, at phone width and with the keyboard only
+- [ ] No text below 0.75rem, and tabular numerals on every number
+- [ ] No new third-party origins (the CSP would block them)
+- [ ] The docs page for the behaviour you changed is updated
+
+## Updating these docs
+
+Pages are MDX files in `docs/content/`. The sidebar is defined in `docs/sidebars.ts`. These components are available in any page without an import:
+
+```mdx
+<CloseoutMeter tested={12} inTesting={2} blocked={1} todo={5} label="Example" />
+<Badge>Critical</Badge> <Badge dot>Amber</Badge> <Badge tone="primary">Custom</Badge>
+<Source path="lib/metrics.ts" />
+<SwatchGrid><Swatch name="Ink" token="--primary" preview="s-primary" value="oklch(0.205 0 0)" /></SwatchGrid>
+```
+
+Use Mermaid code fences (` ```mermaid `) for diagrams, and admonitions (`:::note`, `:::tip`, `:::warning`, `:::danger`) for callouts. Document behaviour from the code, not from memory, and give the source file for anything a reader might want to check.
