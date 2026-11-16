@@ -10,7 +10,23 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
+import {
+  Building2Icon,
+  EyeIcon,
+  EyeOffIcon,
+  GlobeIcon,
+  LockKeyholeIcon,
+  MailIcon,
+  UserRoundIcon,
+} from "lucide-react"
+
 import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import {
   Select,
   SelectContent,
@@ -38,6 +54,26 @@ export interface FieldSpec {
   optional?: boolean
   /** Two short fields side by side on wider screens. */
   half?: boolean
+  /** Fixed text shown inside the control before the value (e.g. "/o/" for an address). */
+  prefix?: string
+}
+
+/**
+ * Account pages (size "lg") lift their controls off the page: card surface, hairline border that
+ * firms up on hover, then the ink focus ring every control shares.
+ */
+export const ACCOUNT_SKIN =
+  "border-border bg-card shadow-xs transition-[color,box-shadow,background-color,border-color] duration-200 hover:not-focus-within:not-aria-invalid:border-foreground/20 dark:bg-input/30"
+
+/** On account pages every text field leads with an icon saying what it holds. */
+function leadingIcon(f: FieldSpec): React.ReactNode {
+  if (f.prefix) return undefined
+  if (f.type === "email") return <MailIcon />
+  if (f.type === "password") return <LockKeyholeIcon />
+  if (f.type === "url") return <GlobeIcon />
+  if (f.autoComplete === "name") return <UserRoundIcon />
+  if (f.autoComplete === "organization") return <Building2Icon />
+  return undefined
 }
 
 /** Radix Select can't hold "" as an item value; it stands in for "nothing chosen". */
@@ -94,6 +130,7 @@ function FieldControl({
   size: "default" | "lg"
 }) {
   const [value, setValue] = React.useState(initial)
+  const [reveal, setReveal] = React.useState(false)
   const describedBy =
     [error ? `${id}-error` : "", f.description ? `${id}-desc` : ""]
       .filter(Boolean)
@@ -104,12 +141,13 @@ function FieldControl({
     "aria-describedby": describedBy,
     "aria-required": f.required || undefined,
   }
-  const tall = size === "lg" ? "h-11" : undefined
+  const tall = size === "lg" ? cn("h-11 px-4", ACCOUNT_SKIN) : undefined
 
   let control: React.ReactNode
   if (f.type === "select") {
     const options = f.options ?? []
-    const placeholder = options.find((o) => o.value === "")?.label ?? "Choose one"
+    const placeholder =
+      options.find((o) => o.value === "")?.label ?? "Choose one"
     control = (
       <Select
         value={value === "" ? (f.required ? "" : NONE) : value}
@@ -162,20 +200,60 @@ function FieldControl({
       />
     )
   } else {
-    control = (
-      <Input
-        {...a11y}
-        name={f.name}
-        type={f.type ?? "text"}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        autoComplete={f.autoComplete}
-        placeholder={f.placeholder}
-        maxLength={f.maxLength}
-        spellCheck={f.type === "email" || f.type === "url" ? false : undefined}
-        className={tall}
-      />
-    )
+    const icon = size === "lg" ? leadingIcon(f) : undefined
+    const password = f.type === "password"
+    const input = {
+      ...a11y,
+      name: f.name,
+      type: password ? (reveal ? "text" : "password") : (f.type ?? "text"),
+      value,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setValue(e.target.value),
+      autoComplete: f.autoComplete,
+      placeholder: f.placeholder,
+      maxLength: f.maxLength,
+      spellCheck: f.type === "email" || f.type === "url" ? false : undefined,
+    }
+    control =
+      icon || f.prefix || password ? (
+        <InputGroup
+          className={size === "lg" ? cn("h-11", ACCOUNT_SKIN) : undefined}
+        >
+          {(icon || f.prefix) && (
+            <InputGroupAddon
+              className={cn(
+                "transition-colors duration-200 group-focus-within/input-group:text-foreground",
+                size === "lg" && "pl-4"
+              )}
+            >
+              {icon ?? <span className="font-normal">{f.prefix}</span>}
+            </InputGroupAddon>
+          )}
+          <InputGroupInput
+            {...input}
+            className={
+              size === "lg" ? (icon || f.prefix ? "pr-4" : "px-4") : undefined
+            }
+          />
+          {password && (
+            <InputGroupAddon
+              align="inline-end"
+              className={size === "lg" ? "pr-4" : undefined}
+            >
+              <InputGroupButton
+                size="icon-xs"
+                aria-label={reveal ? "Hide password" : "Show password"}
+                aria-pressed={reveal}
+                onClick={() => setReveal((v) => !v)}
+              >
+                {reveal ? <EyeOffIcon /> : <EyeIcon />}
+              </InputGroupButton>
+            </InputGroupAddon>
+          )}
+        </InputGroup>
+      ) : (
+        <Input {...input} className={tall} />
+      )
   }
 
   return (

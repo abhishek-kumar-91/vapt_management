@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: "Register your company" }
 export default async function SignUpPage() {
   if (await getSession().catch(() => null)) redirect("/dashboard")
   return (
-    <AuthShell>
+    <AuthShell step={0}>
       <AuthHeading title="Register your company">
         Create your account, then add your company and the products you want to
         track. Pentest Scout reviews every company before it goes live.
@@ -21,11 +21,12 @@ export default async function SignUpPage() {
       <ActionForm
         action={signUp}
         size="lg"
+        block
         honeypot
         submitLabel="Create account"
         pendingLabel="Creating account…"
         fields={[
-          { name: "name", label: "Full name", autoComplete: "name", maxLength: 120 },
+          { name: "name", label: "Full name", autoComplete: "name", placeholder: "Jordan Lee", maxLength: 120 },
           {
             name: "email",
             label: "Work email",
@@ -39,12 +40,13 @@ export default async function SignUpPage() {
             label: "Password",
             type: "password",
             autoComplete: "new-password",
+            placeholder: "A long, memorable phrase",
             description: `At least ${PASSWORD_MIN} characters. A short sentence is easy to remember and hard to guess.`,
             maxLength: 128,
           },
         ]}
       />
-      <p className="text-sm text-muted-foreground">
+      <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
         <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">
           Sign in

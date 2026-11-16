@@ -6,9 +6,12 @@ import {
   EyeIcon,
   EyeOffIcon,
   LoaderCircleIcon,
+  LockKeyholeIcon,
 } from "lucide-react"
 
 import { setPassword } from "@/app/set-password/[token]/actions"
+import { ACCOUNT_SKIN } from "@/components/forms/form-fields"
+import { cn } from "@/lib/utils"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -63,7 +66,10 @@ export function SetPasswordForm({
       <FieldGroup className="gap-5">
         <Field data-invalid={state?.field === "password" || undefined}>
           <FieldLabel htmlFor="password">New password</FieldLabel>
-          <InputGroup className="h-11">
+          <InputGroup className={cn("h-11", ACCOUNT_SKIN)}>
+            <InputGroupAddon className="pl-4 transition-colors duration-200 group-focus-within/input-group:text-foreground">
+              <LockKeyholeIcon />
+            </InputGroupAddon>
             <InputGroupInput
               id="password"
               name="password"
@@ -73,7 +79,8 @@ export function SetPasswordForm({
               required
               minLength={PASSWORD_MIN}
               maxLength={PASSWORD_MAX}
-              className="px-4"
+              placeholder="A long, memorable phrase"
+              className="pr-4"
               aria-invalid={state?.field === "password" || undefined}
               aria-describedby="password-help"
             />
@@ -99,7 +106,10 @@ export function SetPasswordForm({
         </Field>
         <Field data-invalid={state?.field === "confirm" || undefined}>
           <FieldLabel htmlFor="confirm">Confirm password</FieldLabel>
-          <InputGroup className="h-11">
+          <InputGroup className={cn("h-11", ACCOUNT_SKIN)}>
+            <InputGroupAddon className="pl-4 transition-colors duration-200 group-focus-within/input-group:text-foreground">
+              <LockKeyholeIcon />
+            </InputGroupAddon>
             <InputGroupInput
               id="confirm"
               name="confirm"
@@ -107,7 +117,8 @@ export function SetPasswordForm({
               autoComplete="new-password"
               required
               maxLength={PASSWORD_MAX}
-              className="px-4"
+              placeholder="Type it once more"
+              className="pr-4"
               aria-invalid={state?.field === "confirm" || undefined}
               aria-describedby={
                 state?.field === "confirm" ? "confirm-error" : undefined

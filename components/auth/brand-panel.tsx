@@ -3,17 +3,28 @@
 import * as React from "react"
 
 import { BrandMark } from "@/components/brand-mark"
+import { cn } from "@/lib/utils"
 
 // The mark's opening sits at -45° (up-right) in its own drawing.
 const GAP_ANGLE = -45
 const TICKS = Array.from({ length: 72 }, (_, i) => i * 5)
 
 /**
- * Left half of the sign-in screen: the keyring mark as an instrument.
+ * Left half of the sign-in and sign-up screens: the keyring mark as an instrument.
  * The open ring scans slowly on its own and turns its opening toward the pointer;
  * a soft lens reveals the dot field under the cursor. Static under reduced motion.
+ * Sign-up pages pass their own heading and the onboarding journey as children.
  */
-export function BrandPanel() {
+export function BrandPanel({
+  title = "Scout every surface. Close every finding.",
+  description = "Plan assessments, track findings through retest and see coverage across every product your team secures.",
+  children,
+}: {
+  title?: string
+  description?: string
+  /** Shown under the copy; when present the dial moves up to make room. */
+  children?: React.ReactNode
+}) {
   const panel = React.useRef<HTMLElement>(null)
   const dial = React.useRef<SVGSVGElement>(null)
   const ring = React.useRef<SVGGElement>(null)
@@ -102,7 +113,7 @@ export function BrandPanel() {
     <section
       ref={panel}
       aria-label="About Pentest Scout"
-      className="relative isolate hidden overflow-hidden rounded-4xl bg-primary p-10 text-white lg:flex lg:flex-col xl:p-12 dark:bg-[oklch(0.22_0_0)] dark:ring-1 dark:ring-white/10"
+      className="relative isolate hidden overflow-hidden rounded-4xl bg-primary p-10 text-white lg:sticky lg:top-2 lg:flex lg:h-[calc(100svh-1rem)] lg:flex-col xl:p-12 dark:bg-[oklch(0.22_0_0)] dark:ring-1 dark:ring-white/10"
     >
       {/* Dot field: faint everywhere, brighter under the pointer's lens. */}
       <div
@@ -118,7 +129,15 @@ export function BrandPanel() {
         ref={dial}
         aria-hidden
         viewBox="-32 -32 128 128"
-        className="pointer-events-none absolute top-[42%] left-1/2 -z-10 aspect-square w-[118%] max-w-none -translate-x-1/2 -translate-y-1/2"
+        className={cn(
+          "pointer-events-none absolute -z-10 aspect-square max-w-none",
+          children
+            ? // Sign-up: the ring's outer edge (23.75 of 128 units from centre, so 31.45% in from
+              // the box edge) sits on the panel's padding lines: its top level with the logo's
+              // top, its right edge mirroring the logo's left margin. Ticks bleed off the corner.
+              "top-10 right-10 w-[90%] translate-x-[31.45%] -translate-y-[31.45%] xl:top-12 xl:right-12"
+            : "top-[42%] left-1/2 w-[118%] -translate-x-1/2 -translate-y-1/2"
+        )}
       >
         <g fill="none" stroke="white">
           <circle
@@ -191,14 +210,21 @@ export function BrandPanel() {
         </div>
       </div>
 
-      <div className="mt-auto grid max-w-lg gap-4 pt-16">
-        <h2 className="text-4xl leading-[1.08] font-semibold tracking-tight text-balance xl:text-5xl">
-          Scout every surface. Close every finding.
-        </h2>
-        <p className="max-w-md text-base text-pretty text-white/70">
-          Plan assessments, track findings through retest and see coverage
-          across every product your team secures.
-        </p>
+      <div className="mt-auto grid max-w-lg gap-10 pt-16 [@media(max-height:860px)]:gap-7">
+        <div className="grid gap-4">
+          <h2
+            className={cn(
+              "leading-[1.08] font-semibold tracking-tight text-balance",
+              children ? "text-3xl xl:text-4xl" : "text-4xl xl:text-5xl"
+            )}
+          >
+            {title}
+          </h2>
+          <p className="max-w-md text-base text-pretty text-white/70">
+            {description}
+          </p>
+        </div>
+        {children}
       </div>
     </section>
   )

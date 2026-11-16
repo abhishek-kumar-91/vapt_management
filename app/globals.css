@@ -262,7 +262,7 @@
   }
   to {
     opacity: 0;
-    transform: scale(2.1);
+    transform: scale(var(--pulse-to, 2.1));
   }
 }
 
@@ -294,6 +294,22 @@
   animation: settle-in 320ms var(--ease-out-expo) both;
 }
 
+/* Onboarding journey: a finished step's connector fills top to bottom. */
+@keyframes draw-down {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@utility animate-draw-down {
+  animation: draw-down 700ms var(--ease-out-expo) both;
+}
+
+/* The current journey step breathes a slow scope ring, the loader's pulse at rest pace. */
+@utility animate-scope-pulse-slow {
+  animation: scope-pulse 2.4s var(--ease-out-expo) 900ms infinite both;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -320,6 +336,7 @@
   .animate-reveal-x,
   .animate-reveal-chart,
   .animate-draw-ring,
+  .animate-draw-down,
   .animate-settle {
     animation-name: fade-in;
     animation-duration: 160ms;
@@ -329,6 +346,10 @@
   /* The loader keeps its 180ms wait (no flash on quick loads), minus the scale. */
   .animate-appear-late {
     animation-name: fade-in;
+  }
+  .animate-scope-pulse-slow {
+    animation: none;
+    opacity: 0;
   }
   /* Dialogs, sheets, menus and popovers (tw-animate-css) fade instead of sliding or zooming. */
   * {
