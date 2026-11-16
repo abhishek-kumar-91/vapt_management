@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { CircleAlertIcon, LoaderCircleIcon } from "lucide-react"
+import { ArrowRightIcon, CircleAlertIcon, LoaderCircleIcon } from "lucide-react"
 
 import { DevLink } from "@/components/auth/dev-link"
 import { FormFields, type FieldSpec } from "@/components/forms/form-fields"
@@ -55,6 +55,7 @@ export function SubmitButton({
   pendingLabel,
   size = "default",
   form,
+  forward = false,
   className,
 }: {
   pending: boolean
@@ -62,6 +63,8 @@ export function SubmitButton({
   pendingLabel: string
   size?: "default" | "lg"
   form?: string
+  /** A step forward on a path (sign-up, onboarding): trailing arrow that nudges on hover. */
+  forward?: boolean
   className?: string
 }) {
   return (
@@ -69,12 +72,18 @@ export function SubmitButton({
       type="submit"
       form={form}
       disabled={pending}
-      className={cn(size === "lg" && "h-11", className)}
+      className={cn(size === "lg" && "h-11", forward && "group/submit", className)}
     >
       {pending && (
         <LoaderCircleIcon className="animate-spin" data-icon="inline-start" />
       )}
       {pending ? pendingLabel : label}
+      {forward && !pending && (
+        <ArrowRightIcon
+          data-icon="inline-end"
+          className="transition-transform duration-300 ease-(--ease-out-expo) group-hover/submit:translate-x-0.5"
+        />
+      )}
     </Button>
   )
 }
@@ -91,6 +100,7 @@ export function ActionForm({
   doneMessage,
   honeypot = false,
   size = "default",
+  block = false,
   className,
   children,
 }: {
@@ -103,6 +113,8 @@ export function ActionForm({
   /** Adds a hidden field only bots fill in. */
   honeypot?: boolean
   size?: "default" | "lg"
+  /** Full-width forward submit, as on sign-in: for pages that move someone along a path. */
+  block?: boolean
   className?: string
   children?: React.ReactNode
 }) {
@@ -147,7 +159,8 @@ export function ActionForm({
           label={submitLabel}
           pendingLabel={pendingLabel}
           size={size}
-          className="w-full sm:w-fit"
+          forward={block}
+          className={block ? "w-full text-base" : "w-full sm:w-fit"}
         />
         {state?.notice && (
           <p role="status" className="text-sm text-muted-foreground">

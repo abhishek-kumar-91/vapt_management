@@ -35,7 +35,7 @@ export const PRODUCT_FIELDS: FieldSpec[] = [
 ]
 
 export const companyFields = (defaults?: Record<string, string>): FieldSpec[] => [
-  { name: "name", label: "Company name", autoComplete: "organization", maxLength: 80, required: true, defaultValue: defaults?.name },
+  { name: "name", label: "Company name", autoComplete: "organization", placeholder: "Acme Inc.", maxLength: 80, required: true, defaultValue: defaults?.name },
   { name: "industry", label: "Industry", type: "select", half: true, required: true, options: choose(INDUSTRIES, "Choose one"), defaultValue: defaults?.industry },
   { name: "size", label: "Company size", type: "select", half: true, required: true, options: choose(COMPANY_SIZES, "Choose one"), defaultValue: defaults?.size },
   { name: "website", label: "Website", type: "url", placeholder: "company.com", maxLength: 200, optional: true, defaultValue: defaults?.website },
@@ -45,6 +45,7 @@ export const SLUG_FIELD: FieldSpec = {
   name: "slug",
   label: "Workspace address",
   placeholder: "acme",
+  prefix: "/o/",
   maxLength: 40,
   description: "Lower-case letters, numbers and dashes. Leave blank to use the company name. It can’t change later.",
 }

@@ -9,9 +9,13 @@ import {
   EyeOffIcon,
   InfoIcon,
   LoaderCircleIcon,
+  LockKeyholeIcon,
+  MailIcon,
 } from "lucide-react"
 
 import { signIn } from "@/app/login/actions"
+import { ACCOUNT_SKIN } from "@/components/forms/form-fields"
+import { cn } from "@/lib/utils"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,7 +25,6 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
 import {
   InputGroup,
   InputGroupAddon,
@@ -93,32 +96,40 @@ export function LoginForm({ next, notice }: { next: string; notice?: string }) {
       <FieldGroup className="gap-5">
         <Field data-invalid={!!errors.email || undefined}>
           <FieldLabel htmlFor="email">Work email</FieldLabel>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="username"
-            autoFocus
-            spellCheck={false}
-            maxLength={254}
-            placeholder="name@company.com"
-            className="h-11 px-4"
-            value={email}
-            aria-invalid={!!errors.email || undefined}
-            aria-describedby={errors.email ? "email-error" : undefined}
-            onChange={(e) => {
-              setEmail(e.target.value)
-              if (localErrors.email)
-                setLocalErrors((v) => ({ ...v, email: undefined }))
-            }}
-          />
+          <InputGroup className={cn("h-11", ACCOUNT_SKIN)}>
+            <InputGroupAddon className="pl-4 transition-colors duration-200 group-focus-within/input-group:text-foreground">
+              <MailIcon />
+            </InputGroupAddon>
+            <InputGroupInput
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="username"
+              autoFocus
+              spellCheck={false}
+              maxLength={254}
+              placeholder="name@company.com"
+              className="pr-4"
+              value={email}
+              aria-invalid={!!errors.email || undefined}
+              aria-describedby={errors.email ? "email-error" : undefined}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                if (localErrors.email)
+                  setLocalErrors((v) => ({ ...v, email: undefined }))
+              }}
+            />
+          </InputGroup>
           {errors.email && (
             <FieldError id="email-error">{errors.email}</FieldError>
           )}
         </Field>
         <Field data-invalid={!!errors.password || undefined}>
           <FieldLabel htmlFor="password">Password</FieldLabel>
-          <InputGroup className="h-11">
+          <InputGroup className={cn("h-11", ACCOUNT_SKIN)}>
+            <InputGroupAddon className="pl-4 transition-colors duration-200 group-focus-within/input-group:text-foreground">
+              <LockKeyholeIcon />
+            </InputGroupAddon>
             <InputGroupInput
               ref={passwordRef}
               id="password"
@@ -126,7 +137,8 @@ export function LoginForm({ next, notice }: { next: string; notice?: string }) {
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               maxLength={128}
-              className="px-4"
+              placeholder="Your password"
+              className="pr-4"
               aria-invalid={!!errors.password || undefined}
               aria-describedby={
                 [errors.password && "password-error", capsLock && "caps-lock"]

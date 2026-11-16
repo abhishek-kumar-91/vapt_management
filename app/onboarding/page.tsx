@@ -91,7 +91,7 @@ export default async function OnboardingPage() {
     if (orgs.length) redirect(`/o/${orgs[0].slug}`)
     const [name, ...rest] = companyFields()
     return (
-      <AuthShell wide aside={<SignOut />}>
+      <AuthShell wide step={1} aside={<SignOut />}>
         <AuthHeading title="Tell us about your company">
           This becomes your company’s workspace on Pentest Scout. You’ll add the products to
           track next, then send it for review.
@@ -99,6 +99,7 @@ export default async function OnboardingPage() {
         <ActionForm
           action={createCompanyAction}
           size="lg"
+          block
           submitLabel="Create company"
           pendingLabel="Creating…"
           fields={[name, SLUG_FIELD, ...rest]}
@@ -149,7 +150,7 @@ export default async function OnboardingPage() {
   ]
 
   return (
-    <AuthShell wide aside={<SignOut />}>
+    <AuthShell wide step={waiting ? 3 : 2} aside={<SignOut />}>
       <AuthHeading title={waiting ? `${org.name} is waiting for review` : `Set up ${org.name}`}>
         {waiting
           ? "Pentest Scout reviews every company before it goes live, and we’ll email you as soon as it’s approved. You can keep editing below."
